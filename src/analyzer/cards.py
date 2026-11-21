@@ -55,10 +55,18 @@ def _row_to_card(row: sqlite3.Row) -> Card:
 
 
 def get_card_by_name(conn: sqlite3.Connection, name: str) -> Card | None:
+    normalized = normalize_name(name)
     row = conn.execute(
         "SELECT * FROM cards WHERE name_normalized = ?",
-        (normalize_name(name),),
+        (normalized,),
     ).fetchone()
+    if row is None:
+        # Cartas de doble cara (MDFC/transform) se guardan como "Cara A // Cara B";
+        # las listas de deck suelen referenciarlas solo por la cara frontal.
+        row = conn.execute(
+            "SELECT * FROM cards WHERE name_normalized LIKE ? LIMIT 1",
+            (f"{normalized} // %",),
+        ).fetchone()
     if row is None:
         return None
     return _row_to_card(row)
