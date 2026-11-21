@@ -85,6 +85,17 @@ def test_ramp_pattern_plain_english_mana_rock():
     assert "ramp" in classify_by_rules(card)
 
 
+def test_curly_brace_mana_ability_on_land_is_not_ramp():
+    card = make_card(
+        "Godless Shrine",
+        oracle_text="(Transforms into a tapped land unless you pay 2 life.)\n{T}: Add {W} or {B}.",
+        type_line="Land",
+    )
+    roles = classify_by_rules(card)
+    assert "land" in roles
+    assert "ramp" not in roles
+
+
 def test_plain_english_mana_ability_on_land_is_not_ramp():
     card = make_card(
         "Command Tower",
@@ -157,3 +168,33 @@ def test_classify_card_without_llm_returns_other_and_does_not_cache():
     roles = classify_card(conn, card, llm_classify=None)
     assert roles == ["other"]
     assert get_cached_roles(conn, card) is None
+
+
+def test_stale_rules_cache_is_ignored_after_a_rules_version_bump():
+    from analyzer import roles as roles_module
+
+    conn = make_db()
+    card = make_card("Sol Ring", oracle_text="{T}: Add {C}{C}.", type_line="Artifact")
+
+    roles_module.ensure_role_cache_table(conn)
+    roles_module._cache_roles(conn, card, ["wrong_role_from_old_rules"], source="rules")
+    # la fila cacheada quedó con una rules_version antigua
+    conn.execute(
+        "UPDATE card_roles SET rules_version = ? WHERE name_normalized = ?",
+        (roles_module.RULES_VERSION - 1, "sol ring"),
+    )
+    conn.commit()
+
+    assert get_cached_roles(conn, card) is None  # se ignora, no es la versión actual
+    assert classify_card(conn, card) == ["ramp"]  # se recalcula con las reglas vigentes
+
+
+def test_llm_sourced_cache_is_not_affected_by_rules_version():
+    from analyzer import roles as roles_module
+
+    conn = make_db()
+    card = make_card("Vanilla Bear", oracle_text="", type_line="Creature — Bear")
+    roles_module.ensure_role_cache_table(conn)
+    roles_module._cache_roles(conn, card, ["synergy"], source="llm")
+
+    assert get_cached_roles(conn, card) == ["synergy"]

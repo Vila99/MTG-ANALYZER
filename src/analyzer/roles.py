@@ -34,13 +34,14 @@ LlmClassifier = Callable[[Card], list[str]]
 _RAMP_PATTERNS = [
     re.compile(r"search your library for .*land card", re.IGNORECASE),
     re.compile(r"you may play an additional land", re.IGNORECASE),
-    re.compile(r"\badd \{", re.IGNORECASE),
 ]
-# Rocas de maná con texto en inglés llano (ej. Arcane Signet: "Add one mana
-# of any color..."). Solo cuentan como ramp si la carta no es una tierra:
-# una tierra que simplemente añade maná no es "ramp".
+# Rocas/dorks de maná (ej. Sol Ring: "Add {C}{C}.", Arcane Signet: "Add one
+# mana of any color..."). Solo cuentan como ramp si la carta no es una
+# tierra: una tierra que simplemente añade maná (duales, triomas...) no es
+# "ramp", solo produce su maná normal.
 _RAMP_NONLAND_PATTERNS = [
     re.compile(r"\badd (one|two|three|x) mana\b", re.IGNORECASE),
+    re.compile(r"\badd \{", re.IGNORECASE),
 ]
 _DRAW_PATTERNS = [
     re.compile(r"draws? (?:\w+ )?cards?\b", re.IGNORECASE),
@@ -104,35 +105,50 @@ def classify_by_rules(card: Card) -> list[str]:
     return roles
 
 
+# Incrementar cada vez que cambien los patrones de classify_by_rules: invalida
+# automáticamente las entradas de caché con source="rules" calculadas con
+# una versión anterior de las reglas (las de source="llm" no se ven afectadas).
+RULES_VERSION = 2
+
+
 def ensure_role_cache_table(conn: sqlite3.Connection) -> None:
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS card_roles (
             name_normalized TEXT PRIMARY KEY,
             roles TEXT NOT NULL,
-            source TEXT NOT NULL
+            source TEXT NOT NULL,
+            rules_version INTEGER
         )
         """
     )
+    columns = {row[1] for row in conn.execute("PRAGMA table_info(card_roles)")}
+    if "rules_version" not in columns:
+        conn.execute("ALTER TABLE card_roles ADD COLUMN rules_version INTEGER")
 
 
 def get_cached_roles(conn: sqlite3.Connection, card: Card) -> list[str] | None:
     row = conn.execute(
-        "SELECT roles FROM card_roles WHERE name_normalized = ?",
+        "SELECT roles, source, rules_version FROM card_roles WHERE name_normalized = ?",
         (normalize_name(card.name),),
     ).fetchone()
     if row is None:
         return None
-    return json.loads(row[0])
+    roles_json, source, rules_version = row
+    if source == "rules" and rules_version != RULES_VERSION:
+        return None
+    return json.loads(roles_json)
 
 
 def _cache_roles(conn: sqlite3.Connection, card: Card, roles: list[str], source: str) -> None:
+    rules_version = RULES_VERSION if source == "rules" else None
     conn.execute(
         """
-        INSERT INTO card_roles (name_normalized, roles, source) VALUES (?, ?, ?)
-        ON CONFLICT(name_normalized) DO UPDATE SET roles=excluded.roles, source=excluded.source
+        INSERT INTO card_roles (name_normalized, roles, source, rules_version) VALUES (?, ?, ?, ?)
+        ON CONFLICT(name_normalized) DO UPDATE SET
+            roles=excluded.roles, source=excluded.source, rules_version=excluded.rules_version
         """,
-        (normalize_name(card.name), json.dumps(roles), source),
+        (normalize_name(card.name), json.dumps(roles), source, rules_version),
     )
     conn.commit()
 
@@ -174,3 +190,17 @@ def classify_cards(
 ) -> dict[str, list[str]]:
     """Clasifica varias cartas de una vez. Devuelve nombre -> roles."""
     return {card.name: classify_card(conn, card, llm_classify) for card in cards}
+
+
+def count_roles(
+    conn: sqlite3.Connection,
+    cards: Iterable[Card],
+    llm_classify: LlmClassifier | None = None,
+) -> dict[str, int]:
+    """Cuenta cuántas cartas (con multiplicidad, ej. tierras básicas repetidas)
+    tienen cada rol."""
+    counts: dict[str, int] = {}
+    for card in cards:
+        for role in classify_card(conn, card, llm_classify):
+            counts[role] = counts.get(role, 0) + 1
+    return counts

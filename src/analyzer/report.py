@@ -6,9 +6,28 @@ from analyzer.cards import Card
 from analyzer import metrics
 
 _COLOR_NAMES = {"W": "Blanco", "U": "Azul", "B": "Negro", "R": "Rojo", "G": "Verde"}
+_ROLE_NAMES = {
+    "land": "Tierras",
+    "ramp": "Ramp",
+    "draw": "Robo de cartas",
+    "removal": "Removal puntual",
+    "wipe": "Wipes",
+    "protection": "Protección",
+    "tutor": "Tutores",
+    "wincon": "Condiciones de victoria",
+    "synergy": "Sinergia",
+    "other": "Sin clasificar",
+}
+_RUBRIC_STATUS_LABEL = {"bajo": "bajo", "ok": "dentro de rango", "alto": "alto"}
 
 
-def render(commanders: list[Card], deck_cards: list[Card], missing: list[str]) -> str:
+def render(
+    commanders: list[Card],
+    deck_cards: list[Card],
+    missing: list[str],
+    role_counts: dict[str, int] | None = None,
+    rubric_status: dict[str, str] | None = None,
+) -> str:
     lines: list[str] = []
 
     lines.append("=== Comandante(s) ===")
@@ -42,6 +61,21 @@ def render(commanders: list[Card], deck_cards: list[Card], missing: list[str]) -
         lines.append(
             f"  {_COLOR_NAMES[color]}: {pips.get(color, 0)} pips / {sources.get(color, 0)} fuentes"
         )
+
+    if role_counts is not None:
+        lines.append("")
+        lines.append("=== Roles (por reglas; 'sin clasificar' puede necesitar revisión con Haiku) ===")
+        for role in ("ramp", "draw", "removal", "wipe", "tutor", "protection", "synergy", "wincon", "other"):
+            count = role_counts.get(role, 0)
+            if count:
+                lines.append(f"  {_ROLE_NAMES[role]}: {count}")
+
+    if rubric_status is not None:
+        lines.append("")
+        lines.append("=== Comparación con el rubric base ===")
+        for role, status in rubric_status.items():
+            count = role_counts.get(role, 0) if role_counts else 0
+            lines.append(f"  {_ROLE_NAMES[role]}: {count} ({_RUBRIC_STATUS_LABEL[status]})")
 
     commander_identity = set()
     for card in commanders:

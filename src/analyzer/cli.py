@@ -10,6 +10,8 @@ from pathlib import Path
 
 from analyzer import cards as cards_module
 from analyzer import report
+from analyzer import roles as roles_module
+from analyzer import rubric
 from analyzer.cards import Card
 from analyzer.parser import ParsedDeck, parse_decklist
 
@@ -39,7 +41,11 @@ def _resolve_cards(
 
 
 def _build_json_summary(
-    commanders: list[Card], deck_cards: list[Card], missing: list[str]
+    commanders: list[Card],
+    deck_cards: list[Card],
+    missing: list[str],
+    role_counts: dict[str, int],
+    rubric_status: dict[str, str],
 ) -> dict:
     from analyzer import metrics
 
@@ -53,6 +59,8 @@ def _build_json_summary(
         "fuentes_mana": metrics.mana_sources(deck_cards),
         "no_legales": [c.name for c in metrics.illegal_cards(deck_cards)],
         "no_encontradas": missing,
+        "roles": role_counts,
+        "rubric": rubric_status,
     }
 
 
@@ -88,13 +96,22 @@ def main(argv: list[str] | None = None) -> int:
     conn = cards_module.connect(args.db)
     try:
         commanders, deck_cards, missing = _resolve_cards(conn, parsed)
+        role_counts = roles_module.count_roles(conn, deck_cards)
     finally:
         conn.close()
 
+    rubric_status = rubric.evaluate_role_counts(role_counts)
+
     if args.json:
-        print(json.dumps(_build_json_summary(commanders, deck_cards, missing), ensure_ascii=False, indent=2))
+        print(
+            json.dumps(
+                _build_json_summary(commanders, deck_cards, missing, role_counts, rubric_status),
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
     else:
-        print(report.render(commanders, deck_cards, missing))
+        print(report.render(commanders, deck_cards, missing, role_counts, rubric_status))
 
     return 2 if missing else 0
 
