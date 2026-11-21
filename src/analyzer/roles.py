@@ -1,0 +1,176 @@
+"""Clasificación de cartas por rol: reglas sobre el texto oracle, con Haiku
+como respaldo (solo cuando las reglas no deciden) y caché en SQLite.
+
+Una carta puede tener varios roles. ``classify_card`` es la función
+principal: primero mira la caché, luego las reglas y, si las reglas no
+encuentran nada, delega en la función de clasificación por LLM que se le
+pase (ver ``analyzer.llm.classify_card_with_haiku``).
+"""
+
+from __future__ import annotations
+
+import json
+import re
+import sqlite3
+from collections.abc import Callable, Iterable
+
+from analyzer.cards import Card, normalize_name
+
+ROLES = (
+    "land",
+    "ramp",
+    "draw",
+    "removal",
+    "wipe",
+    "protection",
+    "tutor",
+    "wincon",
+    "synergy",
+    "other",
+)
+
+LlmClassifier = Callable[[Card], list[str]]
+
+_RAMP_PATTERNS = [
+    re.compile(r"search your library for .*land card", re.IGNORECASE),
+    re.compile(r"you may play an additional land", re.IGNORECASE),
+    re.compile(r"\badd \{", re.IGNORECASE),
+]
+# Rocas de maná con texto en inglés llano (ej. Arcane Signet: "Add one mana
+# of any color..."). Solo cuentan como ramp si la carta no es una tierra:
+# una tierra que simplemente añade maná no es "ramp".
+_RAMP_NONLAND_PATTERNS = [
+    re.compile(r"\badd (one|two|three|x) mana\b", re.IGNORECASE),
+]
+_DRAW_PATTERNS = [
+    re.compile(r"draws? (?:\w+ )?cards?\b", re.IGNORECASE),
+]
+_PT_MODIFIER = r"-(?:\d+|x)/-(?:\d+|x)"
+_WIPE_PATTERNS = [
+    re.compile(r"destroy all creatures", re.IGNORECASE),
+    re.compile(r"destroy each creature", re.IGNORECASE),
+    re.compile(rf"each creature gets? {_PT_MODIFIER}", re.IGNORECASE),
+    re.compile(rf"all creatures get {_PT_MODIFIER}", re.IGNORECASE),
+    re.compile(r"deals? \d+ damage to each creature", re.IGNORECASE),
+]
+_REMOVAL_PATTERNS = [
+    re.compile(r"destroy target (creature|permanent|artifact|enchantment|planeswalker)", re.IGNORECASE),
+    re.compile(r"exile target (creature|permanent|artifact|enchantment|planeswalker)", re.IGNORECASE),
+    re.compile(rf"target creature gets {_PT_MODIFIER}", re.IGNORECASE),
+    re.compile(r"deals? \d+ damage to target (creature|player|any target)", re.IGNORECASE),
+    re.compile(r"put target creature.*(library|graveyard)", re.IGNORECASE),
+    re.compile(r"return target .*to (its|their) owner's hand", re.IGNORECASE),
+]
+_PROTECTION_PATTERNS = [
+    re.compile(r"hexproof", re.IGNORECASE),
+    re.compile(r"indestructible", re.IGNORECASE),
+    re.compile(r"protection from", re.IGNORECASE),
+    re.compile(r"can't be countered", re.IGNORECASE),
+    re.compile(r"\bshroud\b", re.IGNORECASE),
+]
+_TUTOR_PATTERNS = [
+    re.compile(r"search your library for a card", re.IGNORECASE),
+    re.compile(
+        r"search your library for an? (artifact|creature|enchantment|instant|sorcery|planeswalker)",
+        re.IGNORECASE,
+    ),
+]
+
+
+def classify_by_rules(card: Card) -> list[str]:
+    """Clasifica una carta por patrones de texto. Devuelve ``[]`` si ninguna
+    regla encaja (la carta queda pendiente del respaldo de Haiku)."""
+    roles: list[str] = []
+    if card.is_land:
+        roles.append("land")
+
+    text = card.oracle_text or ""
+
+    if any(p.search(text) for p in _RAMP_PATTERNS):
+        roles.append("ramp")
+    elif not card.is_land and any(p.search(text) for p in _RAMP_NONLAND_PATTERNS):
+        roles.append("ramp")
+    if any(p.search(text) for p in _DRAW_PATTERNS):
+        roles.append("draw")
+    if any(p.search(text) for p in _WIPE_PATTERNS):
+        roles.append("wipe")
+    elif any(p.search(text) for p in _REMOVAL_PATTERNS):
+        roles.append("removal")
+    if any(p.search(text) for p in _PROTECTION_PATTERNS):
+        roles.append("protection")
+    if "ramp" not in roles and any(p.search(text) for p in _TUTOR_PATTERNS):
+        roles.append("tutor")
+
+    return roles
+
+
+def ensure_role_cache_table(conn: sqlite3.Connection) -> None:
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS card_roles (
+            name_normalized TEXT PRIMARY KEY,
+            roles TEXT NOT NULL,
+            source TEXT NOT NULL
+        )
+        """
+    )
+
+
+def get_cached_roles(conn: sqlite3.Connection, card: Card) -> list[str] | None:
+    row = conn.execute(
+        "SELECT roles FROM card_roles WHERE name_normalized = ?",
+        (normalize_name(card.name),),
+    ).fetchone()
+    if row is None:
+        return None
+    return json.loads(row[0])
+
+
+def _cache_roles(conn: sqlite3.Connection, card: Card, roles: list[str], source: str) -> None:
+    conn.execute(
+        """
+        INSERT INTO card_roles (name_normalized, roles, source) VALUES (?, ?, ?)
+        ON CONFLICT(name_normalized) DO UPDATE SET roles=excluded.roles, source=excluded.source
+        """,
+        (normalize_name(card.name), json.dumps(roles), source),
+    )
+    conn.commit()
+
+
+def classify_card(
+    conn: sqlite3.Connection,
+    card: Card,
+    llm_classify: LlmClassifier | None = None,
+) -> list[str]:
+    """Clasifica una carta por rol: caché -> reglas -> Haiku como respaldo.
+
+    Si las reglas no deciden nada y no se pasa ``llm_classify``, devuelve
+    ``["other"]`` sin guardarlo en caché, para que una ejecución futura con
+    el respaldo de Haiku disponible pueda clasificarla de verdad.
+    """
+    ensure_role_cache_table(conn)
+
+    cached = get_cached_roles(conn, card)
+    if cached is not None:
+        return cached
+
+    roles = classify_by_rules(card)
+    if roles:
+        _cache_roles(conn, card, roles, source="rules")
+        return roles
+
+    if llm_classify is not None:
+        roles = llm_classify(card) or ["other"]
+        _cache_roles(conn, card, roles, source="llm")
+        return roles
+
+    return ["other"]
+
+
+def classify_cards(
+    conn: sqlite3.Connection,
+    cards: Iterable[Card],
+    llm_classify: LlmClassifier | None = None,
+) -> dict[str, list[str]]:
+    """Clasifica varias cartas de una vez. Devuelve nombre -> roles."""
+    return {card.name: classify_card(conn, card, llm_classify) for card in cards}
