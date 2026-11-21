@@ -79,6 +79,20 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--db", type=Path, default=cards_module.DEFAULT_DB_PATH, help="Ruta a data/cards.db"
     )
+    parser.add_argument(
+        "--ai",
+        action="store_true",
+        help="Pide a Claude el análisis completo del deck (requiere ANTHROPIC_API_KEY)",
+    )
+    parser.add_argument(
+        "--style", choices=["casual", "focused", "cedh"], default="casual", help="Estilo del deck (con --ai)"
+    )
+    parser.add_argument(
+        "--allow-combos", action="store_true", help="Permite sugerir combos (con --ai)"
+    )
+    parser.add_argument(
+        "--avoid", action="append", default=[], help="Carta o mecánica a evitar (con --ai; se puede repetir)"
+    )
     args = parser.parse_args(argv)
 
     if not args.deck_file.exists():
@@ -97,21 +111,49 @@ def main(argv: list[str] | None = None) -> int:
     try:
         commanders, deck_cards, missing = _resolve_cards(conn, parsed)
         role_counts = roles_module.count_roles(conn, deck_cards)
+        card_roles = roles_module.classify_cards(conn, deck_cards) if args.ai else {}
     finally:
         conn.close()
 
     rubric_status = rubric.evaluate_role_counts(role_counts)
 
+    analysis: dict | None = None
+    if args.ai:
+        from analyzer import llm
+        from analyzer import validate
+
+        try:
+            client = llm.get_client()
+        except RuntimeError as exc:
+            print(str(exc), file=sys.stderr)
+            return 1
+
+        params = {
+            "bracket": args.bracket,
+            "budget": args.budget,
+            "style": args.style,
+            "allow_combos": args.allow_combos,
+            "avoid": args.avoid,
+        }
+        payload = llm.build_analysis_payload(commanders, deck_cards, card_roles, params)
+        analysis = llm.analyze_deck(client, payload)
+
+        conn = cards_module.connect(args.db)
+        try:
+            analysis = validate.validate_analysis(conn, analysis, commanders, deck_cards)
+        finally:
+            conn.close()
+
     if args.json:
-        print(
-            json.dumps(
-                _build_json_summary(commanders, deck_cards, missing, role_counts, rubric_status),
-                ensure_ascii=False,
-                indent=2,
-            )
-        )
+        summary = _build_json_summary(commanders, deck_cards, missing, role_counts, rubric_status)
+        if analysis is not None:
+            summary["analisis"] = analysis
+        print(json.dumps(summary, ensure_ascii=False, indent=2))
     else:
         print(report.render(commanders, deck_cards, missing, role_counts, rubric_status))
+        if analysis is not None:
+            print()
+            print(report.render_analysis(analysis))
 
     return 2 if missing else 0
 

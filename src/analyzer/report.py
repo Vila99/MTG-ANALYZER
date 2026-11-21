@@ -102,3 +102,45 @@ def render(
             lines.append(f"  - {name}")
 
     return "\n".join(lines)
+
+
+def render_analysis(analysis: dict) -> str:
+    """Formatea el análisis de Claude (ya validado) para la terminal."""
+    lines: list[str] = []
+
+    lines.append("=== Análisis de Claude ===")
+    lines.append(f"Estrategia detectada: {analysis.get('estrategia_detectada', '')}")
+    lines.append(f"Arquetipo: {analysis.get('arquetipo', '')}")
+
+    puntos_fuertes = analysis.get("puntos_fuertes") or []
+    if puntos_fuertes:
+        lines.append("")
+        lines.append("Puntos fuertes:")
+        for punto in puntos_fuertes:
+            lines.append(f"  - {punto}")
+
+    problemas = analysis.get("problemas") or []
+    if problemas:
+        lines.append("")
+        lines.append("Problemas detectados:")
+        for problema in problemas:
+            lines.append(
+                f"  [{problema['severidad']}] {problema['categoria']}: {problema['explicacion']}"
+            )
+
+    cortes = analysis.get("cortes_sugeridos") or []
+    if cortes:
+        lines.append("")
+        lines.append("Cortes sugeridos:")
+        for cut in cortes:
+            lines.append(f"  - {cut['carta']}: {cut['motivo']}")
+
+    añadidos = analysis.get("añadidos_sugeridos") or []
+    if añadidos:
+        lines.append("")
+        lines.append("Añadidos sugeridos:")
+        for addition in añadidos:
+            reemplazo = f" (reemplaza a {addition['reemplaza_a']})" if addition.get("reemplaza_a") else ""
+            lines.append(f"  - {addition['carta']} [{addition['rol']}]{reemplazo}: {addition['motivo']}")
+
+    return "\n".join(lines)
