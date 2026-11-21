@@ -1,0 +1,41 @@
+# Deck de ejemplo (no exhaustivo) para probar el parser y el CLI.
+# No pretende ser una lista 100% legal/completa de 100 cartas.
+
+Commander:
+1 Atraxa, Praetors' Voice
+
+Deck:
+1 Sol Ring
+1 Arcane Signet
+1 Fellwar Stone
+1 Mind Stone
+1 Rhystic Study
+1 Mystic Remora
+1 Phyrexian Arena
+1 Sign in Blood
+1 Swords to Plowshares
+1 Path to Exile
+1 Vindicate
+1 Anguished Unmaking
+1 Beast Within
+1 Toxic Deluge
+1 Cyclonic Rift
+1 Vampiric Tutor
+1 Mystical Tutor
+1 Lightning Greaves
+1 Swiftfoot Boots
+1 Solemn Simulacrum
+1 Eternal Witness
+1 Reclamation Sage
+1 Command Tower
+1 Path of Ancestry
+1 Hallowed Fountain
+1 Watery Grave
+1 Overgrown Tomb
+1 Temple Garden
+1 Godless Shrine
+1 Breeding Pool
+6 Forest
+6 Island
+6 Plains
+6 Swamp
