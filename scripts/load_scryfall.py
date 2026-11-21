@@ -11,6 +11,8 @@ de 50-100 ms y enviar un User-Agent propio.
 
 from __future__ import annotations
 
+import gzip
+import io
 import json
 import sqlite3
 from pathlib import Path
@@ -47,15 +49,17 @@ def _get_bulk_data_url(session: requests.Session) -> str:
     resp.raise_for_status()
     for entry in resp.json()["data"]:
         if entry["type"] == "oracle_cards":
-            return entry["download_uri"]
+            return entry["jsonl_download_uri"]
     raise RuntimeError("No se encontró el bulk data 'oracle_cards' en la respuesta de Scryfall")
 
 
 def download_oracle_cards(session: requests.Session) -> list[dict]:
+    """Descarga el archivo .jsonl.gz de 'oracle_cards' y lo devuelve como lista de dicts."""
     url = _get_bulk_data_url(session)
     resp = session.get(url, timeout=180)
     resp.raise_for_status()
-    return resp.json()
+    with gzip.GzipFile(fileobj=io.BytesIO(resp.content)) as gz:
+        return [json.loads(line) for line in gz if line.strip()]
 
 
 def _normalize_name(name: str) -> str:
