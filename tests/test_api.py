@@ -146,6 +146,31 @@ def test_analyze_does_not_duplicate_commander_already_in_deck_text(client: TestC
     assert response.json()["comandantes"] == ["Atraxa, Praetors' Voice"]
 
 
+def test_analyze_resolves_partial_commander_name_instead_of_losing_it(client: TestClient):
+    # Bug real: si el campo "Comandante" no coincide letra por letra con el
+    # nombre de Scryfall, antes se perdía el comandante por completo y el
+    # deck quedaba "sin comandante" en el análisis.
+    response = client.post(
+        "/analyze",
+        json={"deck_text": "Deck:\n1 Sol Ring\n", "commander": "Atraxa"},
+    )
+    assert response.status_code == 200
+    assert response.json()["comandantes"] == ["Atraxa, Praetors' Voice"]
+
+
+def test_analyze_includes_cartas_por_rol_without_ai(client: TestClient):
+    response = client.post(
+        "/analyze",
+        json={"deck_text": "Deck:\n1 Sol Ring\n2 Forest\n"},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert "ramp" in body["cartas_por_rol"]
+    assert "Sol Ring" in body["cartas_por_rol"]["ramp"]
+    assert "land" in body["cartas_por_rol"]
+    assert "Forest" in body["cartas_por_rol"]["land"]
+
+
 def test_analyze_reports_missing_cards(client: TestClient):
     response = client.post("/analyze", json={"deck_text": "Deck:\n1 Totally Fake Card\n"})
     assert response.status_code == 200

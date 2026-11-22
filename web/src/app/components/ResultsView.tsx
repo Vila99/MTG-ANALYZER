@@ -8,7 +8,7 @@ import {
   CorteSugerido,
   ROLE_LABELS,
 } from "../types";
-import { SingleSeriesBarChart } from "./SingleSeriesBarChart";
+import { BarDatum, SingleSeriesBarChart } from "./SingleSeriesBarChart";
 
 const RUBRIC_ORDER = ["land", "ramp", "draw", "removal", "wipe"];
 const STATUS_LABEL: Record<string, string> = { bajo: "Bajo", ok: "Dentro de rango", alto: "Alto" };
@@ -18,6 +18,19 @@ const STATUS_COLOR_VAR: Record<string, string> = {
   alto: "var(--status-critical)",
 };
 const CONFIANZA_LABEL: Record<string, string> = { alta: "Alta", media: "Media", baja: "Baja" };
+const SEVERITY_ORDER: Record<string, number> = { alta: 0, media: 1, baja: 2 };
+const SEVERITY_COLOR_VAR: Record<string, string> = {
+  alta: "var(--status-critical)",
+  media: "var(--status-warning)",
+  baja: "var(--ink-muted)",
+};
+
+interface HoverTarget {
+  name: string;
+  rect: DOMRect;
+}
+
+type HoverHandler = (name: string | null, el: HTMLElement | null) => void;
 
 function StatTile({ label, value }: { label: string; value: string | number }) {
   return (
@@ -48,8 +61,8 @@ function escapeRegExp(value: string): string {
 }
 
 /** Subraya los nombres de carta conocidos dentro de un texto libre; al pasar
- * el cursor por encima, avisa a `onHover` para que el panel de vista previa
- * muestre la imagen real de Scryfall. */
+ * el cursor por encima, avisa con el elemento para que una vista previa
+ * flotante se posicione justo ahí (como un tooltip, no un panel aparte). */
 function HighlightedText({
   text,
   cardImages,
@@ -57,7 +70,7 @@ function HighlightedText({
 }: {
   text: string;
   cardImages: Record<string, string>;
-  onHover: (name: string | null) => void;
+  onHover: HoverHandler;
 }) {
   const names = Object.keys(cardImages).sort((a, b) => b.length - a.length);
   if (names.length === 0) {
@@ -72,8 +85,8 @@ function HighlightedText({
           <span
             key={i}
             className="underline-card"
-            onMouseEnter={() => onHover(part)}
-            onMouseLeave={() => onHover(null)}
+            onMouseEnter={(e) => onHover(part, e.currentTarget)}
+            onMouseLeave={() => onHover(null, null)}
           >
             {part}
           </span>
@@ -85,36 +98,37 @@ function HighlightedText({
   );
 }
 
-function CardPreviewPanel({
-  hoveredCard,
+/** Tooltip flotante que sigue a la carta subrayada que se está mirando, en
+ * vez de vivir fijo en una columna aparte. */
+function FloatingCardPreview({
+  target,
   cardImages,
 }: {
-  hoveredCard: string | null;
+  target: HoverTarget | null;
   cardImages: Record<string, string>;
 }) {
-  const imageUrl = hoveredCard ? cardImages[hoveredCard] : undefined;
+  if (!target) return null;
+  const imageUrl = cardImages[target.name];
+  if (!imageUrl) return null;
+
+  const width = 220;
+  const height = Math.round((width * 7) / 5);
+  const margin = 12;
+  let left = target.rect.left;
+  let top = target.rect.bottom + 8;
+  if (typeof window !== "undefined") {
+    if (left + width > window.innerWidth - margin) left = window.innerWidth - width - margin;
+    if (left < margin) left = margin;
+    if (top + height > window.innerHeight - margin) top = target.rect.top - height - 8;
+  }
+
   return (
     <div
-      className="sticky top-4 flex flex-col gap-2 rounded-sm border p-4"
-      style={{ borderColor: "var(--border)", background: "var(--surface)", boxShadow: "0 8px 20px rgba(0,0,0,0.12)" }}
+      className="pointer-events-none fixed z-50 overflow-hidden rounded-sm border"
+      style={{ left, top, width, borderColor: "var(--border)", boxShadow: "0 14px 32px rgba(0,0,0,0.4)" }}
     >
-      <SectionLabel color="var(--ink-muted)">Vista previa</SectionLabel>
-      <div
-        className="flex w-full items-center justify-center overflow-hidden rounded-sm border"
-        style={{ aspectRatio: "5/7", borderColor: "var(--border)", background: "var(--surface-muted)" }}
-      >
-        {imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- imagen externa de Scryfall, sin dominio fijo
-          <img src={imageUrl} alt={hoveredCard ?? ""} className="h-full w-full object-cover" />
-        ) : (
-          <span className="px-3 text-center text-xs" style={{ color: "var(--ink-muted)" }}>
-            Pasa el cursor sobre una carta subrayada
-          </span>
-        )}
-      </div>
-      <p className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
-        {hoveredCard ?? ""}
-      </p>
+      {/* eslint-disable-next-line @next/next/no-img-element -- imagen externa de Scryfall */}
+      <img src={imageUrl} alt={target.name} className="h-full w-full object-cover" style={{ aspectRatio: "5/7" }} />
     </div>
   );
 }
@@ -125,8 +139,7 @@ interface SwapPair {
 }
 
 /** Empareja cada añadido con el corte al que sustituye (por `reemplaza_a`),
- * para mostrar "Corta X -> Añade Y" en vez de dos listas sueltas. Los
- * cortes y añadidos sin pareja se muestran solos. */
+ * para mostrar "Corta X -> Añade Y" en vez de dos listas sueltas. */
 function pairCutsAndAdditions(cuts: CorteSugerido[], additions: AñadidoSugerido[]): SwapPair[] {
   const usedCutNames = new Set<string>();
   const pairs: SwapPair[] = [];
@@ -152,18 +165,20 @@ function pairCutsAndAdditions(cuts: CorteSugerido[], additions: AñadidoSugerido
 
 function SwapCard({
   pair,
+  cardImages,
   onHover,
 }: {
   pair: SwapPair;
-  onHover: (name: string | null) => void;
+  cardImages: Record<string, string>;
+  onHover: HoverHandler;
 }) {
   return (
     <div className="flex flex-wrap items-center gap-4 p-4" style={{ background: "var(--surface)" }}>
       {pair.cut && (
         <div
           className="underline-card flex-shrink-0 text-center"
-          onMouseEnter={() => onHover(pair.cut!.carta)}
-          onMouseLeave={() => onHover(null)}
+          onMouseEnter={(e) => onHover(pair.cut!.carta, e.currentTarget)}
+          onMouseLeave={() => onHover(null, null)}
         >
           <div className="font-head text-[10px] font-extrabold uppercase" style={{ color: "var(--status-critical)" }}>
             Corta
@@ -181,8 +196,8 @@ function SwapCard({
       {pair.addition && (
         <div
           className="underline-card flex-shrink-0 text-center"
-          onMouseEnter={() => onHover(pair.addition!.carta)}
-          onMouseLeave={() => onHover(null)}
+          onMouseEnter={(e) => onHover(pair.addition!.carta, e.currentTarget)}
+          onMouseLeave={() => onHover(null, null)}
         >
           <div className="font-head text-[10px] font-extrabold uppercase" style={{ color: "var(--status-good)" }}>
             Añade
@@ -195,49 +210,163 @@ function SwapCard({
           </div>
         </div>
       )}
-      <p className="min-w-[220px] flex-1 text-sm" style={{ color: "var(--foreground)" }}>
-        {pair.addition?.motivo ?? pair.cut?.motivo}
+      <p className="min-w-[220px] flex-1 text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
+        <HighlightedText text={pair.addition?.motivo ?? pair.cut?.motivo ?? ""} cardImages={cardImages} onHover={onHover} />
       </p>
     </div>
   );
 }
 
-export function ResultsView({ result }: { result: AnalyzeResponse }) {
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-  const cardImages = result.card_images ?? {};
+function RoleCardGallery({
+  roleLabel,
+  cardNames,
+  cardImages,
+  onClose,
+}: {
+  roleLabel: string;
+  cardNames: string[];
+  cardImages: Record<string, string>;
+  onClose: () => void;
+}) {
+  return (
+    <div className="rounded-sm border p-4 sm:col-span-2" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="font-head text-xs font-extrabold uppercase tracking-wide" style={{ color: "var(--ink-muted)" }}>
+          Cartas en &quot;{roleLabel}&quot; ({cardNames.length})
+        </h3>
+        <button
+          type="button"
+          onClick={onClose}
+          className="font-head text-xs font-bold"
+          style={{ color: "var(--ink-muted)" }}
+        >
+          Cerrar ✕
+        </button>
+      </div>
+      <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
+        {cardNames.map((name) => (
+          <div key={name} className="flex flex-col gap-1">
+            <div
+              className="overflow-hidden rounded-sm border"
+              style={{ aspectRatio: "5/7", borderColor: "var(--border)", background: "var(--surface-muted)" }}
+            >
+              {cardImages[name] ? (
+                // eslint-disable-next-line @next/next/no-img-element -- imagen externa de Scryfall
+                <img src={cardImages[name]} alt={name} className="h-full w-full object-cover" />
+              ) : null}
+            </div>
+            <p className="truncate text-center text-[11px]" style={{ color: "var(--ink-secondary)" }} title={name}>
+              {name}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-  const manaCurveData = Object.entries(result.curva_mana)
+export function ResultsView({ result }: { result: AnalyzeResponse }) {
+  const [hoverTarget, setHoverTarget] = useState<HoverTarget | null>(null);
+  const [expandedRole, setExpandedRole] = useState<string | null>(null);
+  const cardImages = result.card_images ?? {};
+  const cartasPorRol = result.cartas_por_rol ?? {};
+
+  const handleHover: HoverHandler = (name, el) => {
+    setHoverTarget(name && el ? { name, rect: el.getBoundingClientRect() } : null);
+  };
+
+  const manaCurveData: BarDatum[] = Object.entries(result.curva_mana)
     .sort((a, b) => Number(a[0]) - Number(b[0]))
     .map(([cmc, count]) => ({ label: cmc, value: count }));
 
-  const rolesData = Object.entries(result.roles)
+  const rolesData: BarDatum[] = Object.entries(result.roles)
     .filter(([role]) => role !== "other")
-    .map(([role, count]) => ({ label: ROLE_LABELS[role] ?? role, value: count }));
+    .map(([role, count]) => ({ label: ROLE_LABELS[role] ?? role, value: count, key: role }));
+
+  function handleRoleBarClick(item: BarDatum) {
+    const role = item.key;
+    if (!role) return;
+    setExpandedRole((current) => (current === role ? null : role));
+  }
 
   const analisis = result.analisis;
   const swaps = analisis ? pairCutsAndAdditions(analisis.cortes_sugeridos, analisis.anadidos_sugeridos) : [];
+  const sortedProblemas = analisis
+    ? [...analisis.problemas].sort((a, b) => (SEVERITY_ORDER[a.severidad] ?? 9) - (SEVERITY_ORDER[b.severidad] ?? 9))
+    : [];
 
   return (
-    <div className="flex flex-col gap-7">
-      <section className="flex flex-wrap items-center gap-3 border-b pb-5" style={{ borderColor: "var(--border)" }}>
-        <h2 className="font-head text-2xl font-extrabold" style={{ color: "var(--foreground)" }}>
-          {result.comandantes.length > 0 ? result.comandantes.join(" + ") : "Sin comandante detectado"}
-        </h2>
-        {analisis?.bracket && (
-          <span
-            className="font-head text-xs font-bold uppercase tracking-wide"
-            style={{ color: "var(--ink-muted)" }}
-          >
-            Bracket deducido {analisis.bracket.deducido} · {analisis.arquetipo}
-          </span>
-        )}
-      </section>
+    <div className="flex flex-col gap-7" onMouseLeave={() => setHoverTarget(null)}>
+      <FloatingCardPreview target={hoverTarget} cardImages={cardImages} />
 
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatTile label="Tamaño del deck" value={result.tamano_deck} />
-        <StatTile label="Tierras" value={result.tierras} />
-        <StatTile label="CMC medio" value={result.cmc_medio.toFixed(2)} />
-        <StatTile label="Cartas no encontradas" value={result.no_encontradas.length} />
+      <section className="flex flex-col gap-5 border-b pb-6 lg:flex-row" style={{ borderColor: "var(--border)" }}>
+        {result.comandantes.length > 0 && (
+          <div className="flex flex-shrink-0 gap-2 lg:w-[200px]">
+            {result.comandantes.map((name) => (
+              <div
+                key={name}
+                className="w-full overflow-hidden rounded-sm border"
+                style={{ borderColor: "var(--border)" }}
+              >
+                {cardImages[name] ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- imagen externa de Scryfall
+                  <img src={cardImages[name]} alt={name} className="h-full w-full object-cover" style={{ aspectRatio: "5/7" }} />
+                ) : (
+                  <div
+                    className="flex h-full items-center justify-center p-3 text-center text-xs"
+                    style={{ aspectRatio: "5/7", background: "var(--surface-muted)", color: "var(--ink-muted)" }}
+                  >
+                    Sin imagen
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="flex min-w-0 flex-1 flex-col gap-5">
+          <div>
+            <h2 className="font-head text-2xl font-extrabold" style={{ color: "var(--foreground)" }}>
+              {result.comandantes.length > 0 ? result.comandantes.join(" + ") : "Sin comandante detectado"}
+            </h2>
+            {analisis?.bracket && (
+              <p className="font-head mt-1 text-xs font-bold uppercase tracking-wide" style={{ color: "var(--ink-muted)" }}>
+                Bracket deducido {analisis.bracket.deducido} · {analisis.arquetipo}
+              </p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatTile label="Tamaño del deck" value={result.tamano_deck} />
+            <StatTile label="Tierras" value={result.tierras} />
+            <StatTile label="CMC medio" value={result.cmc_medio.toFixed(2)} />
+            <StatTile label="Cartas no encontradas" value={result.no_encontradas.length} />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <SingleSeriesBarChart
+              title="Curva de maná (sin tierras)"
+              data={manaCurveData}
+              colorVar="var(--chart-mana)"
+              valueLabel="cartas"
+            />
+            <SingleSeriesBarChart
+              title="Cartas por rol"
+              data={rolesData}
+              colorVar="var(--chart-roles)"
+              valueLabel="cartas"
+              onBarClick={handleRoleBarClick}
+            />
+            {expandedRole && cartasPorRol[expandedRole] && (
+              <RoleCardGallery
+                roleLabel={ROLE_LABELS[expandedRole] ?? expandedRole}
+                cardNames={cartasPorRol[expandedRole]}
+                cardImages={cardImages}
+                onClose={() => setExpandedRole(null)}
+              />
+            )}
+          </div>
+        </div>
       </section>
 
       {(result.no_encontradas.length > 0 || result.no_legales.length > 0) && (
@@ -257,21 +386,6 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
           )}
         </section>
       )}
-
-      <section className="grid gap-4 sm:grid-cols-2">
-        <SingleSeriesBarChart
-          title="Curva de maná (sin tierras)"
-          data={manaCurveData}
-          colorVar="var(--chart-mana)"
-          valueLabel="cartas"
-        />
-        <SingleSeriesBarChart
-          title="Cartas por rol"
-          data={rolesData}
-          colorVar="var(--chart-roles)"
-          valueLabel="cartas"
-        />
-      </section>
 
       <section className="grid gap-4 lg:grid-cols-[1.3fr_1fr]">
         <div
@@ -386,7 +500,7 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
                 <span className="font-head text-3xl font-extrabold" style={{ color: "var(--foreground)" }}>
                   {analisis.bracket.deducido}
                 </span>
-                <span className="text-sm" style={{ color: "var(--ink-muted)" }}>
+                <span className="text-sm" style={{ color: "var(--ink-secondary)" }}>
                   confianza {CONFIANZA_LABEL[analisis.bracket.confianza] ?? analisis.bracket.confianza} · suelo{" "}
                   {analisis.bracket.suelo} · estimación de juego {analisis.bracket.estimacion_juego}
                 </span>
@@ -397,7 +511,7 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
                 </p>
               )}
               {analisis.bracket.razones.length > 0 && (
-                <ul className="mt-2 list-inside list-disc text-sm" style={{ color: "var(--ink-secondary)" }}>
+                <ul className="mt-2 list-inside list-disc text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
                   {analisis.bracket.razones.map((razon, i) => (
                     <li key={i}>{razon}</li>
                   ))}
@@ -411,7 +525,7 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
                       <p className="text-xs font-bold uppercase" style={{ color: "var(--status-critical)" }}>
                         Lo bajaría
                       </p>
-                      <ul className="list-inside list-disc text-sm" style={{ color: "var(--ink-secondary)" }}>
+                      <ul className="list-inside list-disc text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
                         {analisis.bracket.que_lo_moveria.bajar.map((item, i) => (
                           <li key={i}>{item}</li>
                         ))}
@@ -423,7 +537,7 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
                       <p className="text-xs font-bold uppercase" style={{ color: "var(--status-good)" }}>
                         Lo subiría
                       </p>
-                      <ul className="list-inside list-disc text-sm" style={{ color: "var(--ink-secondary)" }}>
+                      <ul className="list-inside list-disc text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
                         {analisis.bracket.que_lo_moveria.subir.map((item, i) => (
                           <li key={i}>{item}</li>
                         ))}
@@ -441,76 +555,63 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
             </section>
           )}
 
-          <section className="grid gap-5 lg:grid-cols-[1fr_280px]">
-            <div className="flex flex-col gap-5">
+          <section className="flex flex-col gap-6">
+            <div>
+              <SectionLabel>Estrategia</SectionLabel>
+              <p className="text-[15px] leading-7" style={{ color: "var(--foreground)" }}>
+                <HighlightedText text={analisis.estrategia_detectada} cardImages={cardImages} onHover={handleHover} />
+              </p>
+            </div>
+
+            {analisis.puntos_fuertes.length > 0 && (
               <div>
-                <SectionLabel>Estrategia</SectionLabel>
-                <p className="text-[15px] leading-relaxed" style={{ color: "var(--foreground)" }}>
-                  <HighlightedText text={analisis.estrategia_detectada} cardImages={cardImages} onHover={setHoveredCard} />
-                </p>
+                <SectionLabel color="var(--status-good)">Puntos fuertes</SectionLabel>
+                <ul className="list-inside list-disc space-y-1.5 text-[15px] leading-7" style={{ color: "var(--foreground)" }}>
+                  {analisis.puntos_fuertes.map((punto, i) => (
+                    <li key={i}>
+                      <HighlightedText text={punto} cardImages={cardImages} onHover={handleHover} />
+                    </li>
+                  ))}
+                </ul>
               </div>
+            )}
 
-              {analisis.puntos_fuertes.length > 0 && (
-                <div>
-                  <SectionLabel color="var(--status-good)">Puntos fuertes</SectionLabel>
-                  <ul className="list-inside list-disc text-sm" style={{ color: "var(--foreground)" }}>
-                    {analisis.puntos_fuertes.map((punto, i) => (
-                      <li key={i}>
-                        <HighlightedText text={punto} cardImages={cardImages} onHover={setHoveredCard} />
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {analisis.problemas.length > 0 && (
-                <div>
-                  <SectionLabel color="var(--status-critical)">Problemas detectados</SectionLabel>
-                  <div className="flex flex-col gap-2">
-                    {analisis.problemas.map((problema, i) => (
-                      <div key={i} className="flex items-baseline gap-2">
+            {sortedProblemas.length > 0 && (
+              <div>
+                <SectionLabel color="var(--status-critical)">Problemas detectados</SectionLabel>
+                <div className="flex flex-col gap-px overflow-hidden rounded-sm border" style={{ borderColor: "var(--border)", background: "var(--border)" }}>
+                  {sortedProblemas.map((problema, i) => (
+                    <div key={i} className="p-4" style={{ background: "var(--surface)" }}>
+                      <div className="mb-1.5 flex items-center gap-2">
                         <span
                           className="font-head flex-shrink-0 border px-1.5 py-0.5 text-[11px] font-extrabold uppercase"
-                          style={{
-                            color:
-                              problema.severidad === "alta"
-                                ? "var(--status-critical)"
-                                : problema.severidad === "media"
-                                  ? "var(--status-warning)"
-                                  : "var(--ink-muted)",
-                            borderColor:
-                              problema.severidad === "alta"
-                                ? "var(--status-critical)"
-                                : problema.severidad === "media"
-                                  ? "var(--status-warning)"
-                                  : "var(--border)",
-                          }}
+                          style={{ color: SEVERITY_COLOR_VAR[problema.severidad], borderColor: SEVERITY_COLOR_VAR[problema.severidad] }}
                         >
                           {problema.severidad}
                         </span>
-                        <p className="text-sm" style={{ color: "var(--foreground)" }}>
-                          <strong>{problema.categoria}:</strong>{" "}
-                          <HighlightedText text={problema.explicacion} cardImages={cardImages} onHover={setHoveredCard} />
-                        </p>
+                        <strong className="text-sm" style={{ color: "var(--foreground)" }}>
+                          {problema.categoria}
+                        </strong>
                       </div>
-                    ))}
-                  </div>
+                      <p className="text-[15px] leading-7" style={{ color: "var(--foreground)" }}>
+                        <HighlightedText text={problema.explicacion} cardImages={cardImages} onHover={handleHover} />
+                      </p>
+                    </div>
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
 
-              {swaps.length > 0 && (
-                <div>
-                  <SectionLabel>Cambios sugeridos</SectionLabel>
-                  <div className="flex flex-col gap-px overflow-hidden rounded-sm border" style={{ borderColor: "var(--border)", background: "var(--border)" }}>
-                    {swaps.map((pair, i) => (
-                      <SwapCard key={i} pair={pair} onHover={setHoveredCard} />
-                    ))}
-                  </div>
+            {swaps.length > 0 && (
+              <div>
+                <SectionLabel>Cambios sugeridos</SectionLabel>
+                <div className="flex flex-col gap-px overflow-hidden rounded-sm border" style={{ borderColor: "var(--border)", background: "var(--border)" }}>
+                  {swaps.map((pair, i) => (
+                    <SwapCard key={i} pair={pair} cardImages={cardImages} onHover={handleHover} />
+                  ))}
                 </div>
-              )}
-            </div>
-
-            <CardPreviewPanel hoveredCard={hoveredCard} cardImages={cardImages} />
+              </div>
+            )}
           </section>
         </>
       )}

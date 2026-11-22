@@ -11,14 +11,21 @@ import {
   YAxis,
 } from "recharts";
 
-interface SingleSeriesBarChartProps {
-  title: string;
-  data: { label: string; value: number }[];
-  colorVar: string; // ej. "var(--chart-mana)"
-  valueLabel: string;
+export interface BarDatum {
+  label: string;
+  value: number;
+  key?: string;
 }
 
-export function SingleSeriesBarChart({ title, data, colorVar, valueLabel }: SingleSeriesBarChartProps) {
+interface SingleSeriesBarChartProps {
+  title: string;
+  data: BarDatum[];
+  colorVar: string; // ej. "var(--chart-mana)"
+  valueLabel: string;
+  onBarClick?: (item: BarDatum) => void;
+}
+
+export function SingleSeriesBarChart({ title, data, colorVar, valueLabel, onBarClick }: SingleSeriesBarChartProps) {
   if (data.length === 0) {
     return (
       <div className="rounded-sm border p-4" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
@@ -36,6 +43,11 @@ export function SingleSeriesBarChart({ title, data, colorVar, valueLabel }: Sing
     <div className="rounded-sm border p-4" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
       <h3 className="font-head text-xs font-extrabold uppercase tracking-wide mb-3" style={{ color: "var(--ink-muted)" }}>
         {title}
+        {onBarClick && (
+          <span className="ml-2 font-normal normal-case tracking-normal" style={{ color: "var(--ink-muted)" }}>
+            (haz clic en una barra para ver las cartas)
+          </span>
+        )}
       </h3>
       <ResponsiveContainer width="100%" height={240}>
         <BarChart data={data} margin={{ top: 20, right: 8, bottom: 0, left: 0 }} barCategoryGap="20%">
@@ -71,6 +83,8 @@ export function SingleSeriesBarChart({ title, data, colorVar, valueLabel }: Sing
             radius={[2, 2, 0, 0]}
             maxBarSize={24}
             isAnimationActive={false}
+            onClick={onBarClick ? (datum) => onBarClick(datum as unknown as BarDatum) : undefined}
+            style={{ cursor: onBarClick ? "pointer" : undefined }}
           >
             <LabelList
               dataKey="value"

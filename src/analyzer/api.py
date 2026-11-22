@@ -88,18 +88,24 @@ def analyze(request: AnalyzeRequest) -> dict:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     parsed = parse_decklist(request.deck_text)
-    apply_commander_override(parsed, request.commander)
 
     conn = cards_module.connect(cards_module.DEFAULT_DB_PATH)
     try:
+        if request.commander:
+            # Campo escrito a mano: tolera nombres incompletos o con alguna
+            # variación resolviéndolo contra la BD antes de añadirlo, para
+            # no acabar con un comandante "no encontrado" por una tontería.
+            commander_card = cards_module.find_card_by_name_fuzzy(conn, request.commander)
+            apply_commander_override(parsed, commander_card.name if commander_card else request.commander)
+
         commanders, deck_cards, missing = cards_module.resolve_deck(conn, parsed)
         role_counts = roles_module.count_roles(conn, deck_cards)
+        card_roles = roles_module.classify_cards(conn, deck_cards)
 
         analysis_run = None
         if request.ai:
             from analyzer import pipeline
 
-            card_roles = roles_module.classify_cards(conn, deck_cards)
             params = {
                 "bracket": request.bracket,
                 "budget": request.budget,
@@ -118,7 +124,9 @@ def analyze(request: AnalyzeRequest) -> dict:
         conn.close()
 
     rubric_status = rubric.evaluate_role_counts(role_counts)
-    summary = report.build_summary(commanders, deck_cards, missing, role_counts, rubric_status)
+    summary = report.build_summary(
+        commanders, deck_cards, missing, role_counts, rubric_status, card_roles
+    )
     if validated_analysis is not None:
         summary["analisis"] = validated_analysis
     summary["card_images"] = card_images

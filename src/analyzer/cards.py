@@ -79,6 +79,34 @@ def get_card_by_name(conn: sqlite3.Connection, name: str) -> Card | None:
     return _row_to_card(row)
 
 
+def find_card_by_name_fuzzy(conn: sqlite3.Connection, name: str) -> Card | None:
+    """Más permisivo que ``get_card_by_name``: primero intenta el nombre
+    exacto y, si no resuelve, un match por prefijo y luego por substring.
+
+    Pensado para texto escrito a mano por el usuario (p. ej. el campo
+    "Comandante" de la web), donde es fácil escribir el nombre incompleto
+    o con alguna variación. No se usa para resolver la lista del deck en
+    general: ahí un nombre mal escrito debe reportarse como "no
+    encontrada", no "corregirse" en silencio a una carta distinta.
+    """
+    card = get_card_by_name(conn, name)
+    if card is not None:
+        return card
+
+    normalized = normalize_name(name)
+    if not normalized:
+        return None
+
+    for pattern in (f"{normalized}%", f"%{normalized}%"):
+        row = conn.execute(
+            "SELECT * FROM cards WHERE name_normalized LIKE ? ORDER BY length(name) ASC LIMIT 1",
+            (pattern,),
+        ).fetchone()
+        if row is not None:
+            return _row_to_card(row)
+    return None
+
+
 def resolve_deck(
     conn: sqlite3.Connection, parsed: ParsedDeck
 ) -> tuple[list[Card], list[Card], list[str]]:

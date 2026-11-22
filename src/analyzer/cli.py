@@ -72,18 +72,21 @@ def main(argv: list[str] | None = None) -> int:
 
     text = args.deck_file.read_text(encoding="utf-8")
     parsed = parse_decklist(text)
-    apply_commander_override(parsed, args.commander)
 
     analysis_run = None
     conn = cards_module.connect(args.db)
     try:
+        if args.commander:
+            commander_card = cards_module.find_card_by_name_fuzzy(conn, args.commander)
+            apply_commander_override(parsed, commander_card.name if commander_card else args.commander)
+
         commanders, deck_cards, missing = cards_module.resolve_deck(conn, parsed)
         role_counts = roles_module.count_roles(conn, deck_cards)
+        card_roles = roles_module.classify_cards(conn, deck_cards)
 
         if args.ai:
             from analyzer import pipeline
 
-            card_roles = roles_module.classify_cards(conn, deck_cards)
             params = {
                 "bracket": args.bracket,
                 "budget": args.budget,
@@ -102,7 +105,9 @@ def main(argv: list[str] | None = None) -> int:
     analysis = analysis_run.validated_analysis if analysis_run else None
 
     if args.json:
-        summary = report.build_summary(commanders, deck_cards, missing, role_counts, rubric_status)
+        summary = report.build_summary(
+            commanders, deck_cards, missing, role_counts, rubric_status, card_roles
+        )
         if analysis is not None:
             summary["analisis"] = analysis
         print(json.dumps(summary, ensure_ascii=False, indent=2))

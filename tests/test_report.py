@@ -1,5 +1,5 @@
 from analyzer.cards import Card
-from analyzer.report import render, render_analysis
+from analyzer.report import build_summary, cards_by_role, render, render_analysis
 
 
 def make_card(name: str, type_line: str = "Creature", color_identity=None) -> Card:
@@ -78,3 +78,30 @@ def test_render_analysis_handles_empty_sections():
     text = render_analysis(analysis)
     assert "aggro" in text
     assert "voltron" in text
+
+
+def test_cards_by_role_inverts_name_to_roles_mapping():
+    card_roles = {
+        "Sol Ring": ["ramp"],
+        "Arcane Signet": ["ramp"],
+        "Rhystic Study": ["draw"],
+    }
+    result = cards_by_role(card_roles)
+    assert result["ramp"] == ["Sol Ring", "Arcane Signet"]
+    assert result["draw"] == ["Rhystic Study"]
+
+
+def test_cards_by_role_does_not_duplicate_a_card_counted_twice_in_the_same_role():
+    card_roles = {"Sol Ring": ["ramp", "ramp"]}
+    result = cards_by_role(card_roles)
+    assert result["ramp"] == ["Sol Ring"]
+
+
+def test_build_summary_includes_cartas_por_rol_when_card_roles_given():
+    summary = build_summary([], [], [], {}, {}, card_roles={"Sol Ring": ["ramp"]})
+    assert summary["cartas_por_rol"] == {"ramp": ["Sol Ring"]}
+
+
+def test_build_summary_omits_cartas_por_rol_when_not_given():
+    summary = build_summary([], [], [], {}, {})
+    assert "cartas_por_rol" not in summary

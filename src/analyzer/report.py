@@ -21,15 +21,29 @@ _ROLE_NAMES = {
 _RUBRIC_STATUS_LABEL = {"bajo": "bajo", "ok": "dentro de rango", "alto": "alto"}
 
 
+def cards_by_role(card_roles: dict[str, list[str]]) -> dict[str, list[str]]:
+    """Invierte nombre -> roles en rol -> nombres (sin duplicados, en orden
+    de aparición), para poder enseñar qué cartas concretas cuenta cada
+    barra de "cartas por rol"."""
+    by_role: dict[str, list[str]] = {}
+    for name, roles in card_roles.items():
+        for role in roles:
+            names = by_role.setdefault(role, [])
+            if name not in names:
+                names.append(name)
+    return by_role
+
+
 def build_summary(
     commanders: list[Card],
     deck_cards: list[Card],
     missing: list[str],
     role_counts: dict[str, int],
     rubric_status: dict[str, str],
+    card_roles: dict[str, list[str]] | None = None,
 ) -> dict:
     """Resumen del análisis en forma de dict (para ``--json`` y la API web)."""
-    return {
+    summary = {
         "comandantes": [c.name for c in commanders],
         "tamano_deck": metrics.deck_size(deck_cards, commanders),
         "tierras": metrics.count_lands(deck_cards),
@@ -42,6 +56,9 @@ def build_summary(
         "roles": role_counts,
         "rubric": rubric_status,
     }
+    if card_roles is not None:
+        summary["cartas_por_rol"] = cards_by_role(card_roles)
+    return summary
 
 
 def render(

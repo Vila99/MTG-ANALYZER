@@ -1,7 +1,7 @@
 import json
 import sqlite3
 
-from analyzer.cards import get_card_by_name, resolve_deck
+from analyzer.cards import find_card_by_name_fuzzy, get_card_by_name, resolve_deck
 from analyzer.parser import DeckEntry, ParsedDeck
 
 
@@ -129,6 +129,39 @@ def test_double_faced_card_matches_front_face_name():
     card = get_card_by_name(conn, "Strength of the Harvest")
     assert card is not None
     assert card.name == "Strength of the Harvest // Haven of the Harvest"
+
+
+def test_find_card_by_name_fuzzy_uses_exact_match_first():
+    conn = make_test_db()
+    card = find_card_by_name_fuzzy(conn, "Sol Ring")
+    assert card is not None
+    assert card.name == "Sol Ring"
+
+
+def test_find_card_by_name_fuzzy_resolves_partial_prefix():
+    conn = make_test_db()
+    card = find_card_by_name_fuzzy(conn, "Sol")
+    assert card is not None
+    assert card.name == "Sol Ring"
+
+
+def test_find_card_by_name_fuzzy_resolves_substring_when_no_prefix_match():
+    conn = make_test_db()
+    card = find_card_by_name_fuzzy(conn, "Harvest")
+    assert card is not None
+    assert card.name == "Strength of the Harvest // Haven of the Harvest"
+
+
+def test_find_card_by_name_fuzzy_is_case_insensitive():
+    conn = make_test_db()
+    card = find_card_by_name_fuzzy(conn, "sol ring")
+    assert card is not None
+    assert card.name == "Sol Ring"
+
+
+def test_find_card_by_name_fuzzy_returns_none_when_nothing_matches():
+    conn = make_test_db()
+    assert find_card_by_name_fuzzy(conn, "Completely Unrelated Name") is None
 
 
 def test_unknown_card_returns_none():

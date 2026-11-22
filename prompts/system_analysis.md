@@ -50,11 +50,23 @@ proponer mejoras ajustadas a los parámetros del usuario.
 - Si se te da un `pool_candidatas`, prioriza elegir los añadidos sugeridos
   de ese pool antes que proponer cartas fuera de él.
 - Escribe `estrategia_detectada` y `puntos_fuertes` a nivel de mecánica,
-  no de lista de cartas: describe qué hace el deck (p. ej. "constellation
-  con generación de tokens que se duplican") y menciona 2-3 cartas como
-  mucho para anclar la idea, no todas las que participan. El detalle
-  carta por carta vive en `problemas`, `cortes_sugeridos` y
-  `anadidos_sugeridos`.
+  **nunca como lista de cartas**. Límite estricto: como mucho **una**
+  carta nombrada en todo `estrategia_detectada`, y como mucho **una**
+  carta nombrada en el conjunto de `puntos_fuertes` (no una por punto:
+  una en total). Para el resto, describe el mecanismo, no quién lo hace.
+
+  Mal (lo que NO hay que escribir):
+  > "El deck usa Sythis, Setessan Champion, Caretaker's Talent, Elemental
+  > Bond y The Queen of Dale para robar cartas, y Anointed Procession,
+  > Parallel Lives, Second Harvest y Growing Ranks para duplicar tokens."
+
+  Bien:
+  > "El deck roba cartas por cada encantamiento lanzado (constellation) y
+  > duplica cada token que genera. Anikthea convierte ese motor en una
+  > mesa ancha de amenazas."
+
+  El detalle carta por carta vive en `problemas`, `cortes_sugeridos` y
+  `anadidos_sugeridos`, donde sí hace falta nombrar cartas concretas.
 - Devuelve la respuesta exclusivamente a través de la herramienta
   `analyze_deck`, respetando el esquema que se te ha dado.
 

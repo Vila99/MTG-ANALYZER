@@ -60,6 +60,7 @@ export interface AnalyzeResponse {
   rubric: Record<string, RubricStatus>;
   analisis?: Analisis;
   card_images: Record<string, string>;
+  cartas_por_rol: Record<string, string[]>;
 }
 
 export interface AnalyzeRequest {
