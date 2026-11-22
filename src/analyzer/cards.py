@@ -7,6 +7,8 @@ import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
 
+from analyzer.parser import ParsedDeck
+
 DEFAULT_DB_PATH = Path(__file__).resolve().parents[2] / "data" / "cards.db"
 
 
@@ -70,3 +72,32 @@ def get_card_by_name(conn: sqlite3.Connection, name: str) -> Card | None:
     if row is None:
         return None
     return _row_to_card(row)
+
+
+def resolve_deck(
+    conn: sqlite3.Connection, parsed: ParsedDeck
+) -> tuple[list[Card], list[Card], list[str]]:
+    """Resuelve los nombres de un ``ParsedDeck`` contra la base de datos.
+
+    Devuelve ``(comandantes, cartas_del_deck, nombres_no_encontrados)``. Las
+    cartas del deck se repiten según su cantidad (ej. 6 Forest -> 6 entradas).
+    """
+    commanders: list[Card] = []
+    deck_cards: list[Card] = []
+    missing: list[str] = []
+
+    for name in parsed.commanders:
+        card = get_card_by_name(conn, name)
+        if card is None:
+            missing.append(name)
+        else:
+            commanders.append(card)
+
+    for entry in parsed.cards:
+        card = get_card_by_name(conn, entry.name)
+        if card is None:
+            missing.append(entry.name)
+        else:
+            deck_cards.extend([card] * entry.quantity)
+
+    return commanders, deck_cards, missing

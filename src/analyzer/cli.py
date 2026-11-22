@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sqlite3
 import sys
 from pathlib import Path
 
@@ -13,31 +12,7 @@ from analyzer import report
 from analyzer import roles as roles_module
 from analyzer import rubric
 from analyzer.cards import Card
-from analyzer.parser import ParsedDeck, parse_decklist
-
-
-def _resolve_cards(
-    conn: sqlite3.Connection, parsed: ParsedDeck
-) -> tuple[list[Card], list[Card], list[str]]:
-    commanders: list[Card] = []
-    deck_cards: list[Card] = []
-    missing: list[str] = []
-
-    for name in parsed.commanders:
-        card = cards_module.get_card_by_name(conn, name)
-        if card is None:
-            missing.append(name)
-        else:
-            commanders.append(card)
-
-    for entry in parsed.cards:
-        card = cards_module.get_card_by_name(conn, entry.name)
-        if card is None:
-            missing.append(entry.name)
-        else:
-            deck_cards.extend([card] * entry.quantity)
-
-    return commanders, deck_cards, missing
+from analyzer.parser import parse_decklist
 
 
 def _build_json_summary(
@@ -104,23 +79,9 @@ def main(argv: list[str] | None = None) -> int:
         print("Ejecuta `python scripts/load_scryfall.py` antes de analizar un deck.", file=sys.stderr)
         return 1
 
-    text = args.deck_file.read_text(encoding="utf-8")
-    parsed = parse_decklist(text)
-
-    conn = cards_module.connect(args.db)
-    try:
-        commanders, deck_cards, missing = _resolve_cards(conn, parsed)
-        role_counts = roles_module.count_roles(conn, deck_cards)
-        card_roles = roles_module.classify_cards(conn, deck_cards) if args.ai else {}
-    finally:
-        conn.close()
-
-    rubric_status = rubric.evaluate_role_counts(role_counts)
-
-    analysis: dict | None = None
+    client = None
     if args.ai:
         from analyzer import llm
-        from analyzer import validate
 
         try:
             client = llm.get_client()
@@ -128,21 +89,34 @@ def main(argv: list[str] | None = None) -> int:
             print(str(exc), file=sys.stderr)
             return 1
 
-        params = {
-            "bracket": args.bracket,
-            "budget": args.budget,
-            "style": args.style,
-            "allow_combos": args.allow_combos,
-            "avoid": args.avoid,
-        }
-        payload = llm.build_analysis_payload(commanders, deck_cards, card_roles, params)
-        analysis = llm.analyze_deck(client, payload)
+    text = args.deck_file.read_text(encoding="utf-8")
+    parsed = parse_decklist(text)
 
-        conn = cards_module.connect(args.db)
-        try:
-            analysis = validate.validate_analysis(conn, analysis, commanders, deck_cards)
-        finally:
-            conn.close()
+    analysis_run = None
+    conn = cards_module.connect(args.db)
+    try:
+        commanders, deck_cards, missing = cards_module.resolve_deck(conn, parsed)
+        role_counts = roles_module.count_roles(conn, deck_cards)
+
+        if args.ai:
+            from analyzer import pipeline
+
+            card_roles = roles_module.classify_cards(conn, deck_cards)
+            params = {
+                "bracket": args.bracket,
+                "budget": args.budget,
+                "style": args.style,
+                "allow_combos": args.allow_combos,
+                "avoid": args.avoid,
+            }
+            analysis_run = pipeline.run_analysis(
+                client, conn, commanders, deck_cards, card_roles, params
+            )
+    finally:
+        conn.close()
+
+    rubric_status = rubric.evaluate_role_counts(role_counts)
+    analysis = analysis_run.validated_analysis if analysis_run else None
 
     if args.json:
         summary = _build_json_summary(commanders, deck_cards, missing, role_counts, rubric_status)
