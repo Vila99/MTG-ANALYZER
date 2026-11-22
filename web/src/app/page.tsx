@@ -27,6 +27,33 @@ function fieldStyle() {
   } as const;
 }
 
+function InfoTooltip({ text }: { text: string }) {
+  return (
+    <span className="group relative inline-flex">
+      <button
+        type="button"
+        aria-label="Más información"
+        className="font-head flex h-4 w-4 items-center justify-center rounded-full border text-[10px] font-bold"
+        style={{ borderColor: "var(--ink-muted)", color: "var(--ink-muted)" }}
+      >
+        i
+      </button>
+      <span
+        role="tooltip"
+        className="pointer-events-none invisible absolute bottom-full left-1/2 z-50 mb-2 w-60 -translate-x-1/2 rounded-sm border p-3 text-xs leading-relaxed opacity-0 transition-opacity group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100"
+        style={{
+          borderColor: "var(--border)",
+          background: "var(--surface)",
+          color: "var(--foreground)",
+          boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
+        }}
+      >
+        {text}
+      </span>
+    </span>
+  );
+}
+
 function RecentAnalysesModal({
   recent,
   onSelect,
@@ -354,8 +381,16 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col gap-1">
-              <label htmlFor={styleId} className="text-xs font-bold" style={{ color: "var(--foreground)" }}>
+              <label htmlFor={styleId} className="flex items-center gap-1.5 text-xs font-bold" style={{ color: "var(--foreground)" }}>
                 Estilo
+                <InfoTooltip
+                  text={
+                    "Casual: prioriza la diversión de mesa, evita subir el bracket o sugerir cartas opresivas. " +
+                    "Focused: optimiza dentro del bracket que ya tiene el deck (consistencia, curva, sinergia). " +
+                    "cEDH: prioriza velocidad, interacción barata y el camino a la victoria por encima de todo, " +
+                    "aunque suba el bracket."
+                  }
+                />
               </label>
               <select
                 id={styleId}
