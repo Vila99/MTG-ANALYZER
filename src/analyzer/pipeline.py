@@ -11,7 +11,7 @@ from dataclasses import dataclass
 
 import anthropic
 
-from analyzer import llm, validate
+from analyzer import bracket, llm, validate
 from analyzer.cards import Card
 
 
@@ -37,7 +37,10 @@ def run_analysis(
     validado) porque ``scripts/run_eval.py`` las guarda todas para poder
     comparar versiones del prompt/rubric más adelante.
     """
-    payload = llm.build_analysis_payload(commanders, deck_cards, card_roles, params, candidate_pool)
+    bracket_floor = bracket.compute_floor(commanders, deck_cards)
+    payload = llm.build_analysis_payload(
+        commanders, deck_cards, card_roles, params, candidate_pool, bracket_floor
+    )
     raw_analysis = llm.analyze_deck(client, payload)
     validated_analysis = validate.validate_analysis(conn, raw_analysis, commanders, deck_cards)
     return AnalysisRun(payload=payload, raw_analysis=raw_analysis, validated_analysis=validated_analysis)

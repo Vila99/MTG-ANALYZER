@@ -155,6 +155,28 @@ def test_build_analysis_payload_includes_candidate_pool():
     ]
 
 
+def test_build_analysis_payload_includes_bracket_floor_when_given():
+    commander = make_commander()
+    payload = build_analysis_payload(
+        [commander], [], {}, params={}, bracket_floor={"floor": 3, "razones_suelo": ["2 Game Changers"]}
+    )
+    assert payload["bracket_suelo"] == {"floor": 3, "razones_suelo": ["2 Game Changers"]}
+
+
+def test_build_analysis_payload_omits_bracket_suelo_key_when_not_given():
+    commander = make_commander()
+    payload = build_analysis_payload([commander], [], {}, params={})
+    assert "bracket_suelo" not in payload
+
+
+def test_analysis_tool_schema_requires_bracket_and_is_strict():
+    from analyzer.llm import _ANALYSIS_TOOL
+
+    assert _ANALYSIS_TOOL["strict"] is True
+    assert "bracket" in _ANALYSIS_TOOL["input_schema"]["required"]
+    assert _ANALYSIS_TOOL["input_schema"]["additionalProperties"] is False
+
+
 def _fake_analysis_tool_use_message(analysis: dict):
     block = MagicMock()
     block.type = "tool_use"

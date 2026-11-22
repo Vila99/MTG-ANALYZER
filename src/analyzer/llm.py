@@ -27,6 +27,7 @@ SYSTEM_PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "system_a
 DECKBUILDING_KNOWLEDGE_PATH = (
     Path(__file__).resolve().parents[2] / "prompts" / "knowledge" / "deckbuilding.md"
 )
+BRACKETS_KNOWLEDGE_PATH = Path(__file__).resolve().parents[2] / "prompts" / "knowledge" / "brackets.md"
 
 _CLASSIFY_TOOL = {
     "name": "classify_card",
@@ -142,6 +143,67 @@ _ANALYSIS_TOOL = {
                     "additionalProperties": False,
                 },
             },
+            "bracket": {
+                "type": "object",
+                "description": (
+                    "Ver prompts/knowledge/brackets.md. 'suelo' y 'game_changers' "
+                    "deben coincidir con los datos ya calculados que recibes en "
+                    "'bracket_suelo'; no los recalcules de memoria."
+                ),
+                "properties": {
+                    "deducido": {"type": "integer"},
+                    "confianza": {"type": "string", "enum": ["alta", "media", "baja"]},
+                    "suelo": {"type": "integer"},
+                    "estimacion_juego": {"type": "integer"},
+                    "game_changers": {"type": "array", "items": {"type": "string"}},
+                    "senales_duras": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "tipo": {"type": "string"},
+                                "detalle": {"type": "string"},
+                            },
+                            "required": ["tipo", "detalle"],
+                            "additionalProperties": False,
+                        },
+                    },
+                    "razones": {"type": "array", "items": {"type": "string"}},
+                    "que_lo_moveria": {
+                        "type": "object",
+                        "properties": {
+                            "bajar": {"type": "array", "items": {"type": "string"}},
+                            "subir": {"type": "array", "items": {"type": "string"}},
+                        },
+                        "required": ["bajar", "subir"],
+                        "additionalProperties": False,
+                    },
+                    "objetivo_usuario": {
+                        "anyOf": [{"type": "integer"}, {"type": "null"}],
+                        "description": "Bracket objetivo indicado por el usuario, o null si no se indicó.",
+                    },
+                    "diferencia_con_objetivo": {
+                        "anyOf": [{"type": "string"}, {"type": "null"}],
+                        "description": (
+                            "Si hay objetivo: si el deck está por encima, por debajo o a "
+                            "su altura, y por qué. null si no hay objetivo."
+                        ),
+                    },
+                },
+                "required": [
+                    "deducido",
+                    "confianza",
+                    "suelo",
+                    "estimacion_juego",
+                    "game_changers",
+                    "senales_duras",
+                    "razones",
+                    "que_lo_moveria",
+                    "objetivo_usuario",
+                    "diferencia_con_objetivo",
+                ],
+                "additionalProperties": False,
+            },
         },
         "required": [
             "estrategia_detectada",
@@ -150,6 +212,7 @@ _ANALYSIS_TOOL = {
             "problemas",
             "cortes_sugeridos",
             "anadidos_sugeridos",
+            "bracket",
         ],
         "additionalProperties": False,
     },
@@ -167,6 +230,8 @@ def load_system_prompt() -> str:
     parts = [SYSTEM_PROMPT_PATH.read_text(encoding="utf-8")]
     if DECKBUILDING_KNOWLEDGE_PATH.exists():
         parts.append(DECKBUILDING_KNOWLEDGE_PATH.read_text(encoding="utf-8"))
+    if BRACKETS_KNOWLEDGE_PATH.exists():
+        parts.append(BRACKETS_KNOWLEDGE_PATH.read_text(encoding="utf-8"))
     return "\n\n---\n\n".join(parts)
 
 
@@ -176,10 +241,13 @@ def build_analysis_payload(
     card_roles: dict[str, list[str]],
     params: dict,
     candidate_pool: list[Card] | None = None,
+    bracket_floor: dict | None = None,
 ) -> dict:
     """Construye el JSON de entrada para ``analyze_deck``: comandante(s) con
     su texto oracle, métricas calculadas, cartas con su rol y texto, los
-    parámetros del usuario y, opcionalmente, un pool de candidatas."""
+    parámetros del usuario (incluida ``description``, la idea del jugador
+    para el deck, si la dio) y, opcionalmente, un pool de candidatas y el
+    suelo de bracket ya calculado (ver ``analyzer.bracket.compute_floor``)."""
     from analyzer import metrics
 
     card_counts: dict[str, int] = {}
@@ -188,7 +256,7 @@ def build_analysis_payload(
         card_counts[card.name] = card_counts.get(card.name, 0) + 1
         unique_cards.setdefault(card.name, card)
 
-    return {
+    payload = {
         "comandantes": [
             {
                 "nombre": c.name,
@@ -219,6 +287,9 @@ def build_analysis_payload(
             {"nombre": c.name, "texto_oracle": c.oracle_text} for c in (candidate_pool or [])
         ],
     }
+    if bracket_floor is not None:
+        payload["bracket_suelo"] = bracket_floor
+    return payload
 
 
 def analyze_deck(client: anthropic.Anthropic, payload: dict) -> dict:

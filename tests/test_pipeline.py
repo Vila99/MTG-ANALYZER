@@ -113,6 +113,8 @@ def test_run_analysis_builds_payload_calls_claude_and_validates():
     )
 
     assert run.payload["comandantes"][0]["nombre"] == "Commander"
+    assert "bracket_suelo" in run.payload
+    assert run.payload["bracket_suelo"]["floor"] == 1  # Sol Ring no dispara ninguna señal dura
     assert run.raw_analysis == raw_analysis
     # "Not A Real Card" no existe en la BD de prueba: se descarta en la validación.
     assert run.validated_analysis["anadidos_sugeridos"] == [
