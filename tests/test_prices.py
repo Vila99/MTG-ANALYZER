@@ -2,12 +2,27 @@ import sqlite3
 from datetime import datetime, timedelta, timezone
 
 from analyzer import prices as prices_module
+from analyzer.cards import Card
 
 
 def make_db() -> sqlite3.Connection:
     conn = sqlite3.connect(":memory:")
     prices_module.ensure_price_cache_table(conn)
     return conn
+
+
+def make_card(name: str) -> Card:
+    return Card(
+        name=name,
+        mana_cost="",
+        cmc=0.0,
+        type_line="Artifact",
+        oracle_text="",
+        colors=[],
+        color_identity=[],
+        produced_mana=[],
+        legalities={"commander": "legal"},
+    )
 
 
 class FakeResponse:
@@ -118,3 +133,30 @@ def test_fetch_prices_refetches_when_cache_expired(monkeypatch):
     result = prices_module.fetch_prices(conn, ["Sol Ring"], max_age_days=7)
 
     assert result == {"Sol Ring": 0.85}
+
+
+def test_compute_deck_cost_sums_price_per_copy(monkeypatch):
+    conn = make_db()
+    monkeypatch.setattr(
+        prices_module, "fetch_prices", lambda conn, names: {"Forest": None, "Sol Ring": 0.85}
+    )
+    deck_cards = [make_card("Sol Ring"), make_card("Forest"), make_card("Forest")]
+
+    result = prices_module.compute_deck_cost(conn, deck_cards)
+
+    assert result == {"total_eur": 0.85, "cartas_sin_precio": ["Forest"]}
+
+
+def test_compute_deck_cost_does_not_duplicate_unpriced_card_names(monkeypatch):
+    conn = make_db()
+    monkeypatch.setattr(prices_module, "fetch_prices", lambda conn, names: {"Forest": None})
+    deck_cards = [make_card("Forest")] * 5
+
+    result = prices_module.compute_deck_cost(conn, deck_cards)
+
+    assert result == {"total_eur": 0.0, "cartas_sin_precio": ["Forest"]}
+
+
+def test_compute_deck_cost_with_empty_deck():
+    conn = make_db()
+    assert prices_module.compute_deck_cost(conn, []) == {"total_eur": 0.0, "cartas_sin_precio": []}

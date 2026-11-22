@@ -17,6 +17,7 @@ from pydantic import BaseModel, Field
 
 from analyzer import budget as budget_module
 from analyzer import cards as cards_module
+from analyzer import prices as prices_module
 from analyzer import report
 from analyzer import roles as roles_module
 from analyzer import rubric
@@ -123,13 +124,14 @@ def analyze(request: AnalyzeRequest) -> dict:
                 conn, validated_analysis, request.budget
             )
         card_images = _collect_card_images(conn, commanders, deck_cards, validated_analysis)
+        deck_cost = prices_module.compute_deck_cost(conn, deck_cards)
     finally:
         conn.close()
 
     rubric_status = rubric.evaluate_role_counts(role_counts)
     problemas = validated_analysis.get("problemas") if validated_analysis else None
     summary = report.build_summary(
-        commanders, deck_cards, missing, role_counts, rubric_status, card_roles, problemas
+        commanders, deck_cards, missing, role_counts, rubric_status, card_roles, problemas, deck_cost
     )
     if validated_analysis is not None:
         summary["analisis"] = validated_analysis

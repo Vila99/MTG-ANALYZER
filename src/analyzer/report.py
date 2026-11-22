@@ -42,6 +42,7 @@ def build_summary(
     rubric_status: dict[str, str],
     card_roles: dict[str, list[str]] | None = None,
     problemas: list[dict] | None = None,
+    deck_cost: dict | None = None,
 ) -> dict:
     """Resumen del análisis en forma de dict (para ``--json`` y la API web)."""
     summary = {
@@ -60,6 +61,8 @@ def build_summary(
     }
     if card_roles is not None:
         summary["cartas_por_rol"] = cards_by_role(card_roles)
+    if deck_cost is not None:
+        summary["coste_aproximado"] = deck_cost
     return summary
 
 

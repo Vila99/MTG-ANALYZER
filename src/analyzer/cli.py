@@ -9,6 +9,7 @@ from pathlib import Path
 
 from analyzer import budget as budget_module
 from analyzer import cards as cards_module
+from analyzer import prices as prices_module
 from analyzer import report
 from analyzer import roles as roles_module
 from analyzer import rubric
@@ -101,6 +102,7 @@ def main(argv: list[str] | None = None) -> int:
         analysis = analysis_run.validated_analysis if analysis_run else None
         if analysis is not None:
             analysis = budget_module.apply_budget_to_analysis(conn, analysis, args.budget)
+        deck_cost = prices_module.compute_deck_cost(conn, deck_cards)
     finally:
         conn.close()
 
@@ -109,7 +111,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.json:
         summary = report.build_summary(
-            commanders, deck_cards, missing, role_counts, rubric_status, card_roles, problemas
+            commanders, deck_cards, missing, role_counts, rubric_status, card_roles, problemas, deck_cost
         )
         if analysis is not None:
             summary["analisis"] = analysis

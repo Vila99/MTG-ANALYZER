@@ -69,6 +69,7 @@ export interface AnalyzeResponse {
   roles: Record<string, number>;
   rubric: Record<string, RubricStatus>;
   nota_deck: number;
+  coste_aproximado: { total_eur: number; cartas_sin_precio: string[] };
   analisis?: Analisis;
   card_images: Record<string, string>;
   cartas_por_rol: Record<string, string[]>;

@@ -68,6 +68,12 @@ proponer mejoras ajustadas a los parámetros del usuario.
   > duplica cada token que genera. Anikthea convierte ese motor en una
   > mesa ancha de amenazas."
 
+  Nunca dejes en el texto final un rastro de que cambiaste de idea a
+  medio escribir (p. ej. empezar "Deck de... en Rakdos" y seguir "...en
+  realidad Golgari"). Decide la identidad de color y el arquetipo
+  **antes** de redactar la frase, con los datos de `comandantes` e
+  `identidad_color` que ya tienes, y escribe solo la versión final.
+
   El detalle carta por carta vive en `problemas`, `cortes_sugeridos` y
   `anadidos_sugeridos`, donde sí hace falta nombrar cartas concretas.
 - Antes de sugerir un corte, pregúntate dos veces: (1) ¿por qué razón

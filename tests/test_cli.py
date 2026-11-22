@@ -101,6 +101,13 @@ def make_db(path: Path) -> None:
     conn.close()
 
 
+@pytest.fixture(autouse=True)
+def _no_real_price_lookups(monkeypatch):
+    # El coste aproximado del deck se calcula siempre (no solo con --ai):
+    # se mockea por defecto para que los tests no dependan de la red.
+    monkeypatch.setattr("analyzer.prices.fetch_prices", lambda conn, names: {})
+
+
 @pytest.fixture
 def db_path(tmp_path: Path) -> Path:
     path = tmp_path / "cards.db"

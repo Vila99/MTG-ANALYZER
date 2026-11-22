@@ -70,7 +70,16 @@ function DeckScoreBadge({ score }: { score: number }) {
   );
 }
 
-function StatTile({ label, value }: { label: string; value: string | number }) {
+function StatTile({
+  label,
+  value,
+  warning,
+}: {
+  label: string;
+  value: string | number;
+  /** Aviso rojo bajo el valor; `detail` hace de tooltip nativo al pasar el ratón. */
+  warning?: { label: string; detail: string };
+}) {
   return (
     <div className="rounded-sm border p-4" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
       <p className="font-head text-xs font-extrabold uppercase tracking-wide" style={{ color: "var(--ink-muted)" }}>
@@ -79,6 +88,15 @@ function StatTile({ label, value }: { label: string; value: string | number }) {
       <p className="text-2xl font-bold font-mono" style={{ color: "var(--foreground)" }}>
         {value}
       </p>
+      {warning && (
+        <p
+          className="mt-1 cursor-help truncate text-[11px] font-bold"
+          style={{ color: "var(--status-critical)" }}
+          title={warning.detail}
+        >
+          ⚠ {warning.label}
+        </p>
+      )}
     </div>
   );
 }
@@ -259,66 +277,89 @@ function SwapGroupCard({
   onHover: HoverHandler;
   onZoom: (name: string) => void;
 }) {
-  return (
-    <div className="flex flex-col gap-3 p-4" style={{ background: "var(--surface)" }}>
-      <div className="flex flex-wrap items-start gap-3">
-        {group.cut && (
-          <SwapThumbnail
-            name={group.cut.carta}
-            label="Corta"
-            labelColor="var(--status-critical)"
-            imageUrl={cardImages[group.cut.carta]}
-            onZoom={onZoom}
-          />
-        )}
-        {group.cut && group.additions.length > 0 && (
-          <span className="hidden self-center text-lg sm:block" style={{ color: "var(--ink-muted)" }}>
-            →
-          </span>
-        )}
-        {group.additions.map((addition, i) => (
-          <SwapThumbnail
-            key={i}
-            name={addition.carta}
-            label={`Añade${group.additions.length > 1 ? ` · opción ${i + 1}` : ""}`}
-            labelColor="var(--status-good)"
-            imageUrl={cardImages[addition.carta]}
-            onZoom={onZoom}
-            dimmed={addition.incluido === false}
-          />
-        ))}
-      </div>
+  const [optionIndex, setOptionIndex] = useState(0);
+  const selected = group.additions[optionIndex];
 
-      {group.additions.length === 0 && group.cut && (
-        <p className="text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
+  return (
+    <div className="flex flex-wrap items-center gap-3 p-4" style={{ background: "var(--surface)" }}>
+      {group.cut && (
+        <SwapThumbnail
+          name={group.cut.carta}
+          label="Corta"
+          labelColor="var(--status-critical)"
+          imageUrl={cardImages[group.cut.carta]}
+          onZoom={onZoom}
+        />
+      )}
+      {group.cut && selected && (
+        <span className="hidden self-center text-lg sm:block" style={{ color: "var(--ink-muted)" }}>
+          →
+        </span>
+      )}
+
+      {selected && (
+        <SwapThumbnail
+          name={selected.carta}
+          label="Añade"
+          labelColor="var(--status-good)"
+          imageUrl={cardImages[selected.carta]}
+          onZoom={onZoom}
+          dimmed={selected.incluido === false}
+        />
+      )}
+
+      {group.additions.length > 1 && (
+        <div className="flex flex-shrink-0 flex-col items-center gap-1 self-center">
+          <div className="flex gap-1">
+            {group.additions.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setOptionIndex(i)}
+                className="font-head flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold"
+                style={{
+                  background: i === optionIndex ? "var(--accent)" : "var(--surface-muted)",
+                  color: i === optionIndex ? "var(--accent-ink)" : "var(--ink-muted)",
+                }}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px]" style={{ color: "var(--ink-muted)" }}>
+            opción
+          </p>
+        </div>
+      )}
+
+      {selected && (
+        <div className="flex min-w-[220px] flex-1 flex-col gap-1">
+          <div className="flex flex-wrap items-baseline gap-2">
+            <span className="text-[11px]" style={{ color: "var(--ink-muted)" }}>
+              {selected.rol}
+            </span>
+            {typeof selected.precio_eur === "number" && (
+              <span className="font-mono text-[11px] font-bold" style={{ color: "var(--ink-secondary)" }}>
+                {selected.precio_eur.toFixed(2)} €
+              </span>
+            )}
+            {selected.incluido === false && (
+              <span className="font-head text-[10px] font-bold uppercase" style={{ color: "var(--status-warning)" }}>
+                Fuera de presupuesto
+              </span>
+            )}
+          </div>
+          <p className="text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
+            <HighlightedText text={selected.motivo} cardImages={cardImages} onHover={onHover} />
+          </p>
+        </div>
+      )}
+
+      {!selected && group.cut && (
+        <p className="min-w-[220px] flex-1 text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
           <HighlightedText text={group.cut.motivo} cardImages={cardImages} onHover={onHover} />
         </p>
       )}
-      {group.additions.map((addition, i) => (
-        <div key={i} className="flex flex-wrap items-baseline gap-2" style={{ opacity: addition.incluido === false ? 0.6 : 1 }}>
-          {group.additions.length > 1 && (
-            <span className="font-head flex-shrink-0 text-[11px] font-extrabold" style={{ color: "var(--status-good)" }}>
-              Opción {i + 1}:
-            </span>
-          )}
-          <span className="flex-shrink-0 text-[11px]" style={{ color: "var(--ink-muted)" }}>
-            {addition.rol}
-          </span>
-          {typeof addition.precio_eur === "number" && (
-            <span className="flex-shrink-0 font-mono text-[11px] font-bold" style={{ color: "var(--ink-secondary)" }}>
-              {addition.precio_eur.toFixed(2)} €
-            </span>
-          )}
-          {addition.incluido === false && (
-            <span className="font-head flex-shrink-0 text-[10px] font-bold uppercase" style={{ color: "var(--status-warning)" }}>
-              Fuera de presupuesto
-            </span>
-          )}
-          <p className="min-w-[200px] flex-1 basis-full text-sm leading-relaxed sm:basis-0" style={{ color: "var(--foreground)" }}>
-            <HighlightedText text={addition.motivo} cardImages={cardImages} onHover={onHover} />
-          </p>
-        </div>
-      ))}
     </div>
   );
 }
@@ -514,10 +555,32 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
 
           <div className="flex min-w-0 flex-1 flex-col gap-4">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <StatTile label="Tamaño del deck" value={result.tamano_deck} />
+              <StatTile
+                label="Tamaño del deck"
+                value={result.tamano_deck}
+                warning={
+                  result.no_encontradas.length > 0
+                    ? {
+                        label: `no encontrada${result.no_encontradas.length > 1 ? "s" : ""}`,
+                        detail: result.no_encontradas.join(", "),
+                      }
+                    : undefined
+                }
+              />
               <StatTile label="Tierras" value={result.tierras} />
               <StatTile label="CMC medio" value={result.cmc_medio.toFixed(2)} />
-              <StatTile label="Cartas no encontradas" value={result.no_encontradas.length} />
+              <StatTile
+                label="Coste aproximado"
+                value={`${result.coste_aproximado.total_eur.toFixed(2)} €`}
+                warning={
+                  result.coste_aproximado.cartas_sin_precio.length > 0
+                    ? {
+                        label: "sin precio para algunas cartas",
+                        detail: result.coste_aproximado.cartas_sin_precio.join(", "),
+                      }
+                    : undefined
+                }
+              />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -549,21 +612,14 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
         />
       )}
 
-      {(result.no_encontradas.length > 0 || result.no_legales.length > 0) && (
+      {result.no_legales.length > 0 && (
         <section
           className="rounded-sm border p-4"
           style={{ borderColor: "var(--status-critical)", background: "var(--surface)" }}
         >
-          {result.no_encontradas.length > 0 && (
-            <p style={{ color: "var(--foreground)" }}>
-              <strong>No encontradas:</strong> {result.no_encontradas.join(", ")}
-            </p>
-          )}
-          {result.no_legales.length > 0 && (
-            <p style={{ color: "var(--foreground)" }}>
-              <strong>No legales en Commander:</strong> {result.no_legales.join(", ")}
-            </p>
-          )}
+          <p style={{ color: "var(--foreground)" }}>
+            <strong>No legales en Commander:</strong> {result.no_legales.join(", ")}
+          </p>
         </section>
       )}
 

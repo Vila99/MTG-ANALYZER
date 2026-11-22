@@ -99,6 +99,10 @@ def client(tmp_path, monkeypatch) -> TestClient:
     db_path = tmp_path / "cards.db"
     make_db(db_path)
     monkeypatch.setattr(api_module.cards_module, "DEFAULT_DB_PATH", db_path)
+    # El coste aproximado del deck se calcula siempre (no solo con --ai):
+    # se mockea por defecto para que los tests no dependan de la red: los
+    # que sí quieren comprobar precios concretos sobreescriben esto.
+    monkeypatch.setattr("analyzer.prices.fetch_prices", lambda conn, names: {})
     return TestClient(api_module.app)
 
 
@@ -123,6 +127,18 @@ def test_analyze_happy_path(client: TestClient):
     assert body["card_images"]["Atraxa, Praetors' Voice"] == "https://cards.scryfall.io/normal/atraxa.jpg"
     assert body["card_images"]["Sol Ring"] == "https://cards.scryfall.io/normal/sol-ring.jpg"
     assert "Forest" not in body["card_images"]  # sin image_uri real, se omite
+
+
+def test_analyze_includes_approximate_deck_cost_even_without_ai(client: TestClient, monkeypatch):
+    monkeypatch.setattr(
+        "analyzer.prices.fetch_prices", lambda conn, names: {"Sol Ring": 0.85, "Forest": None}
+    )
+    response = client.post(
+        "/analyze",
+        json={"deck_text": "Commander:\n1 Atraxa, Praetors' Voice\n\nDeck:\n1 Sol Ring\n2 Forest\n"},
+    )
+    assert response.status_code == 200
+    assert response.json()["coste_aproximado"] == {"total_eur": 0.85, "cartas_sin_precio": ["Forest"]}
 
 
 def test_analyze_uses_explicit_commander_field(client: TestClient):

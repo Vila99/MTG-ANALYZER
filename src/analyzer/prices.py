@@ -14,7 +14,7 @@ from datetime import datetime, timedelta, timezone
 
 import requests
 
-from analyzer.cards import normalize_name
+from analyzer.cards import Card, normalize_name
 
 COLLECTION_URL = "https://api.scryfall.com/cards/collection"
 USER_AGENT = "MTG-Commander-Deck-Analyzer/0.1 (contacto: ver README)"
@@ -117,3 +117,25 @@ def fetch_prices(
     conn.commit()
 
     return result
+
+
+def compute_deck_cost(conn: sqlite3.Connection, deck_cards: list[Card]) -> dict:
+    """Coste total aproximado del deck (suma de precios reales en EUR, vía
+    Scryfall/Cardmarket) y qué cartas no tienen precio conocido (no se
+    suman: el total es una aproximación, no una cifra exacta)."""
+    unique_names = sorted({card.name for card in deck_cards})
+    prices = fetch_prices(conn, unique_names)
+
+    total = 0.0
+    sin_precio: list[str] = []
+    for card in deck_cards:
+        price = prices.get(card.name)
+        if price is None:
+            sin_precio.append(card.name)
+        else:
+            total += price
+
+    return {
+        "total_eur": round(total, 2),
+        "cartas_sin_precio": sorted(set(sin_precio)),
+    }
