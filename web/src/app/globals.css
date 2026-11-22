@@ -68,6 +68,12 @@ button {
   font-size: max(1rem, 1em);
 }
 
+/* Los navegadores NO dan cursor de mano a <button> por defecto (solo a los
+ * enlaces); sin esto, nada en la web avisa de qué es clicable. */
+button:not(:disabled) {
+  cursor: pointer;
+}
+
 :focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 2px;

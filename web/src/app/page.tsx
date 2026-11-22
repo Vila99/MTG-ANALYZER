@@ -48,7 +48,7 @@ function RecentAnalysesModal({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto p-6 sm:items-center"
+      className="fixed inset-0 z-[60] flex cursor-pointer items-start justify-center overflow-y-auto p-6 sm:items-center"
       style={{ background: "rgba(0,0,0,0.75)" }}
       onClick={onClose}
     >

@@ -18,7 +18,6 @@ const STATUS_COLOR_VAR: Record<string, string> = {
   ok: "var(--status-good)",
   alto: "var(--status-critical)",
 };
-const CONFIANZA_LABEL: Record<string, string> = { alta: "Alta", media: "Media", baja: "Baja" };
 const SEVERITY_ORDER: Record<string, number> = { alta: 0, media: 1, baja: 2 };
 const SEVERITY_COLOR_VAR: Record<string, string> = {
   alta: "var(--status-critical)",
@@ -308,30 +307,6 @@ function SwapGroupCard({
         />
       )}
 
-      {group.additions.length > 1 && (
-        <div className="flex flex-shrink-0 flex-col items-center gap-1 self-center">
-          <div className="flex gap-1">
-            {group.additions.map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setOptionIndex(i)}
-                className="font-head flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold"
-                style={{
-                  background: i === optionIndex ? "var(--accent)" : "var(--surface-muted)",
-                  color: i === optionIndex ? "var(--accent-ink)" : "var(--ink-muted)",
-                }}
-              >
-                {i + 1}
-              </button>
-            ))}
-          </div>
-          <p className="text-[10px]" style={{ color: "var(--ink-muted)" }}>
-            opción
-          </p>
-        </div>
-      )}
-
       {selected && (
         <div className="flex min-w-[220px] flex-1 flex-col gap-1">
           <div className="flex flex-wrap items-baseline gap-2">
@@ -352,6 +327,27 @@ function SwapGroupCard({
           <p className="text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
             <HighlightedText text={selected.motivo} cardImages={cardImages} onHover={onHover} />
           </p>
+          {group.additions.length > 1 && (
+            <div className="mt-1 flex items-center gap-1.5">
+              <span className="text-[10px]" style={{ color: "var(--ink-muted)" }}>
+                opción:
+              </span>
+              {group.additions.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setOptionIndex(i)}
+                  className="font-head flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold"
+                  style={{
+                    background: i === optionIndex ? "var(--accent)" : "var(--surface-muted)",
+                    color: i === optionIndex ? "var(--accent-ink)" : "var(--ink-muted)",
+                  }}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -447,7 +443,7 @@ function CardZoomModal({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-6"
+      className="fixed inset-0 z-[60] flex cursor-pointer items-center justify-center p-6"
       style={{ background: "rgba(0,0,0,0.75)", opacity: visible ? 1 : 0, transition: "opacity 150ms ease" }}
       onClick={onClose}
     >
@@ -734,16 +730,9 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
         <>
           {analisis.bracket && (
             <section className="rounded-sm border p-5" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
-              <SectionLabel>Bracket deducido</SectionLabel>
-              <div className="flex flex-wrap items-baseline gap-3">
-                <span className="font-head text-3xl font-extrabold" style={{ color: "var(--foreground)" }}>
-                  {analisis.bracket.deducido}
-                </span>
-                <span className="text-sm" style={{ color: "var(--ink-secondary)" }}>
-                  confianza {CONFIANZA_LABEL[analisis.bracket.confianza] ?? analisis.bracket.confianza} · suelo{" "}
-                  {analisis.bracket.suelo} · estimación de juego {analisis.bracket.estimacion_juego}
-                </span>
-              </div>
+              <p className="font-head text-2xl font-extrabold" style={{ color: "var(--accent)" }}>
+                BRACKET {analisis.bracket.deducido}
+              </p>
               {analisis.bracket.game_changers.length > 0 && (
                 <p className="mt-2 text-sm" style={{ color: "var(--foreground)" }}>
                   <strong>Game Changers:</strong> {analisis.bracket.game_changers.join(", ")}
@@ -778,35 +767,6 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
                     <li key={i}>{razon}</li>
                   ))}
                 </ul>
-              )}
-              {(analisis.bracket.que_lo_moveria.subir.length > 0 ||
-                analisis.bracket.que_lo_moveria.bajar.length > 0) && (
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  {analisis.bracket.que_lo_moveria.bajar.length > 0 && (
-                    <div>
-                      <p className="text-xs font-bold uppercase" style={{ color: "var(--status-critical)" }}>
-                        Lo bajaría
-                      </p>
-                      <ul className="list-inside list-disc text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
-                        {analisis.bracket.que_lo_moveria.bajar.map((item, i) => (
-                          <li key={i}>{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {analisis.bracket.que_lo_moveria.subir.length > 0 && (
-                    <div>
-                      <p className="text-xs font-bold uppercase" style={{ color: "var(--status-good)" }}>
-                        Lo subiría
-                      </p>
-                      <ul className="list-inside list-disc text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
-                        {analisis.bracket.que_lo_moveria.subir.map((item, i) => (
-                          <li key={i}>{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
               )}
             </section>
           )}
