@@ -418,10 +418,10 @@ export default function Home() {
           <button
             type="button"
             onClick={() => setShowRecentModal(true)}
-            className="font-head h-11 rounded-sm border text-[11px] font-bold uppercase tracking-wide"
+            className="font-head h-11 rounded-sm border text-[10px] font-bold uppercase"
             style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
           >
-            Últimos decks analizados{recent.length > 0 ? ` (${recent.length})` : ""}
+            Últimos decks analizados
           </button>
           </div>
         </form>
