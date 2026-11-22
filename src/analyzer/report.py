@@ -45,8 +45,14 @@ def build_summary(
     deck_cost: dict | None = None,
 ) -> dict:
     """Resumen del análisis en forma de dict (para ``--json`` y la API web)."""
+    color_order = {"W": 0, "U": 1, "B": 2, "R": 3, "G": 4}
+    identidad_color = sorted(
+        {color for c in commanders for color in c.color_identity},
+        key=lambda color: color_order.get(color, 99),
+    )
     summary = {
         "comandantes": [c.name for c in commanders],
+        "identidad_color": identidad_color,
         "tamano_deck": metrics.deck_size(deck_cards, commanders),
         "tierras": metrics.count_lands(deck_cards),
         "cmc_medio": round(metrics.average_cmc(deck_cards), 2),

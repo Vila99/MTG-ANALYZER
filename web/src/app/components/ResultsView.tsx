@@ -507,9 +507,18 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
       <section className="flex flex-col gap-5 border-b pb-6" style={{ borderColor: "var(--border)" }}>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h2 className="font-head text-2xl font-extrabold" style={{ color: "var(--foreground)" }}>
-              {result.comandantes.length > 0 ? result.comandantes.join(" + ") : "Sin comandante detectado"}
-            </h2>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h2 className="font-head text-2xl font-extrabold" style={{ color: "var(--foreground)" }}>
+                {result.comandantes.length > 0 ? result.comandantes.join(" + ") : "Sin comandante detectado"}
+              </h2>
+              {result.identidad_color.length > 0 && (
+                <span className="flex items-center gap-1 text-xl" aria-hidden="true">
+                  {result.identidad_color.map((color) => (
+                    <ManaIcon key={color} color={color} />
+                  ))}
+                </span>
+              )}
+            </div>
             {analisis?.bracket && (
               <p className="font-head mt-1 text-xs font-bold uppercase tracking-wide" style={{ color: "var(--ink-muted)" }}>
                 Bracket deducido {analisis.bracket.deducido} · {analisis.arquetipo}

@@ -66,6 +66,7 @@ export interface Analisis {
 
 export interface AnalyzeResponse {
   comandantes: string[];
+  identidad_color: string[];
   tamano_deck: number;
   tierras: number;
   cmc_medio: number;

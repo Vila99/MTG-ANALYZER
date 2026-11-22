@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { ManaIcon } from "./components/ManaIcon";
 import { ResultsView } from "./components/ResultsView";
 import {
   formatRelativeTime,
@@ -27,20 +28,19 @@ function fieldStyle() {
   } as const;
 }
 
-function InfoTooltip({ text }: { text: string }) {
+function InfoTooltip({ children }: { children: React.ReactNode }) {
   return (
     <span className="group relative inline-flex">
-      <button
-        type="button"
-        aria-label="Más información"
-        className="font-head flex h-4 w-4 items-center justify-center rounded-full border text-[10px] font-bold"
-        style={{ borderColor: "var(--ink-muted)", color: "var(--ink-muted)" }}
-      >
-        i
+      <button type="button" aria-label="Más información" className="flex items-center" style={{ color: "var(--ink-muted)" }}>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+          <rect x="11" y="10.5" width="2" height="7" rx="0.5" fill="currentColor" />
+          <circle cx="12" cy="7.2" r="1.3" fill="currentColor" />
+        </svg>
       </button>
       <span
         role="tooltip"
-        className="pointer-events-none invisible absolute bottom-full left-1/2 z-50 mb-2 w-60 -translate-x-1/2 rounded-sm border p-3 text-xs leading-relaxed opacity-0 transition-opacity group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100"
+        className="pointer-events-none invisible absolute bottom-full left-1/2 z-50 mb-2 w-64 -translate-x-1/2 rounded-sm border p-3 text-xs leading-relaxed opacity-0 transition-opacity group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100"
         style={{
           borderColor: "var(--border)",
           background: "var(--surface)",
@@ -48,7 +48,7 @@ function InfoTooltip({ text }: { text: string }) {
           boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
         }}
       >
-        {text}
+        {children}
       </span>
     </span>
   );
@@ -247,6 +247,11 @@ export default function Home() {
           <h1 className="font-head text-sm font-extrabold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
             MTG Deck Analyzer
           </h1>
+          <span className="flex items-center gap-1 text-base" aria-hidden="true">
+            {["W", "U", "B", "R", "G"].map((color) => (
+              <ManaIcon key={color} color={color} />
+            ))}
+          </span>
         </div>
         {result && (
           <button
@@ -383,14 +388,20 @@ export default function Home() {
             <div className="flex flex-col gap-1">
               <label htmlFor={styleId} className="flex items-center gap-1.5 text-xs font-bold" style={{ color: "var(--foreground)" }}>
                 Estilo
-                <InfoTooltip
-                  text={
-                    "Casual: prioriza la diversión de mesa, evita subir el bracket o sugerir cartas opresivas. " +
-                    "Focused: optimiza dentro del bracket que ya tiene el deck (consistencia, curva, sinergia). " +
-                    "cEDH: prioriza velocidad, interacción barata y el camino a la victoria por encima de todo, " +
-                    "aunque suba el bracket."
-                  }
-                />
+                <InfoTooltip>
+                  <p>
+                    <strong>Casual:</strong> prioriza la diversión de mesa, evita subir el bracket o sugerir
+                    cartas opresivas.
+                  </p>
+                  <p className="mt-2">
+                    <strong>Focused:</strong> optimiza dentro del bracket que ya tiene el deck (consistencia,
+                    curva, sinergia).
+                  </p>
+                  <p className="mt-2">
+                    <strong>cEDH:</strong> prioriza velocidad, interacción barata y el camino a la victoria
+                    por encima de todo, aunque suba el bracket.
+                  </p>
+                </InfoTooltip>
               </label>
               <select
                 id={styleId}

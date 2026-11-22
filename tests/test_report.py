@@ -113,6 +113,20 @@ def test_build_summary_includes_nota_deck_from_rubric_alone():
     assert summary["nota_deck"] == 10.0
 
 
+def test_build_summary_includes_identidad_color_in_wubrg_order():
+    commanders = [
+        make_card("Commander A", color_identity=["B", "G"]),
+        make_card("Commander B", color_identity=["W"]),
+    ]
+    summary = build_summary(commanders, [], [], {}, {})
+    assert summary["identidad_color"] == ["W", "B", "G"]
+
+
+def test_build_summary_identidad_color_empty_for_colorless_commander():
+    summary = build_summary([make_card("Commander", color_identity=[])], [], [], {}, {})
+    assert summary["identidad_color"] == []
+
+
 def test_build_summary_includes_nota_deck_lowered_by_problemas():
     rubric_status = {"land": "ok", "ramp": "ok", "draw": "ok", "removal": "ok", "wipe": "ok"}
     summary = build_summary(
