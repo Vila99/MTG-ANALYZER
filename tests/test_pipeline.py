@@ -2,8 +2,17 @@ import json
 import sqlite3
 from unittest.mock import MagicMock
 
+import pytest
+
 from analyzer.cards import Card
 from analyzer.pipeline import run_analysis
+
+
+@pytest.fixture(autouse=True)
+def _no_real_combo_lookups(monkeypatch):
+    # Combos verificados contra Commander Spellbook: se mockea por defecto
+    # para que los tests no dependan de la red.
+    monkeypatch.setattr("analyzer.combos.find_combos", lambda conn, names, commanders: [])
 
 
 def make_db() -> sqlite3.Connection:

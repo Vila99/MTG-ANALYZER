@@ -1,4 +1,8 @@
+import json
+import sqlite3
+
 from analyzer.bracket import (
+    classify_combo_speed,
     compute_floor,
     find_extra_turn_cards,
     find_game_changers,
@@ -113,3 +117,68 @@ def test_compute_floor_takes_the_highest_signal():
     result = compute_floor([], deck)
     assert result["floor"] == 4
     assert len(result["razones_suelo"]) == 2
+
+
+def make_combo_db() -> sqlite3.Connection:
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    conn.executescript(
+        """
+        CREATE TABLE cards (
+            oracle_id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            name_normalized TEXT NOT NULL,
+            mana_cost TEXT,
+            cmc REAL,
+            type_line TEXT,
+            oracle_text TEXT,
+            colors TEXT,
+            color_identity TEXT,
+            produced_mana TEXT,
+            legalities TEXT
+        );
+        """
+    )
+    for i, (name, cmc) in enumerate([("Barata Uno", 1.0), ("Barata Dos", 2.0), ("Cara", 6.0)]):
+        conn.execute(
+            "INSERT INTO cards VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                str(i), name, name.lower(), "", cmc, "Artifact", "",
+                json.dumps([]), json.dumps([]), json.dumps([]), json.dumps({"commander": "legal"}),
+            ),
+        )
+    conn.commit()
+    return conn
+
+
+def test_classify_combo_speed_temprano_when_cheap():
+    conn = make_combo_db()
+    combo = {"cartas": ["Barata Uno", "Barata Dos"]}  # cmc total 3
+    assert classify_combo_speed(conn, combo) == "temprano"
+
+
+def test_classify_combo_speed_tardio_when_expensive():
+    conn = make_combo_db()
+    combo = {"cartas": ["Cara", "Barata Dos"]}  # cmc total 8
+    assert classify_combo_speed(conn, combo) == "tardío"
+
+
+def test_compute_floor_cheap_combo_forces_bracket_four():
+    conn = make_combo_db()
+    combo = {"cartas": ["Barata Uno", "Barata Dos"], "produce": ["Win the game"], "descripcion": ""}
+    result = compute_floor([], [make_card("Sol Ring")], conn, [combo])
+    assert result["floor"] == 4
+    assert result["combos"][0]["velocidad"] == "temprano"
+
+
+def test_compute_floor_expensive_combo_forces_bracket_three():
+    conn = make_combo_db()
+    combo = {"cartas": ["Cara", "Barata Dos"], "produce": ["Win the game"], "descripcion": ""}
+    result = compute_floor([], [make_card("Sol Ring")], conn, [combo])
+    assert result["floor"] == 3
+    assert result["combos"][0]["velocidad"] == "tardío"
+
+
+def test_compute_floor_without_combos_or_conn_omits_combo_signal():
+    result = compute_floor([], [make_card("Sol Ring")])
+    assert result["combos"] == []

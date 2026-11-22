@@ -34,6 +34,13 @@ export interface SenalDura {
   detalle: string;
 }
 
+export interface ComboDetectado {
+  cartas: string[];
+  produce: string[];
+  descripcion: string;
+  velocidad?: "temprano" | "tardío";
+}
+
 export interface BracketAnalisis {
   deducido: number;
   confianza: "alta" | "media" | "baja";
@@ -54,6 +61,7 @@ export interface Analisis {
   anadidos_sugeridos: AñadidoSugerido[];
   bracket: BracketAnalisis;
   presupuesto?: PresupuestoResumen | null;
+  combos_detectados?: ComboDetectado[];
 }
 
 export interface AnalyzeResponse {

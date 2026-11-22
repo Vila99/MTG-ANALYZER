@@ -89,7 +89,7 @@ El código las calcula y se las pasa a Claude ya contadas. Claude las confirma y
 | Combo de 2 cartas que gana o es infinito, **solo viable tarde** | Bracket 3 |
 
 Notas:
-- **Combos:** usar los datos de Commander Spellbook cuando estén disponibles. Si no, Claude puede señalar combos conocidos, pero debe indicar que es una detección **no verificada**.
+- **Combos:** llegan ya verificados contra Commander Spellbook en `bracket_suelo.combos` (lista de `{cartas, produce, descripcion, velocidad}`; `velocidad` es `"temprano"` o `"tardío"`, una heurística por coste de maná combinado de las piezas — trátala como aproximada, no como una certeza absoluta sobre cuándo se puede montar en la práctica). El suelo que corresponde a cada velocidad ya está aplicado en `floor`/`razones_suelo`: no lo vuelvas a calcular. Si `combos` está vacío, no inventes combos de memoria — di que no se detectó ninguno en el pool verificado. Solo señala un combo que no aparezca en esa lista si tienes mucha seguridad, y dilo explícitamente como **no verificado**.
 - **Destrucción masiva de tierras:** el código marca candidatas por el texto oracle; Claude confirma si realmente lo son (Field of the Dead no es destrucción de tierras; Armageddon sí).
 - Una señal dura aislada en un deck claramente casual se informa como **infracción puntual**, no se ignora: el suelo se aplica, pero Claude explica que bastaría con cambiar esa carta para bajar de bracket.
 

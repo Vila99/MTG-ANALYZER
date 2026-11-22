@@ -11,7 +11,7 @@ from dataclasses import dataclass
 
 import anthropic
 
-from analyzer import bracket, llm, synergy, validate
+from analyzer import bracket, combos as combos_module, llm, synergy, validate
 from analyzer.cards import Card
 
 
@@ -37,7 +37,10 @@ def run_analysis(
     validado) porque ``scripts/run_eval.py`` las guarda todas para poder
     comparar versiones del prompt/rubric más adelante.
     """
-    bracket_floor = bracket.compute_floor(commanders, deck_cards)
+    unique_card_names = list({c.name for c in deck_cards})
+    commander_names = [c.name for c in commanders]
+    found_combos = combos_module.find_combos(conn, unique_card_names, commander_names)
+    bracket_floor = bracket.compute_floor(commanders, deck_cards, conn, found_combos)
     if candidate_pool is None:
         candidate_pool = synergy.build_candidate_pool(
             conn,

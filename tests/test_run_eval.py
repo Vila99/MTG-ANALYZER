@@ -3,7 +3,14 @@ import sqlite3
 from pathlib import Path
 from unittest.mock import MagicMock
 
+import pytest
+
 import run_eval as run_eval_module
+
+
+@pytest.fixture(autouse=True)
+def _no_real_combo_lookups(monkeypatch):
+    monkeypatch.setattr("analyzer.combos.find_combos", lambda conn, names, commanders: [])
 
 
 def make_db(path: Path) -> None:

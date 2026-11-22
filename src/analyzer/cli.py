@@ -119,6 +119,8 @@ def main(argv: list[str] | None = None) -> int:
         analysis = analysis_run.validated_analysis if analysis_run else None
         if analysis is not None:
             analysis = budget_module.apply_budget_to_analysis(conn, analysis, args.budget)
+            combos_detectados = analysis_run.payload.get("bracket_suelo", {}).get("combos", [])
+            analysis = {**analysis, "combos_detectados": combos_detectados}
         deck_cost = prices_module.compute_deck_cost(conn, deck_cards)
     finally:
         conn.close()

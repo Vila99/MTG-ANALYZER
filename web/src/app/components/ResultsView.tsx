@@ -749,6 +749,29 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
                   <strong>Game Changers:</strong> {analisis.bracket.game_changers.join(", ")}
                 </p>
               )}
+              {analisis.combos_detectados && analisis.combos_detectados.length > 0 && (
+                <div className="mt-3">
+                  <p className="font-head text-xs font-extrabold uppercase" style={{ color: "var(--foreground)" }}>
+                    Combos detectados (verificado contra Commander Spellbook)
+                  </p>
+                  <ul className="mt-1.5 flex flex-col gap-1.5">
+                    {analisis.combos_detectados.map((combo, i) => (
+                      <li key={i} className="text-sm" style={{ color: "var(--foreground)" }} title={combo.descripcion}>
+                        <span className="font-bold">{combo.cartas.join(" + ")}</span>
+                        {combo.produce.length > 0 && <> → {combo.produce.join(", ")}</>}
+                        {combo.velocidad && (
+                          <span
+                            className="font-head ml-2 text-[10px] font-bold uppercase"
+                            style={{ color: combo.velocidad === "temprano" ? "var(--status-critical)" : "var(--status-warning)" }}
+                          >
+                            {combo.velocidad}
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {analisis.bracket.razones.length > 0 && (
                 <ul className="mt-2 list-inside list-disc text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
                   {analisis.bracket.razones.map((razon, i) => (

@@ -299,6 +299,51 @@ def test_analyze_with_budget_enriches_additions_with_real_prices(client: TestCli
     }
 
 
+def test_analyze_exposes_combos_detectados_from_the_payload(client: TestClient, monkeypatch):
+    from analyzer.pipeline import AnalysisRun
+
+    monkeypatch.setattr("analyzer.llm.load_dotenv", lambda *a, **k: None)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "fake-key-for-test")
+
+    validated_analysis = {
+        "estrategia_detectada": "control",
+        "arquetipo": "artifacts",
+        "puntos_fuertes": [],
+        "problemas": [],
+        "cortes_sugeridos": [],
+        "anadidos_sugeridos": [],
+        "bracket": {
+            "deducido": 4,
+            "confianza": "alta",
+            "suelo": 4,
+            "estimacion_juego": 4,
+            "game_changers": [],
+            "senales_duras": [],
+            "razones": [],
+            "que_lo_moveria": {"bajar": [], "subir": []},
+        },
+    }
+    combo = {
+        "cartas": ["Thassa's Oracle", "Demonic Consultation"],
+        "produce": ["Win the game"],
+        "descripcion": "Exile library, win.",
+        "velocidad": "temprano",
+    }
+    fake_run = AnalysisRun(
+        payload={"bracket_suelo": {"floor": 4, "combos": [combo]}},
+        raw_analysis=validated_analysis,
+        validated_analysis=validated_analysis,
+    )
+    monkeypatch.setattr("analyzer.pipeline.run_analysis", lambda *a, **k: fake_run)
+
+    response = client.post(
+        "/analyze", json={"deck_text": "Deck:\n1 Sol Ring\n", "ai": True}
+    )
+
+    assert response.status_code == 200
+    assert response.json()["analisis"]["combos_detectados"] == [combo]
+
+
 def test_analyze_shows_prices_even_without_budget(client: TestClient, monkeypatch):
     # Bug real: los precios no aparecian en el informe si no se marcaba un
     # presupuesto, porque antes solo se consultaban en ese caso.

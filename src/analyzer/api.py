@@ -135,6 +135,8 @@ def analyze(request: AnalyzeRequest) -> dict:
             validated_analysis = budget_module.apply_budget_to_analysis(
                 conn, validated_analysis, request.budget
             )
+            combos_detectados = analysis_run.payload.get("bracket_suelo", {}).get("combos", [])
+            validated_analysis = {**validated_analysis, "combos_detectados": combos_detectados}
         card_images = _collect_card_images(conn, commanders, deck_cards, validated_analysis)
         deck_cost = prices_module.compute_deck_cost(conn, deck_cards)
     finally:
