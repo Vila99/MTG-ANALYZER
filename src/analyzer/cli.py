@@ -105,10 +105,11 @@ def main(argv: list[str] | None = None) -> int:
         conn.close()
 
     rubric_status = rubric.evaluate_role_counts(role_counts)
+    problemas = analysis.get("problemas") if analysis else None
 
     if args.json:
         summary = report.build_summary(
-            commanders, deck_cards, missing, role_counts, rubric_status, card_roles
+            commanders, deck_cards, missing, role_counts, rubric_status, card_roles, problemas
         )
         if analysis is not None:
             summary["analisis"] = analysis

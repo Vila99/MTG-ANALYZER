@@ -33,6 +33,43 @@ interface HoverTarget {
 
 type HoverHandler = (name: string | null, el: HTMLElement | null) => void;
 
+/** Nota simbólica 0-10 (ver analyzer.scoring): combina el rubric con la
+ * severidad de los problemas detectados, para dar feedback rápido de cómo
+ * ha salido el análisis de un vistazo. */
+function scoreColorVar(score: number): string {
+  if (score >= 8) return "var(--status-good)";
+  if (score >= 5) return "var(--status-warning)";
+  return "var(--status-critical)";
+}
+
+function scoreLabel(score: number): string {
+  if (score >= 8) return "Sólido";
+  if (score >= 5) return "Mejorable";
+  return "Necesita trabajo";
+}
+
+function DeckScoreBadge({ score }: { score: number }) {
+  const color = scoreColorVar(score);
+  return (
+    <div className="flex flex-shrink-0 items-center gap-2.5 text-right">
+      <div>
+        <p className="font-head text-xs font-extrabold uppercase tracking-wide" style={{ color: "var(--ink-muted)" }}>
+          Nota del análisis
+        </p>
+        <p className="font-head text-xs font-bold" style={{ color }}>
+          {scoreLabel(score)}
+        </p>
+      </div>
+      <div
+        className="font-head flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border-2 text-xl font-extrabold"
+        style={{ borderColor: color, color }}
+      >
+        {score.toFixed(1)}
+      </div>
+    </div>
+  );
+}
+
 function StatTile({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="rounded-sm border p-4" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
@@ -430,37 +467,8 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
         <CardZoomModal name={zoomedCard} imageUrl={cardImages[zoomedCard]} onClose={() => setZoomedCard(null)} />
       )}
 
-      <section className="flex flex-col gap-5 border-b pb-6 lg:flex-row lg:items-start" style={{ borderColor: "var(--border)" }}>
-        {result.comandantes.length > 0 && (
-          <div className="flex flex-shrink-0 gap-2 lg:w-[220px]">
-            {result.comandantes.map((name) => (
-              <div
-                key={name}
-                className="w-full overflow-hidden rounded-sm border"
-                style={{ borderColor: "var(--border)" }}
-              >
-                {cardImages[name] ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- imagen externa de Scryfall
-                  <img
-                    src={cardImages[name]}
-                    alt={name}
-                    className="block w-full"
-                    style={{ aspectRatio: "5/7", objectFit: "cover" }}
-                  />
-                ) : (
-                  <div
-                    className="flex items-center justify-center p-3 text-center text-xs"
-                    style={{ aspectRatio: "5/7", background: "var(--surface-muted)", color: "var(--ink-muted)" }}
-                  >
-                    Sin imagen
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div className="flex min-w-0 flex-1 flex-col gap-4">
+      <section className="flex flex-col gap-5 border-b pb-6" style={{ borderColor: "var(--border)" }}>
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h2 className="font-head text-2xl font-extrabold" style={{ color: "var(--foreground)" }}>
               {result.comandantes.length > 0 ? result.comandantes.join(" + ") : "Sin comandante detectado"}
@@ -471,28 +479,62 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
               </p>
             )}
           </div>
+          <DeckScoreBadge score={result.nota_deck} />
+        </div>
 
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <StatTile label="Tamaño del deck" value={result.tamano_deck} />
-            <StatTile label="Tierras" value={result.tierras} />
-            <StatTile label="CMC medio" value={result.cmc_medio.toFixed(2)} />
-            <StatTile label="Cartas no encontradas" value={result.no_encontradas.length} />
-          </div>
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
+          {result.comandantes.length > 0 && (
+            <div className="flex flex-shrink-0 gap-2 lg:w-[220px]">
+              {result.comandantes.map((name) => (
+                <div
+                  key={name}
+                  className="w-full overflow-hidden rounded-sm border"
+                  style={{ borderColor: "var(--border)" }}
+                >
+                  {cardImages[name] ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- imagen externa de Scryfall
+                    <img
+                      src={cardImages[name]}
+                      alt={name}
+                      className="block w-full"
+                      style={{ aspectRatio: "5/7", objectFit: "cover" }}
+                    />
+                  ) : (
+                    <div
+                      className="flex items-center justify-center p-3 text-center text-xs"
+                      style={{ aspectRatio: "5/7", background: "var(--surface-muted)", color: "var(--ink-muted)" }}
+                    >
+                      Sin imagen
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <SingleSeriesBarChart
-              title="Curva de maná (sin tierras)"
-              data={manaCurveData}
-              colorVar="var(--chart-mana)"
-              valueLabel="cartas"
-            />
-            <SingleSeriesBarChart
-              title="Cartas por rol"
-              data={rolesData}
-              colorVar="var(--chart-roles)"
-              valueLabel="cartas"
-              onBarClick={handleRoleBarClick}
-            />
+          <div className="flex min-w-0 flex-1 flex-col gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <StatTile label="Tamaño del deck" value={result.tamano_deck} />
+              <StatTile label="Tierras" value={result.tierras} />
+              <StatTile label="CMC medio" value={result.cmc_medio.toFixed(2)} />
+              <StatTile label="Cartas no encontradas" value={result.no_encontradas.length} />
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <SingleSeriesBarChart
+                title="Curva de maná (sin tierras)"
+                data={manaCurveData}
+                colorVar="var(--chart-mana)"
+                valueLabel="cartas"
+              />
+              <SingleSeriesBarChart
+                title="Cartas por rol"
+                data={rolesData}
+                colorVar="var(--chart-roles)"
+                valueLabel="cartas"
+                onBarClick={handleRoleBarClick}
+              />
+            </div>
           </div>
         </div>
       </section>

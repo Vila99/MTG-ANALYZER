@@ -127,8 +127,9 @@ def analyze(request: AnalyzeRequest) -> dict:
         conn.close()
 
     rubric_status = rubric.evaluate_role_counts(role_counts)
+    problemas = validated_analysis.get("problemas") if validated_analysis else None
     summary = report.build_summary(
-        commanders, deck_cards, missing, role_counts, rubric_status, card_roles
+        commanders, deck_cards, missing, role_counts, rubric_status, card_roles, problemas
     )
     if validated_analysis is not None:
         summary["analisis"] = validated_analysis

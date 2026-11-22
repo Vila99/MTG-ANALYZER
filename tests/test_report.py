@@ -105,3 +105,17 @@ def test_build_summary_includes_cartas_por_rol_when_card_roles_given():
 def test_build_summary_omits_cartas_por_rol_when_not_given():
     summary = build_summary([], [], [], {}, {})
     assert "cartas_por_rol" not in summary
+
+
+def test_build_summary_includes_nota_deck_from_rubric_alone():
+    rubric_status = {"land": "ok", "ramp": "ok", "draw": "ok", "removal": "ok", "wipe": "ok"}
+    summary = build_summary([], [], [], {}, rubric_status)
+    assert summary["nota_deck"] == 10.0
+
+
+def test_build_summary_includes_nota_deck_lowered_by_problemas():
+    rubric_status = {"land": "ok", "ramp": "ok", "draw": "ok", "removal": "ok", "wipe": "ok"}
+    summary = build_summary(
+        [], [], [], {}, rubric_status, problemas=[{"categoria": "x", "severidad": "alta", "explicacion": "y"}]
+    )
+    assert summary["nota_deck"] < 10.0

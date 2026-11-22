@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from analyzer.cards import Card
-from analyzer import metrics
+from analyzer import metrics, scoring
 
 _COLOR_NAMES = {"W": "Blanco", "U": "Azul", "B": "Negro", "R": "Rojo", "G": "Verde"}
 _ROLE_NAMES = {
@@ -41,6 +41,7 @@ def build_summary(
     role_counts: dict[str, int],
     rubric_status: dict[str, str],
     card_roles: dict[str, list[str]] | None = None,
+    problemas: list[dict] | None = None,
 ) -> dict:
     """Resumen del análisis en forma de dict (para ``--json`` y la API web)."""
     summary = {
@@ -55,6 +56,7 @@ def build_summary(
         "no_encontradas": missing,
         "roles": role_counts,
         "rubric": rubric_status,
+        "nota_deck": scoring.compute_deck_score(rubric_status, problemas),
     }
     if card_roles is not None:
         summary["cartas_por_rol"] = cards_by_role(card_roles)

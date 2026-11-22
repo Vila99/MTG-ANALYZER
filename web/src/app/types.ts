@@ -68,6 +68,7 @@ export interface AnalyzeResponse {
   no_encontradas: string[];
   roles: Record<string, number>;
   rubric: Record<string, RubricStatus>;
+  nota_deck: number;
   analisis?: Analisis;
   card_images: Record<string, string>;
   cartas_por_rol: Record<string, string[]>;

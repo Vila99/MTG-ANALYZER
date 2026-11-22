@@ -219,7 +219,7 @@ export default function Home() {
             <div className="grid grid-cols-1 gap-3">
               <div className="flex flex-col gap-1">
                 <label htmlFor={budgetId} className="text-xs font-bold" style={{ color: "var(--foreground)" }}>
-                  Presupuesto $
+                  Presupuesto €
                 </label>
                 <input
                   id={budgetId}
