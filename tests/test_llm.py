@@ -74,10 +74,13 @@ def test_get_client_requires_api_key(monkeypatch):
         get_client()
 
 
-def test_load_system_prompt_contains_the_rubric():
+def test_load_system_prompt_includes_the_deckbuilding_knowledge():
     prompt = load_system_prompt()
-    assert "Tierras" in prompt
-    assert "35" in prompt
+    # El contrato de system_analysis.md
+    assert "analyze_deck" in prompt
+    # El marco de criterios de prompts/knowledge/deckbuilding.md
+    assert "generador" in prompt
+    assert "goldfish" in prompt
 
 
 def make_commander() -> Card:

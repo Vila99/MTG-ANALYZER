@@ -23,6 +23,9 @@ HAIKU_MODEL = "claude-haiku-5-5"
 SONNET_MODEL = "claude-sonnet-5-5"
 
 SYSTEM_PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "system_analysis.md"
+DECKBUILDING_KNOWLEDGE_PATH = (
+    Path(__file__).resolve().parents[2] / "prompts" / "knowledge" / "deckbuilding.md"
+)
 
 _CLASSIFY_TOOL = {
     "name": "classify_card",
@@ -142,7 +145,14 @@ _ANALYSIS_TOOL = {
 
 
 def load_system_prompt() -> str:
-    return SYSTEM_PROMPT_PATH.read_text(encoding="utf-8")
+    """Contrato de análisis (``system_analysis.md``) + el marco de criterios
+    de construcción de decks (``prompts/knowledge/deckbuilding.md``), que
+    sustituye al rubric fijo por uno condicional al plan del deck y al
+    bracket. Se concatenan en un solo bloque de texto cacheado."""
+    parts = [SYSTEM_PROMPT_PATH.read_text(encoding="utf-8")]
+    if DECKBUILDING_KNOWLEDGE_PATH.exists():
+        parts.append(DECKBUILDING_KNOWLEDGE_PATH.read_text(encoding="utf-8"))
+    return "\n\n---\n\n".join(parts)
 
 
 def build_analysis_payload(

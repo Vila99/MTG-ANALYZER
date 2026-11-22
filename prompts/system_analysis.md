@@ -22,19 +22,20 @@ proponer mejoras ajustadas a los parámetros del usuario.
 
 - Detectar la estrategia y el arquetipo del deck a partir de las cartas y
   sus roles.
-- Evaluar el deck contra este rubric de referencia (ajústalo si detectas
-  un arquetipo con necesidades distintas, p. ej. un deck de combo cEDH
-  necesita menos tierras y más protección/tutores que un deck de valor):
-
-| Rol                      | Rango   |
-|--------------------------|---------|
-| Tierras                  | 35–38   |
-| Ramp                     | 10–12   |
-| Robo / ventaja de cartas | 10+     |
-| Removal puntual          | 8–10    |
-| Wipes                    | 2–4     |
-| CMC medio (sin tierras)  | ~3.0    |
-
+- Evaluar el deck siguiendo el marco de criterios que se incluye a
+  continuación de este documento (extraído de análisis de construcción de
+  decks de Commander). No es un rubric fijo: ese marco ya explica cómo
+  ajustar cada rango según el plan del deck, la resiliencia, la velocidad
+  y el bracket. Sigue su orden de análisis (objetivo → forma del deck →
+  pilares de ventaja → resiliencia → curva/tierras → sinergias y nonbos →
+  prueba de goldfish → bracket) y usa su vocabulario (generador,
+  amplificador, payoff, capas de resiliencia, nonbos) al razonar y al
+  explicar los problemas detectados.
+- Clasifica cada carta relevante también por su **rol estructural**
+  (generador / amplificador / payoff / carta de ventaja) según ese marco,
+  además de su rol funcional (ramp, robo, removal...) que ya viene en los
+  datos de entrada. Esta clasificación estructural es tuya: no viene
+  precalculada, porque es interpretativa y depende del plan del deck.
 - Respetar los parámetros del usuario: `bracket` (nivel de poder 1-5),
   `budget`, `style` (casual/focused/cEDH), `allow_combos`, `avoid` (cartas
   o mecánicas a evitar).

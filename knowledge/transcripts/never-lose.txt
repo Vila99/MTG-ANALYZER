@@ -1,0 +1,1951 @@
+Your standard game of Commander has four
+players. Assuming all the decks are
+around the same power level, your
+chances of winning are only 25%. The
+thing is, I've discovered six secrets
+that will make you win way, way more
+than one in four games without
+dramatically [music]
+increasing the power level of your deck
+or even making you that much better
+[music] at Magic. And just to prove to
+you how well what I'm teaching works,
+throughout this video, we're going to
+take one of my old decks, completely
+[music] tear it apart, then instill each
+of those secrets into it, and then take
+the new version of that deck to my local
+game [music] store, play it against
+real-life people, and keep track of its
+actual win percentage. [music] And to
+help us do all that, we'll be using
+Mythic Tools. And the reason Mythic
+Tools is perfect for this is that it's
+an all-in-one toolkit designed to
+replace the patchwork of single-purpose
+tools every Magic player uses. It's the
+life tracker I personally use. It has an
+awesome collection [music] management
+system and deck builder. And then has
+two things I'm really excited about for
+this video in particular, its smart deck
+feature, which gives you custom card
+recommendations not just based around
+your commander, but all the cards
+already in your deck, which can really
+help you find super unique, high-synergy
+cards. And if you know anything about
+me, I love finding that super old, wacky
+card that just fits perfectly into your
+deck. [music] And then Mythic Tools can
+also track the stats and the performance
+of your deck, which we'll all be using
+throughout this video to keep track of
+the real win percentage [music] of my
+deck, and then report back to you at the
+end of this video with that percentage.
+At this point, you're probably wondering
+how this is even possible. I am making
+some pretty big promises. After all,
+Magic: The Gathering isn't like Monopoly
+or Catan, where some simple strategy and
+some simple game knowledge can make you
+dramatically better. Magic is fiendishly
+complex. A quick Google search will
+straight-up tell you that Magic isn't
+just complex, it's literally the most
+complex game ever invented. More complex
+than chess and even Go. In each game of
+Commander, a player has near-infinite
+decision paths they could go down. But
+technically, only one of those decision
+paths out of the infinite number that
+are available is optimal. And because of
+that sheer amount of complexity, Magic
+is [music] incredibly skill-dependent. A
+highly experienced player with a weaker
+deck can often easily beat an
+unexperienced player with a stronger
+deck. And that doesn't even account for
+the ability of a skilled deck builder to
+build a deck that functions better than
+another player's deck. And
+unfortunately, there's no way around it.
+All that skill must be built through
+playing the game and putting in
+thousands [music] and thousands of reps
+and gaining a deep knowledge of the card
+base. And I'm going to be the first to
+admit that skill [music] is probably the
+biggest factor in winning at Commander a
+lot. And that's why today I'm not only
+going to teach you some simple [music]
+ways to get better at Commander right
+now, but I'm going to teach you how to
+build a deck that literally forces
+[music] you to be good at Commander. But
+before I share those secrets, you need
+to understand something about Magic: The
+Gathering. At its most basic, most
+simple level, Magic [music] involves one
+thing. And that's spending your limited
+resources on playing the right cards at
+the right time, so your opponent loses
+the game before you.
+Take two players. One is a noob, and one
+is really good at Magic. [music] Because
+that good player has a deep knowledge
+base of cards and better understands how
+to play their cards, as each turn
+progresses, that good player
+will spend his resources better and gain
+a marginal advantage over the bad
+player. [music] Until eventually, they
+reduce their opponent's life total to
+zero before theirs. [music] And the good
+player does this in a few ways. By
+removing or interacting with the right
+cards on their opponent's fields to
+prevent them from getting too much
+value, holding back the right cards in
+their hand, or protecting their cards at
+the right time so they don't lose value
+themselves, committing the right amount
+of value to the field at the right time
+so they don't overextend, and so they
+can win the game. And lastly, they bring
+the right cards in their deck in the
+first place. And all that literally
+takes years to master or even get decent
+at. And none of us have time for that
+when we're constantly getting smacked
+down at Commander night. So let's jump
+right into that very first secret. How
+to build a deck that does not lose.
+[music] If you just build a deck that
+never loses, you're always going to win.
+Let me explain a little bit better
+because this secret is actually pretty
+simple. Instead of building the core
+theme [music] of your deck around the
+idea of winning, I propose a much better
+strategy is to construct the primary
+theme of your deck around the concept of
+not losing. And I'm not just talking
+about interaction here. I'm talking
+about the main theme of your deck and
+how to rely on its strengths [music]
+to not lose. We'll start by asking a
+simple question. How does your [music]
+deck lose? I think there are two broad
+answers to this question. The first way
+your deck loses is your opponents are
+able to prevent you from winning.
+Meaning your plan's functioning, but
+they stop you somehow. And the second
+way your deck loses is you're unable to
+prevent [music] your opponents from
+winning. I want to take a deep dive into
+these questions because I think
+implementing those questions into your
+deck will win you more games than
+anything else that we're going to go
+over. We're going to learn how to make a
+deck so tough and so resilient
+>> [music]
+>> that your victory seems inevitable. And
+the really fun part about this is we're
+not going to speed up your deck to do
+it. Your deck's not going to feel
+overpowered compared to your opponents.
+It's not going to win faster or be
+explosive.
+It's just not going [music] to lose. I
+call this concept of your deck not
+losing deck resilience. And it's
+something I've talked about in a few
+videos before, but in this one we're
+really going to take a detailed look at
+it and learn how to actually implement
+it. Several years back, I built this
+Ratchet Field Medic deck and it changed
+how I built decks forever. And that's
+because I accidentally built a deck that
+was so resilient it felt like it could
+not lose. This deck was built before the
+current bracket system, but at the time
+I was playing it against sevens and I
+distinctly remember winning my first six
+games in a row with it. Power level
+seven probably correlated to around
+bracket three, but it was a little
+wishy-washy back then. Doesn't matter
+though. What matters is how the deck was
+winning. It wasn't fast or explosive and
+it wasn't getting to my win conditions
+faster than my opponents. It won every
+game by not being faster, but by being
+the last deck standing. There's few
+things that led to this. First, the
+primary focus of the deck is life gain.
+So, my risk of dying to combat was
+always less than my opponents. Most of
+the important pieces in this deck
+are artifacts and enchantments and
+therefore harder to remove than
+creatures. Third, the deck was also
+based around recurring things from the
+graveyard. So, if my stuff did get
+destroyed, I could always get it back
+and keep on rolling. And I get that that
+is a very specific deck built around a
+specific theme, but from this deck I
+learned a secret. A secret I've
+implemented in numerous decks since
+[music] and it always leads to the same
+result. That deck winning an incredible
+[music] amount of games without feeling
+overpowered. The secret of that Ratchet
+deck is
+that the primary theme of the deck was
+able to layer multiple concepts of
+resilience [music] into one cohesive
+plan. The fact the deck was an artifact
+and enchantment, life gain, and
+recursion deck all in one made the
+[music] deck feel unstoppable while
+never making it feel too fast for my
+opponents. So, the question here is how
+to implement those layers [music] of
+resilience into your own decks.
+And I think the best place to start is
+by going through each color and breaking
+down their strengths and their
+weaknesses when it comes
+>> [music]
+>> to resilience.
+Starting with white, which is what I
+think is the most resilient of all the
+colors. Years ago, white was considered
+among the weakest and most boring
+colors, but after a change in design
+philosophy, white has been exploring a
+lot of different spaces. And that
+exploration has made white a lot more
+powerful, [music]
+and it also has made it incredibly
+resilient. The thing white is the
+absolute best at is protection, and I
+don't know if any other color even
+really comes close. Cards like Teferi's
+Protection and Flawless Forbearance are
+basically [music] catch-all
+save-your-butt cards. There's a ton of
+great protection spells in white, fogs,
+ways to give your stuff indestructible,
+ways to phase out your stuff. And then
+it's also really good at protecting your
+life total because it's one of the best
+colors at gaining life. And then it also
+might be the best color at removing your
+opponent's stuff so they don't [music]
+win the game and you don't lose the
+game. Farewell, one of the best board
+wipes in the game, will ruin any deck's
+plan. And Swords to Plowshare might be
+the best single-target removal for
+creatures.
+But the thing that's made white really
+resilient is not even its strengths,
+it's its lack of weaknesses. The thing
+about white, since it's explored so many
+design spaces over the last decade or
+so,
+is that it's kind of become second or
+third best at literally everything there
+is to do in magic. And I know it's a
+bold statement to make, but I honestly
+believe it. It's not as good at land
+wrapping as green, but it's certainly
+second best. And because of that, it can
+get more lands out of the battlefield
+and rebuild faster after a board wipe
+than red, black, or blue. White might
+not be as good at recurring permanence
+from a graveyard as black is, but it
+sneakily has become second best at it.
+>> [music]
+>> White has super powerful mass
+reanimations, and a lot of them are
+somehow flying under the radar. And
+although white might not technically be
+as good on the stack as red or blue,
+who needs a counter spell when you can
+completely dodge an effect or just
+silence your opponents? Obviously,
+leaning into any of these concepts will
+make your deck more resilient. But it's
+taking multiple of these concepts and
+synergizing them with your theme that
+will make your deck super super
+resilient. And that's one of the things
+that makes white so resilient in
+particular. Since it has access to so
+many different types of resilience, it's
+easier to take those and stack them into
+your deck all in one color. But the
+majority of decks are not one color.
+They're multiple colors, which is great
+because it means you can take the best
+parts of each color and then combine
+them into [music] one. So that being
+said, let's get into our next color,
+blue. When it comes to resilience, blue
+has some really big strengths and some
+really big weaknesses. Blue obviously
+has access to counter spells, which
+gives blue more power and more
+flexibility when working on the stack
+than any other color. Adding counter
+spells to any blue deck helps your deck
+stick around. They keep your opponents
+from winning and protect your stuff,
+which is kind of the base of this entire
+concept. Blue's also great at drawing
+cards, which helps you rebuild. But blue
+also has some really big weaknesses, and
+understanding those weaknesses is
+important because you can sometimes make
+up for them with another color, or
+sometimes you can also find clever ways
+to circumvent them. First off, blue is
+bad at ramping. It means in blue, it's
+always more difficult to rebuild after a
+board wipe because you just have less
+resources left on the battlefield to do
+so. Blue is also terrible at getting
+things other than instants and sorceries
+out of the graveyard. There's a few ways
+to do artifacts, but they're not the
+best. So, if you have a blue deck, how
+do you make it more resilient [music]
+and tougher for your opponents to deal
+with? As a blue player, you need to draw
+a lot of cards to have mana up on your
+opponent's turn so you can react
+accordingly with a counter spell. I
+understand that holding up mana is
+easier said than done. I myself love to
+tap out even when I know I shouldn't.
+So, one thing I really like doing is
+implementing strategy to my deck to make
+it easier for me to hold up mana. Either
+by completely building my deck around
+the ability to play at instant speed,
+which also has a ton of other benefits
+that we're going to get into later in
+the video, especially when we do our
+deck build, or by finding clever ways to
+untap that little bit of extra mana at
+the end of my [music] turn. The other
+really great way to make blue decks
+resilient is by holding a lot of your
+power in your hand. It's one of the
+toughest zones for your opponents to get
+access to,
+and if you keep your win conditions
+there, they're probably not going to
+have great answers for them. Blue is
+also a very good artifact and
+enchantment color, and leaning into
+either of those things will make your
+deck tougher to deal with. But also,
+blue is just one of the best
+supplementary colors because its own
+special brand of resilience is so good
+at reinforcing any of the other colors.
+Moving on to black, which also has some
+big strengths and weaknesses. Black is
+obviously excellent at recurring things
+from your graveyard and creatures in
+particular, [music]
+which means black can be fantastic at
+recovering from a board wipe if your
+deck is built right. The next thing that
+black is really good at is gaining life.
+Black has a few great cards that will
+gain you
+an incredible amount of life. And the
+cool part about that is that some of
+black's big life gainers also can
+function as win conditions. Black also
+has some really great board wipes
+[music] and interaction that are good at
+getting around resilient pieces.
+Although black does have some okay ramp,
+it's still not as good as white or
+green.
+And lots of times that ramp takes a lot
+of setup to get rolling, so it can't
+always be relied upon. One of black's
+biggest weaknesses though is that it has
+very little on the stack protection. It
+has a few fogs and a few ways to return
+your creatures to the battlefield right
+after they die, but other than that, not
+much. [music]
+And it really doesn't have any good way
+to deal with exile other than just
+sacrificing your creature before it gets
+exiled. [music]
+And ironically, even though black is
+really good at gaining life, another big
+weakness that it has is it's a really
+good at losing life. It has a ton of pay
+life to do something abilities, and
+using too many of those will make your
+deck lose early from life loss. And that
+life loss will make you a lot easier for
+your opponents to kill. When it comes to
+making black more resilient, really lean
+into its [music] strengths. Don't be
+afraid to play out of your graveyard or
+play any of the cards that will gain you
+a million lives. One of the things
+that's really cool [music] about black
+is that a lot of those cards that help
+make your deck resilient also function
+as really great win conditions. Gray
+Merchant of Asphodel and Exsanguinate
+will gain you a ton of life, but they
+also can just straight up win you the
+game. The same is true for mass
+reanimation spells. The other thing that
+I think is important to do in black is
+make sure you have answers for cards
+that will shut your deck down. Find ways
+to deal with exile. Make sure you have
+the right cards to deal with graveyard
+hates. And make sure you're always in a
+place where you can react to your
+opponents by using things like sacrifice
+outlets at instant speed. Next up, we
+have red, which is unfortunately the
+most fragile of all the colors. Red just
+doesn't have a lot of resilience to it
+because its whole thing is being fast
+and explosive and dealing a bunch of
+damage. For its strengths, red has its
+redirect abilities, which no other color
+really has access to, and they're super
+fun to play, which is also a big plus,
+and they're pretty good, but they are
+[music]
+limited in scope. Red also has some
+ability to recur [music] instant
+sorceries and artifacts from its
+graveyard, which can help in rebuilding
+your board state. [music] However,
+red's big weaknesses are really severe,
+and that's its problem. Red is the worst
+color at gaining life. It has
+essentially no protection other than its
+redirects. It is not good at ramping, or
+at least permanently ramping. That
+brings us to the next big issue, and
+that's that there are certain cards that
+absolutely demolish red decks. When
+you're playing mono red and you get by a
+farewell, it [music] is devastating. You
+lose your graveyard and you lose
+everything on your board. And one of the
+big issues with red is that it doesn't
+draw cards in the same way as other
+cards. It relies a lot on impulse
+drawing and temporary card [music]
+advantage effects. That being said, it
+is possible to make a red deck that is
+relatively resilient. And if you want a
+really good example of this, check out
+my video on mono red because I do just
+that. My biggest recommendation is to
+make sure your permanent spells are more
+difficult [music] to interact with, so
+enchantments and artifacts instead of
+creatures and planeswalkers. Make sure
+you're able to play from your graveyard,
+but most importantly,
+>> [music]
+>> you need to be playing spells that help
+you get a full hand. When you get hit by
+that farewell and you only have two
+cards in hand, because you've been
+impulse drawing,
+you get demolished. When I play mono red
+now,
+I always make sure I have like three or
+four good wheels in my deck that will
+completely [music] restock my hand. And
+the other really great way to help your
+red deck survive tough situations is by
+making sure that your deck can act at
+instant speed. One thing about red is
+that it is probably the best color at
+doing damage on the stack. And lots
+times, if your red deck is built right,
+and you get into the middle and late
+game, you'll probably have enough damage
+where you can take [music] out one
+opponent if you need to. And in your
+typical good game, you don't want to
+just typically focus on one like that,
+because it'll get you targeted. But,
+let's say someone casts a farewell, that
+farewell is going to completely
+devastate you. If you just killed that
+player on the stack, that farewell gets
+exiled, and it doesn't affect your board
+[music] state. When you're in red, your
+best protection is just player removal.
+And that means keeping up mana just like
+you're in blue, and making sure you can
+always act at instant speed when you
+need to. Green is another one with some
+big strengths and some big weaknesses.
+And the thing about green is that its
+big strengths are so big. Green [music]
+can land ramp so hard and fast, and it
+can draw so many cards. [music] The
+combination of these two things makes
+green a very resilient color when your
+deck is built right. Who cares if your
+big piece gets removed when you have 15
+cards in hand and 30 mana? You just play
+something else. And the nice part about
+a lot of green ramp is it's that land
+[music] ramp, which means it's usually
+untouched by board wipes. And then when
+everyone else gets wiped, and you have
+more mana than everyone else, and more
+cards in hand than everyone else, you're
+naturally just going to rebuild faster,
+and your deck is going to come back
+faster. Green has some big weaknesses,
+though. It doesn't have a lot of
+protection, it does have a few good
+fogs, and a few good protection spells,
+but they're a little bit few and far
+between. And they're really nothing like
+what's in white blue. I know a lot of
+people consider green a good graveyard
+color, but I believe at this point
+that's a bit overstated. Yes, it can get
+any card back from your graveyard, which
+is useful, and it's really good at
+getting cards back [music] from your
+graveyard to your hand. Green's really
+good at milling, and it's good at
+getting lands from your graveyard to the
+battlefield.
+But, I don't think it can pack quite the
+same [music] out of the graveyard punch
+as black, white, or even red. Unless
+you're a landfall, then there's some
+really busted things you can do.
+As for the deck we'll be using in this
+video, a few months back I built an
+Esper landfall deck. And if you know
+anything about landfall, that's the
+wrong colors to build it in. But since
+then, a few new cards have come out, and
+I think it'll be the perfect deck to
+implement the secrets we're learning in
+this video into. [music]
+So, the very first thing I did is I took
+it and I imported it into Mythic Tools
+as my smart deck. And there's one thing
+I noticed immediately. My land base was
+all sorts of screwed up. Mythic Tools
+has this really nice feature where it
+analyzes the mana health of your deck,
+and uses these clear diagrams to show if
+you messed it up or not. And in this
+case, I definitely messed it up. If you
+notice here, I have way too few white
+sources of mana and way too many white
+pips. So, the first thing I did was put
+some more white-producing lands into the
+deck. So, how are we going to implement
+that first secret into this deck? Well,
+we're going to do exactly what we talked
+[music] about. We're going to stack
+layers of resilience into its main
+theme. That first layer will be land
+ramp. Land ramp makes your deck more
+resilient because lands are hardly ever
+removed in casual [music] Commander,
+which means you'll always be able to
+rebuild back faster than your opponents.
+[music]
+For that second layer, we'll use white's
+and black's ability to recur permanence
+from our graveyard, which means we're
+going to care a lot less about our
+pieces [music] being removed. And then
+for that third layer of resilience,
+we're going to use white's and blue's
+ability to play on the stack and at
+instant speed, protecting our stuff and
+interacting with our opponents. Let me
+show you how I took our three layers of
+resilience [music] and synergize them
+into one cohesive deck. The main theme
+section of this deck has three parts.
+The first [music] part is that permanent
+recursion. I found these cards by first
+going through my bulk
+and finding cards that might work in
+this deck. I then used those cards that
+I found as the basis of my search terms.
+I then went to Mythic Duel's Deck
+Builder and started doing some card
+searches and ended up compiling around
+several hundred cards that I think I
+might like. I then was able to cut those
+down into our three main categories
+here. The first of which is permanent
+recursion, which is the thing that's
+going to allow us to take lands from our
+graveyard, put them onto our
+battlefield, and pseudo ramp. These
+cards are Restoration of Eiganjo. It's a
+saga [music] and it is perfect in this
+deck. It's three mana and it reads,
+"Search your library for a basic plains
+card, put it in your hand, then shuffle.
+Then, you may discard a card. When you
+do, return target permanent card with
+mana value two or less from your
+graveyard to the battlefield." The last
+chapter reads, "Exile the saga, then
+return to the battlefield transformed
+under your control." The backside is
+just a vigilance 3/4 that makes 1/1s
+when it attacks [music] and blocks. But,
+the more important side is the front
+side with that permanent recursion.
+Then, we have Svyelun's Reclamation.
+It's a three-mana sorcery. "Return
+target permanent card with mana value
+three or less from your graveyard to the
+battlefield. If this card is cast from
+your graveyard, you may copy this spell.
+And then, you may choose new targets for
+for copy." It has flashback five, which
+means you can cast it from your
+graveyard [music] for five mana. Court
+of Ardenvale, it's a four mana
+enchantment. When it enters, you become
+the monarch. At the beginning of your
+upkeep, return target permanent card
+with mana value three or less from your
+graveyard to your hand. If you're the
+monarch, return that permanent card to
+the battlefield instead. Cosmic
+Intervention, it's a four mana instant
+and it is one cool card in this deck. It
+reads, "If a permanent you control would
+be put into the graveyard from the
+battlefield this turn, exile it instead.
+>> [music]
+>> Return to the battlefield under its
+owner's control at the beginning of the
+next end step." It has a foretell cost
+for one [music] and a white and it's
+going to be a lot of fun to play with.
+Because this deck is going to have
+multiple ways to sacrifice our entire
+board, lands included. And if we do that
+after we cast this card, we have the
+potential to have a giant seismic
+landfall turn. Because this card would
+bring all those lands back at once at
+our end step. Then we have Carmen, cruel
+sky marcher. It's three white and a
+black for a 2 2 flyer.
+She reads, "Whenever a player sacrifices
+a permanent, put a plus one plus one
+counter on Carmen and you gain one
+life." She also has, "Whenever Carmen
+attacks, return up to one target
+permanent card with mana value less than
+or equal to Carmen's power from your
+graveyard to the battlefield." Which is
+going to be able to grab our lands early
+and even some bigger stuff like Then we
+have Sun Titan. I feel like I've been
+building with this card a lot recently.
+"Whenever Sun Titan enters the
+battlefield or attacks, return target
+permanent card with mana value three or
+less from your graveyard to the
+battlefield." Then we have Angel of
+Indemnity. It's a six mana flyer
+lifelink and she reads, "When this
+creature enters, return target permanent
+card with mana value four or less from
+your graveyard to the battlefield."
+Overall, this deck should have a pretty
+low curve and I expect that all these
+cards will be able to gain us a ton of
+value. They're going to be able to grab
+lands and all sorts of other stuff from
+the graveyard. The next big category in
+our theme is our land ramp. Obviously,
+if you're playing landfall, you have to
+land ramp.
+The cool part is that a good bit of this
+will synergize with our permanent
+recursion. Because we're not running
+your typical green sorceries and
+instance that ramp you. We're having to
+play alternatives. First up, we have
+Myriad Landscape. It's a land that
+enters tapped, but you can pay to
+sacrifice it and search your library for
+two basic land [music] cards that share
+a type.
+Put them on the battlefield tapped.
+Trove of Ponies, this is a newer card
+and super sweet. I think it might end up
+being a staple actually. Pay two,
+sacrifice this creature, search your
+library for two basic lands, reveal
+them.
+Put one on the battlefield tapped and
+the other into your hand. Then we have
+Wayfarer's Bauble. It's a one mana
+artifact. Pay two, sacrifice Wayfarer's
+Bauble, search your library for a basic
+land, put it on the battlefield tapped.
+Solemn Simulacrum.
+When it enters the battlefield, you may
+search your library for a basic land
+card, put it on the battlefield tapped.
+When it dies, you draw a card. And then
+here's a card which is very similar to
+Solemn Simulacrum, which I don't think
+gets enough play. And that's Kor
+Cartographer. When it enters the
+battlefield, you may search your library
+for a plains card. Put it on the
+battlefield tapped. One important thing
+to note here, if you're a newer player,
+is something that actually took me like
+years to figure out. [music] This card
+only specifies plains, not basic plains.
+[music] This is incredibly important.
+Because take a look at this card,
+Prairie Stream. It's a non-basic land,
+but if you look at its types [music]
+here, it has two types. It's a plains
+island. So Kor Cartographer could
+theoretically grab this land from your
+library, which is super good because it
+has the potential to color fix you. Some
+of these type lands have really good
+enters abilities. And also, whenever
+other land ramp in your deck is
+searching for basics, you're going to
+run out of them pretty quick. So, being
+able to grab other things is super
+useful. Then we have Sword of Hearth and
+Home. It's a three mana equipment.
+Equipped creature gets plus two plus
+two,
+protection from green and white. [music]
+Whenever equipped creature deals combat
+damage to a player,
+exile up to one target creature you own,
+then search your library for a basic
+[music] land. Put both cards on the
+battlefield under your control.
+This can be a very powerful card in this
+deck.
+We've already gone over a lot of really
+great things we could flicker with it.
+Sun Titan, Angel of Indemnity, or land
+ramp cards, Solemn Cartographer, Solemn
+Simulacrum. Those will all be super good
+targets for it. And it land ramps while
+we're [music] at it. Lastly, we have the
+old school Burnished Heart. It's a three
+mana two two elk. Pay three, sacrifice
+Burnished Heart, search your library for
+two basic lands, put them on the
+battlefield tapped. Six mana is a lot
+for only two lands. But, I believe that
+in the right situation this deck will be
+able to chain this card over and over
+again and ramp out of control. Next,
+onto the true core of this deck, the
+part of it that actually does stuff, our
+landfall cards. Landfall basically is a
+triggered ability on specific cards that
+where when a land enters the battlefield
+under your control, it triggers the
+ability. And it's pretty notorious for
+being one of the most powerful
+archetypes in casual commander. And if
+you stick around the internet for long
+enough looking into magic content,
+you'll probably hear something along the
+lines of, "It literally rewards you for
+doing the most basic action in the
+game."
+And although for as much hate as it
+gets, it is fun to play. And I actually
+think it's one of the best ways to teach
+newer players the game.
+But, the thing is,
+landfall's main colors are green and
+red.
+And we have neither of those. So, we're
+going to have some really funky landfall
+cards in this deck.
+Starting off with Alter of the Brood.
+And ironically, this doesn't actually
+say landfall on it, but it does trigger
+whenever a permanent enters the
+battlefield, which will trigger on
+lands. So, I'm including it in this
+category.
+It's a one-mana artifact. Whenever
+another permanent enters the battlefield
+under your control, each opponent puts
+the top card of his or her library into
+their graveyard. Yes, this deck does
+have a mill sub-theme, and it is one of
+our win conditions. Then we have Ruin
+Crab. It's a one-mana crab. It's a 0/3.
+It has landfall. Whenever a land enters
+the battlefield under your control, each
+opponent mills three cards. Then Hedron
+Crab. It's a one-mana crab, 0/2.
+Whenever a land enters the battlefield
+under your control, target player puts
+the top three cards of their library
+into their graveyard. This card is going
+to be particularly good in this deck
+because not only can we target our
+opponents with that mill, we can target
+ourselves and fill up our graveyard. So,
+[snorts] when we get our recursion, we
+can go off. Then we have Iridescent
+Vinelasher.
+>> [music]
+>> It's a one-mana lizard that has
+Offspring, too. You may pay two generic
+mana when you cast the spell. If you do,
+create a 1/1 copy of it. It reads,
+"Whenever a land you control enters,
+this creature deals one damage to target
+opponent." Then we have Retreat to
+Hagra. It's a three-mana enchantment
+with landfall. Choose one.
+>> [music]
+>> Target creature gets end of turn.
+Or the choice we're choosing probably
+>> [music]
+>> almost every time, each opponent loses
+one life, you gain one life. And then we
+have Ob Nixilis, the Fallen. He's a
+five-mana 3/3 demon, and this will be
+the [music] last card in our little
+landfall burn package. Whenever a land
+enters the battlefield under your
+control, you may have target player lose
+three life.
+If you do, put three plus one plus one
+counters on Ob Nixilis. In this deck,
+this card can do so much damage and get
+big so fast. And it's probably going to
+be one of the funnest cards to see in
+the whole deck. Then we have three token
+makers,
+Felidar Retreat. It's a four-mana
+enchantment. Landfall, choose one.
+Create a 2/2 cat beast creature token or
+put a plus one plus one counter on each
+creature you control. Those creatures
+gain vigilance until end of turn. Emeria
+Angel,
+it's a four-mana 3/3 flyer. Landfall,
+you create a 1/1 bird creature token
+with flying. Next is the only game
+changer we're putting in this deck. At
+least I think it's still a game changer.
+I'm not exactly sure. Field of the Dead
+is a land. It enters tapped, but it
+reads,
+"Whenever Field of the Dead or another
+land enters the battlefield under your
+control, if you control seven or more
+lands with different names, create a 2/2
+black zombie creature token." This card
+is going to be super great in this deck.
+It's essentially free value
+and will help us put up blockers for
+free along with these other token
+makers, which will end up making your
+deck more resilient because we'll have
+good chump blocker. Then we have Retreat
+to Coralhelm. It's a three-mana
+enchantment.
+Landfall, choose one. You may tap or
+untap target creature or scry one. This
+is a bit of a silly one, but I think we
+can get up to a lot of fun with it.
+We could be untapping our own stuff or
+tapping down our opponent's stuff before
+they can attack. Now, let's take a look
+at our big lads. These bombs will
+hopefully put us in a position to win
+the game. We have Royal [music]
+Elemental. It's a seven-mana 3/2 flyer
+with landfall. "Whenever a land enters
+the battlefield under your control, you
+may gain control of target creature for
+as long as you control Royal Elemental."
+I guarantee that in this deck, we're
+going to have some huge turns when we
+get this down, where we basically steal
+every significant creature on the
+battlefield. Then we have Gandalf,
+Shadows' foe. He's seven mana with
+vigilant, and he's a 3/4. This card is
+going to go nuts in this deck. He reads,
+"Whenever Gandalf enters, exile up to
+three target lands you control, then
+return them to the battlefield tapped
+[music] under their owner's control.
+Whenever land you control enters, draw a
+card and put a +1/+1 counter on
+Gandalf." [music]
+This is going to be crazy. The fact that
+it flickers three lands, and it will
+always give itself three landfall
+triggers when it enters, is wild.
+Because those flickers aren't just going
+to trigger Gandalf, they'll trigger any
+other landfall cards we have out. I
+suspect if we have a sufficient board
+state [music] and we play this card, we
+will almost always find a way to win.
+The next card I actually don't have a
+physical copy of because I literally
+just ordered it, and it's still on
+pre-order. And that's [music] Omnath,
+Locus of the Void. He's seven mana,
+colorless elemental, which [music] is a
+6/6. He reads, "Omnath gets +1/+1 for
+each unspent mana you have.
+You don't lose unspent mana. That mana
+becomes colorless instead.
+Landfall, whenever land you control
+enters, add two colorless mana."
+>> [music]
+>> This card is going to make a ton of mana
+in the deck.
+And these mana-saving abilities tend to
+be pretty powerful, and they really
+start to snowball after a few turns. And
+I'm excited to try this card out. And
+this last card we're going to go over, I
+think it's probably the best card in the
+entire [music] deck. And that's Emeria,
+Shepherd. She's a seven mana angel,
+flying 4/4. She reads, "Landfall,
+whenever land enters the battlefield
+under your control, you may return
+target nonland permanent card from your
+graveyard to your [music] hand. If that
+land is a plains, you may return that
+nonland permanent card to the
+battlefield instead." This deck is going
+to be built to put a lot of cards into
+[music] our graveyard and there's going
+to be a ton of great stuff to recur. I
+believe that discard will let us create
+long loops of recursion and create an
+insane amount of value [music] and
+landfall triggers. So far, we're
+building this deck around being a ton of
+lands on the battlefield and being able
+to recur stuff from our graveyard
+[music]
+and that's going to make it very
+resilient. But I also want to go through
+our colors and lean into their strengths
+[music] a little bit more. Since we have
+black, let's add a little bit extra
+recursion. We have Ghost Quarter Vacuum
+and I know it's not black, but it is a
+fantastic card and I rarely find a deck
+it shouldn't [music] go in. It's
+graveyard hate, but you also can use it
+to recur your own creatures and your
+opponent's creatures. It's one mana and
+it reads, "Tap, [music] exile target
+card from a graveyard." And then it has,
+"Pay six generic, [music] tap, sacrifice
+Ghost Quarter Vacuum, put each creature
+card exiled Ghost Quarter Vacuum onto
+the battlefield under your control with
+a flying counter on it. Each of them is
+a 1/1 spirit in addition to their other
+types.
+Activate only as a sorcery." All right,
+then we have Likeness Looter.
+It's a blue black flyer with tap, draw
+card, discard a card.
+That will help us fill our graveyard and
+filter through the cards we want in our
+hand.
+And it also has, "Pay X, Likeness Looter
+becomes a copy of target card in your
+graveyard with mana value X
+except it has flying and this ability.
+Activate only as a sorcery." I think
+this will be really good. It's not going
+to trigger into enters triggers when we
+copy something in our graveyard with it,
+but we can turn it into any of our
+landfall creatures. For one mana, it
+could be Hedron Crab or for seven mana,
+it could be any of our big bombs.
+>> [music]
+>> Then we have Incarnation Technique,
+which is one of my favorite black
+recursion spells. It's a five mana
+sorcery and it has demonstrate.
+Demonstrate reads, "When you cast a
+spell, you may copy it. If you do,
+choose an opponent to also copy it."
+Mill five cards,
+then return a creature card from your
+graveyard to the battlefield. In total,
+when you cast this card and demonstrate
+it, you're going to mill 10 cards and
+return two creatures to the battlefield.
+And often, you can choose the right
+opponent to copy it, where they either
+they're running a bunch of little dinky
+stuff, so you don't really worry about
+them getting a big bomb back, or they're
+in a spells deck or something. Then we
+have From the Catacombs. It's a
+five-mana sorcery. Put target creature
+card from a graveyard, it doesn't have
+to be your graveyard, onto the
+battlefield under your control with a
+corpse counter on it.
+You take the initiative. If that
+creature would leave the battlefield,
+exile it instead of putting it anywhere
+else. I'm going to leave it to you guys
+to look up what the initiative is,
+because it's kind of complicated,
+and this video is already going to be
+long enough as is, but it's going to be
+good in this deck.
+But the most important part about this
+card is that it has escape. Escape for
+five mana. Exile five other cards from
+your graveyard. You may cast this card
+from your graveyard for its escape cost.
+Five mana is an expensive recursion
+spell, but the big advantage for this is
+that we can cast it [music] from our
+graveyard and as many times as we want,
+because it doesn't get exiled after.
+And in a landfall deck, we're always
+going to have a bunch of mana,
+so I think this card will work really
+well. Then we have Breach [music] the
+Multiverse, which is an absolute bomb.
+Seven mana. Each player mills 10 cards.
+For each player, choose a creature card
+or a planeswalker card from that
+player's graveyard. Put those cards onto
+the battlefield under your control. Then
+each creature you control is a Phyrexian
+in addition to its other types.
+This is an extremely fun and powerful
+card, and if it doesn't win us the game
+immediately, it's going to put us in a
+really good position to do so pretty
+quickly after.
+Then we have Snapcaster Mage. This is a
+blue staple and it's an absolutely
+fantastic card. It's a two mana creature
+with flash. When it enters the
+battlefield, target [music] instant or
+sorcery card in your graveyard gains
+flashback until the end of turn. The
+flashback cost is equal to its mana
+cost. Just imagine casting Incarnation
+Technique and then casting this and
+casting Incarnation Technique again. It
+would put us in an absolutely
+overwhelming position. And then we have
+Obsessive Stitcher. This is a three mana
+0/3 with tap, draw a card, discard a
+card. Which is going to be more great
+selection for our hand and another great
+way to fill up our graveyard.
+But then it has pay four, tap, sacrifice
+Obsessive Stitcher, [music] return
+target creature card from your graveyard
+to the battlefield.
+And I guess I haven't even mentioned the
+commanders we're running in this deck
+yet. And it's commanders, plural,
+because there's two options for it.
+They're not partners, but I am playing
+both because it gives you a little bit
+of optionality. First we have Aminatou,
+the Fate Shifter. It's a three mana
+legendary planeswalker that can be your
+commander. As you can see, I
+accidentally ordered this oversized
+version of it because it was like $10
+cheaper than the other versions. But
+anyways, this is kind of our good
+commander. It has
+plus one, draw a card, then put a card
+from your hand on top of your library.
+And then it has its minus one ability,
+which is the one we really wanted to
+use. Minus one, exile another target
+permanent you own, then return it to the
+battlefield under your control. So we
+can hit creatures or lands or artifacts
+or enchantments with it, whatever we
+need to.
+Then it's minus six, which I doubt we'll
+use very often. Choose left or right.
+Each player gains control of all
+non-land permanents other than this card
+controlled by the next player in the
+chosen direction. So, that's our good
+commander and still one I would really
+recommend playing. And then we have our
+kind of a meme super fun commander to
+play, and that's Dack Fayden. He's a
+black blade. He's a six mana legend
+who reads
+His power toughness are equal to the
+number of lands you control.
+He is not a good card, but he is super
+old and cool and people will be really
+excited to see him in your command zone.
+And he's definitely not as good as our
+other commander, but he's super fun to
+pull out and I think the deck [music]
+will be a function pretty good without a
+commander.
+He's more of a meme to impress your
+opponents across the table. Okay, and
+the other thing I want to lean on to
+make this deck more resilient
+is our instant speed interaction and
+we're going to be really good at that
+because we're in white and blue.
+But, I'm going to save that for a little
+bit because it's actually connected to
+our next secret we're going to go into.
+Secret number two is is to build your
+deck to always be able to take actions
+and make decisions at instant speed.
+And preferably on the end step right
+before your turn. Okay, why is this
+concept a big deal and what exactly do I
+mean by it? I'm going to make it kind of
+simple. Let's say you pass your turn
+and you have three opponents. The first
+opponent takes their turn, the second
+opponent takes their turn, and the third
+opponent takes their turn. At the end of
+that third player's turn, I want [music]
+your deck to be able to make a decision
+and take an action. I know that doesn't
+sound like a lot, but trust me, building
+a deck that does this on every turn
+cycle is very valuable.
+Do you remember the beginning of the
+video when I was talking about the good
+player and the new player
+and how the good player makes decisions
+that give him marginally more value turn
+after turn until he wins the game?
+Well, this idea is actually built around
+the exact same concept. But, it's like
+cheating the system and making it easier
+for you. That good player is using his
+deep knowledge of cards and strategy to
+make [music] slightly better decisions.
+But, if you just delay your decisions
+until after your opponents have done
+their stuff, you're going to be making
+your decisions with slightly more
+information. And that information will
+help you make largely better decisions
+through the game. One of the decks that
+really helped me figure this out was
+this Jan Jansen Chaos Crafter deck.
+This card has two abilities.
+They can both [music] be activated at
+instant speed. The first is, tap,
+sacrifice an artifact creature, create
+two treasure tokens.
+The second is, sacrifice a non-creature
+artifact, create two 1/1 colorless
+contract artifact creature tokens. Both
+of these abilities are similar, but they
+do dramatically different things. One
+essentially ramps by making treasure
+tokens, and the other one makes
+creatures. I could just activate this
+card on my turn, but it's much better to
+wait right before my turn begins to
+activate it. Because then I can analyze
+the battlefield and decide which of
+these two decisions is going to be more
+beneficial for me. [music]
+And the decision I might have made on my
+turn
+could have easily changed as the
+opponents took their turns. Maybe I need
+blockers now. Or maybe there's no
+threats put on the table, and I can
+ramp.
+And if I do this turn after turn, I'm
+going to make marginal better decisions
+over and over as the game goes on. And
+hopefully those slightly better
+decisions will give me a little bit more
+value than my opponents, and help me win
+the game. So, one thing I really want to
+instill in the deck that we're building
+here
+is the ability
+to [music] make decisions at instant
+speed.
+So, I can be more knowledgeable about
+those decisions I'm making [music]
+and gain more value and react to my
+opponents.
+So, in building this deck, I picked out
+30 cards
+that are instants or have [music]
+activated abilities that can be
+activated at instant speed.
+And that's not including any of our
+triggered abilities that theoretically
+it could all get triggered at instant
+speed like our landfall triggers or our
+recursion triggers.
+And I'm also not including any mana
+[music] rocks
+or mana abilities in this list either.
+Let's start by going through the lands
+with instant speed abilities that aren't
+just their typical mana abilities. With
+Fabled Passage and Integrated Farmland,
+both have the cycling ability. Pay two,
+discard this card, draw a card.
+Terramorphic Expanse, [music]
+Contaminated Landscape, Marsh Flats, and
+Flooded Strand all have the ability to
+sacrifice themselves, search my library
+for a land, and put it onto the
+battlefield. This can be activated at
+instant speed to trigger our landfall
+abilities. Then we have Otawara, Soaring
+City. It has channel. Pay four, discard
+Otawara, Soaring City, return target
+artifact, creature, enchantment, or
+planeswalker to its owner's hand. This
+ability costs one less for each
+legendary creature you control. This is
+a super powerful card. Having
+interaction on a land that also enters
+untapped is just busted. And one really
+cool part about this deck is there's a
+ton of ways if we use its channel
+ability and it gets discarded into our
+graveyard, we can recur it back to the
+battlefield and just use it as a land.
+And then, a lot of times we'll even be
+able to use a bounce land to return it
+to our hand and activate its channel
+ability again. And the same is true for
+this card.
+Takenuma, Abandoned Mire. Channel. Pay
+four, [music] discard this card, mill
+three cards, then return a creature card
+or planeswalker card from your graveyard
+to your hand. This ability costs one
+less for each legendary creature you
+control. Essentially, some nice mill and
+card draw on a channel ability. And
+that's pretty much it for the
+interesting lands in the deck. The rest
+lands are pretty normal, but when I was
+building this deck, I went through my
+collection and just found all the lands
+I had with two types on them. And I do
+want to show you something really cool
+in Mythic Tools real quick. When I
+originally uploaded this deck list to
+Mythic Tools, I took a look at this mana
+base section. It gives you these really
+nice to understand diagrams
+that tell you how many pips of each
+color you have in your deck and how much
+mana of that color you can produce. And
+one thing I noticed when I first
+uploaded this deck is my [music] ratios
+were way off. I did not have enough
+light mana. And because I saw that, I
+was able to go back and fix my mana base
+and add more white producing lands to
+fix that ratio and make my deck run
+better. Okay, now let's move on to the
+interaction running in the deck. We're
+running blue and white, so this can be a
+really powerful part of our deck. We're
+going to have lots of good protection
+and counter spells. It's going to make
+our deck more resilient. And since we
+have so much of it, we're going to want
+to hold up our mana so we can make
+better decisions as well. Our first we
+have Final Showdown. This is one of my
+favorite board wipes in the game because
+it's instant [music] speed. It is super
+flexible and allows for the exact type
+of decision making I was talking about
+that benefits you in the long run. It's
+a one mana modal instant with spree.
+Choose one or more additional costs. Pay
+one, all creatures lose abilities until
+end of turn. Pay one, choose a creature
+you control, it gains indestructible.
+Pay five, destroy all creature. This is
+super cool. It can be used as a
+protection spell, a board wipe, or both.
+Or you can use that first ability to
+completely ruin your opponent's plans.
+Then we have Ethereal [music] Haze. This
+is a one mana white fog that I really
+like because it doesn't just prevent all
+combat damage. It says prevent all
+damage that we dealt by creatures this
+turn, which means you can use this card
+to prevent creature based burn effects
+and all sorts of other stuff. Flare of
+Fortitude.
+This is a great save your butt card.
+It's four mana, but you never actually
+have to pay four mana for it. It reads,
+"You may sacrifice a non-token white
+creature rather than pay the spell's
+mana cost. Until end of turn, your life
+total can't change and permanence you
+control gain hexproof and
+indestructible." You can save your
+creatures, you can save yourself, but be
+careful because this card technically
+does not prevent damage. So, commander
+damage can still kill you and trigger
+damage effects still happen. Then we
+have Parting Gust. It's a white instant
+with gift a tapped fish. Exile target
+non-token creature. If the gift wasn't
+promised, return that creature to the
+battlefield under its owner's control
+with a plus one plus one counter on it
+at the beginning of the next end step.
+This card will be particularly good in
+this deck. It provides the exact
+decision making I was talking about. If
+you hold a mana to cast a spell, you end
+up with two options. You can either
+flicker one of your own permanence to
+get a retrigger of an enters effect or
+you could use it to remove one of your
+opponent's [music] things.
+And the cool part is you're able to hold
+it up
+and make that decision with more
+knowledge, which will give you that
+little bit of extra value that will
+hopefully compound [music] over the
+course of the game and help you win.
+Then we have An Offer You Can't Refuse.
+It's a one mana counter spell with
+counter target non-creature spell. Its
+controller creates two treasure tokens.
+This card's great because it's really
+[music]
+easy to hold up one mana. A lot easier
+than it is to hold up two mana.
+>> [music]
+>> And then we're running the original
+counter spell,
+which I'm running because I have this
+one with this sweet [music] art on it.
+Arcane Denial is a counter spell that
+replaces itself. It reads, "Counter
+target spell. Its controller may draw up
+to two cards at the beginning of the
+next turn's upkeep. You draw a card at
+the beginning of the next turn's
+upkeep." Now, we're going to go over our
+next instant-speed decision-making
+devices, and that's our sacrifice
+outlets. In a deck with this much
+recursion, you're always going to find
+use for a sacrifice outlet. And since
+all these outlets can be activated at
+instant speed, we can use them to react
+to our opponents. Maybe an opponent is
+trying to exile a creature you control,
+you can sacrifice it in response. Or
+maybe you're just deciding on the
+perfect thing to put into your graveyard
+before your turn begins. We have Zuran
+Orb. It's a zero-mana artifact with
+"Sacrifice a land, gain two life." This
+is great synergy with a lot of other
+cards in the deck, but it also can just
+save your life in case of an emergency.
+Sometimes sacrificing three lands and
+gaining six life is enough to live
+through combat. Then we have Excavation.
+This one is super fun. It's a two-mana
+enchantment, and it reads, "Pay one,
+[music] sacrifice a land, draw a card.
+Any player may activate this ability."
+Obviously, we're going to get more
+benefit out of this than pretty much any
+other player, but it's always fun to see
+once you get into late game and everyone
+starts sacrificing their lands for
+random reasons. Then we have Claws of
+Gix. This will be another all-star in
+the deck. It's zero-mana, and it reads,
+"Pay one, sacrifice a permanent you
+control, gain one life." The ability to
+sacrifice any permanent on this card is
+going to be super [music] useful. We can
+do creatures, we can do lands,
+enchantments, artifacts, whatever we
+need. I guess we could even technically
+do a planeswalker. Then we have Umbral
+Caller Zealot. "Sacrifice another
+creature or artifact, surveil one." Look
+at the top card of your library, you may
+put that card into your graveyard. This
+card provides three things we want in
+this deck: card selection, sacrifice,
+[music] and the ability to fill our
+graveyard. Lastly, we have Altar of
+Dementia, which really leans into our
+mill subtheme, but is also really great
+at filling our own library. It's a
+two-mana artifact with sacrifice a
+creature, target player puts a number of
+cards equal to that creature's power
+from the top of his or her library into
+his or her graveyard. Okay, to round out
+our instant speed stuff, we also have a
+creature with flash, and that's Felidar
+Guardian Shepherd, which is a nice
+little creature for two mana with flash.
+Flash means you can cast it at instant
+speed. It has, "Whenever Felidar
+Guardian Shepherd attacks,
+>> [music]
+>> exile up to one target nonland permanent
+at the beginning of your next end step.
+If it entered under your control, put a
++1/+1 counter on [music] it." This can
+be a really great card for blinking your
+own stuff, but the nice part about it is
+is we can also use it to blink our
+opponent's stuff. So, get rid of tokens
+or make some sort of political deal.
+[music] If you're enjoying the video so
+far, make sure to subscribe. And if you
+want all my videos completely ad-free,
+sign up for my membership. As a member,
+you'll also receive weekly custom deck
+lists that I brew myself. Next, I want
+to go over the five cards in this deck
+that I didn't manage to quite fit neatly
+into one of my major secrets,
+but I think they'll be good in the deck
+nonetheless.
+And those are Sol Ring,
+Machine God's Effigy, which at least you
+are good in the deck. It's a mana rock,
+but also has the ability to copy another
+creature, which means we can use it to
+copy an ETB trigger or get another copy
+of a landfall ability.
+We have Aether Bender Ascension. It's a
+nice piece of interaction [music] mixed
+with blink. That Aether Bender ability
+on it, we can use it on our opponent's
+stuff or our own stuff to recast it for
+cheap. [music] And then once we have
+four creatures enter, it starts
+flickering something on our end step.
+Lastly, I'm running Flicker. It reads,
+"Remove target non-token permanent from
+the game,
+then return it to play under its owner's
+control.
+This can flicker our land, our
+commander,
+or anything else. Our third secret we're
+going to get into is probably something
+you know is good and you've heard a lot
+about, but you're probably not
+maximizing it. And that is card
+advantage. One of the fastest ways to
+lose a game of Commander is to have
+[music] turns where you do nothing. And
+card advantage is the best way to
+prevent that from happening.
+>> [music]
+>> And card advantage doesn't just look
+like drawing cards. It could be milling.
+It could be bouncing things from your
+battlefield back to your hand so you can
+spend mana on them to recast [music]
+them. It could be not spending the cards
+in your hand and sinking your mana into
+activated [music] abilities on the
+battlefield. I have 12 cards here that
+are providing me some sort of card
+advantage.
+But we've actually already gone [music]
+over 21 other cards in this deck that
+are providing card advantage, a way to
+fill up our graveyard, or some sort of
+card selection. That means 33 of the
+cards in this deck are some [music] sort
+of card advantage, which is basically a
+whole third. And that count isn't even
+including our commander. [music] So
+let's run through these last 12 real
+quick. We have Aerial Extortionist. It's
+a nice bit [music] of interaction on a
+creature, but it also has a very nice
+card draw clause. Whenever another
+player casts a spell from anywhere other
+than their hand, draw a card. Then we
+have God Eternal Bontu. This card is
+part of one of the funnest two-card
+synergies I have in the deck.
+It reads, "When this card enters,
+sacrifice
+>> [music]
+>> any number of other permanents, then
+draw that many cards." Typically, we'll
+probably want to sacrifice a few tokens
+with this card, but in the rare case
+that we also have Cosmic Intervention,
+we can cast Cosmic Intervention
+>> [music]
+>> and then cast God Eternal Bontu.
+Then sacrifice literally every single
+permanent we have, including our lands,
+draw that many cards, and then return
+all those permanents back to the
+battlefield at our end step. And then we
+have Esper Sentinel. This card is a
+staple for a reason, even if it's a bit
+overpriced right [music] now. Few cards
+offer this much draw for one mana.
+Whenever an opponent casts their first
+non-creature spell each turn, draw a
+card unless that player pays X,
+where X is Esper Sentinel's power.
+But honestly, if you're looking to buy
+this deck [music] and you want to save a
+good number of bucks, which I don't
+blame you in this economy, this will
+probably be the first card I replace.
+And if you want to do that, Mythic
+[music] Tools has your back. Mythic
+Tools Smart Deck feature will give you
+custom card recommendations based around
+the cards already in your [music] deck.
+So, if we go over here to our Smart Deck
+in Mythic Tools, and we use find cards,
+and then go to search, we can use an
+Oracle text term like draw and find
+cards that will draw us cards that
+already have a lot of synergy with our
+deck. Like check check out this card,
+Pedantic Learning. This would be so
+sweet in the deck. [music]
+39 cents. Whenever a land is put into
+your graveyard from your library, you
+may pay one and draw a card. In a deck
+that's milling yourself and is based
+around recurring lands from our
+graveyard, this card has crazy synergy.
+And it's only 39 cents and two mana.
+Nice. And then we have Ripples of
+Undeath. It's a two mana enchantment. At
+the beginning of your precombat main
+phase, mill three cards. And then you
+pay one and three life. If you do, put a
+card from among those cards into your
+hand. This card offers draw and mill.
+It's perfect for the deck. Braids,
+Arisen Nightmare. At the beginning of
+your endstep, you may sacrifice an
+artifact, creature, enchantment, land,
+or planeswalker.
+If you do, each opponent must sacrifice
+a permanent of their choice that shares
+a card type with it.
+For each opponent who doesn't, that
+player loses two life and you draw a
+card. This card is super fun. It puts
+your opponents in a tough situation and
+draws you cards while you're at it.
+Then we have Ledger Shredder. Whenever a
+player cast or second spell each turn,
+Ledger Shredder connives. Draw a card,
+then discard a card. If you discard a
+non-land card, put a plus one plus one
+counter on this creature.
+This will help with card selection, fill
+up our graveyard, and hopefully make a
+big flyer while it's at it. Then we have
+Windfall. Each player discards their
+hand, and then draws cards equal to the
+greatest number of cards a player
+discarded this way. This is a fantastic
+way to equalize [music] everyone's
+hands, and it's a great card to cast if
+you have only have one card left in
+hand. Mystic Remora, this is basically
+the blue ancestral, but it's impossible
+to pay for. The one mana, whenever
+opponent casts a non-creature spell,
+you may draw a card unless that player
+pays four mana,
+which is never really going to happen.
+The downside though is it has cumulative
+upkeep. At the beginning of your upkeep,
+put an age counter on this permanent,
+then sacrifice it unless you pay its
+upkeep cost for each age counter on it.
+I know that sounds bad, but it's really
+not. When you play this card, [music]
+it's a whole turn cycle before it gets
+back to you, and you only have to pay
+one mana again. And then it's a whole
+other turn cycle before it gets back to
+you, and you only [music] have to pay
+two mana. And by that point, hopefully
+this card has drawn you a bunch of
+cards. One thing I would recommend
+though is I see a lot of people play
+this card out really early because it's
+one mana. But I find that it's actually
+a little better to hang on to into late
+game when people are casting multiple
+spells a turn.
+It's going to draw you a lot more cards,
+and its cumulative upkeep cost isn't
+going to affect you as much. Then we
+have Mulldrifter. It's a five mana
+elemental. When Mulldrifter enters the
+battlefield, draw two cards. This is a
+great blink target and a great recursion
+target. It also has this evoke cost
+where you can pay three to cast it
+instead, and then just get sacrificed
+after it enters. You still draw the two
+cards though.
+Citrus Supplier is one of the best
+self-mill cards in the format, And we're
+running it. It's one mana whenever
+Stitcher Supplier enters or dies, put
+the top three cards of your library into
+your graveyard. The last card we're
+going to go over here is actually super
+fun. It's a board wipe that's going to
+provide us a ton of card advantage. It's
+Singularity.
+It's a six-mana board wipe and it reads,
+"Destroy all creatures, then any number
+of target players each mill half their
+library rounded down."
+When we cast this card, we're probably
+just going to choose everyone. We're
+going to mill ourselves because we want
+all those recursion targets in our
+graveyard, and then we're going to mill
+all our opponents because it gets them
+closer to our mill win condition. I
+think it's going to be a ton of fun and
+it's going to be super splashy to play
+it every time. All right, I'm going to
+take this guy to my LGS and get as many
+games in with it as possible. And while
+I'm there, I'm going to use Mythic
+Tool's life tracker, an [music] app, to
+log my game history and keep track of my
+win percentage.
+>> [music]
+>> The really cool thing about their life
+tracker is you can implement things like
+turn timers, which I don't know, I think
+maybe every commander table needs, and
+it has a game log. Let's say you can't
+remember if you took the right amount of
+damage or something. Say you lose three
+life,
+I can then go into the game log and see
+who lost what and when.
+Okay, after that first round of games at
+my LGS, I've decided to make eight
+swaps. The first one is Arcane Denial
+for Split Up. I was only running two
+board wipes in [music] the deck, and
+since we're land ramping so much, I
+decided that board wipes are probably
+more valuable than counter spells.
+And then I took out Phyrexian for Lively
+Dirge as I wanted to lean more into the
+recursion theme of the deck because
+that's where I felt like the deck was
+really popping off.
+Then I swapped Altar of the Brood for
+Mesmeric Orb. Both lean into our mill
+strategy, but Mesmeric Orb will also
+[music] fill our graveyard.
+Then I swapped Umbral Caller Zealot for
+Spectrum Sentinel. I felt like one of
+this deck's big weaknesses was that it
+didn't have enough life gain. Spectrum
+Sentinel's great because not only does
+it provide you with a little bit of life
+gain, but it's also a great blocker
+because it has protection for
+multi-color.
+Then I took out Esper Sentinel
+for Archaeomancer's Map.
+This is a nice cost-cutting measure, and
+also Archaeomancer's Map has that nice
+ETB trigger,
+which basically says draw [music] two
+Plains.
+That mixed with its catch-up ramp meant
+I figured I could use it in a lot more
+creative and fun ways. And then I took
+out Omnath, Locus of the Void for Odric,
+Lunarch Marshal.
+The flexibility on Odric's recursion was
+just too interesting to pass up. And
+then I took out Mulldrifter for Rise of
+the Deathbringer.
+One of my absolute favorite tools
+in Commander are instant-speed board
+wipes. And Rise of the Deathbringer is
+so cool because it also provides that
+flexibility that I was talking about
+earlier in the video.
+At instant speed, you can either use it
+to wipe the board, [music] or at least
+most of the board, or draw a bunch of
+cards.
+And lastly, I did Zuran Orb for Frantic
+Search.
+I just had too many games where Zuran
+Orb was sitting there doing nothing. And
+the thing about Frantic Search is it's
+one of the easiest spells to cast
+because it untaps the mana you used to
+cast it. And we also have some bounce
+lands in this deck, so there's a good
+chance that when we cast Frantic Search,
+we'll go mana positive. Let's get into
+our next secret, and that's your deck's
+ability [music]
+to hide its threats. I think it's
+particularly important when you're
+playing bracket three and up. In bracket
+two, it's kind of part of the
+requirement that your threats are a
+little more telegraphed and your board
+is building up slowly. But once you're
+in the higher brackets, winning out of
+nowhere is generally more accepted.
+Generally, the simplest way to do this
+is to hold your win condition in your
+hand. But I think there's a lot more fun
+and interesting ways to do this. You can
+hide your power through complexity, a
+lot of little [music] pieces, or in your
+graveyard, where it's tougher for your
+opponents to keep track of your stuff.
+You also can hide your power by using
+really obscure cards. And [music] that's
+definitely what this deck is going to be
+doing a little bit. Have you ever seen a
+royal elemental? I don't think so. But,
+the biggest thing here to understand is
+if your opponents know you're going to
+win, they're going to do everything they
+can to stop you. So, what we want to do
+is find ways to avoid letting our
+opponents know we're about ready to win.
+And the biggest part about that is not
+sticking out like a sore thumb. And I
+intentionally built this deck to start
+out really slow, so we don't become the
+arch enemy. Unless of rare
+circumstances, this deck's not going to
+win before turn eight. It's so often
+commander that the arch enemy doesn't
+win the game. You want to be is the
+secret arch enemy, where you're actually
+accumulating a lot of power, but your
+opponents just don't know it, because
+you don't appear like a big threat. But,
+now let's get into the fifth secret, and
+I think this is one of the most
+important, especially for newer players.
+And it's the basically the idea of
+making sure your deck has a clear
+[music] way to win the game, and how to
+implement that.
+I do this by goldfishing out your deck
+to whatever turn you want to win by. And
+then I run through a series of
+questions. So, let's quickly goldfish
+this deck out to turn eight,
+and ask ourselves some simple questions.
+Can I win the game now? If the answer is
+yes, that's great. You should then
+goldfish the deck again, and then ask
+yourself the same question. But, if you
+goldfish out to whatever turn you want
+to win by, and you ask yourself, "Can I
+win?" and the answer is no,
+now we're going to do some things. Is Is
+a card in your deck if we drew it right
+now, would win us the game? If the
+answer is no, we first want to look at
+our board state. Is there enough value
+on it? Some mystery card could win us
+the game potentially?
+Or is your deck just not providing
+enough value at the right tempo? If your
+deck's not providing enough value, we
+kind of need to go back to the drawing
+board
+and rework some of our strategies.
+But if your deck is providing enough
+value,
+we need to find a card that will help us
+finish out game. I typically work this
+out by taking a look at my deck in this
+position, analyzing what it's doing,
+and then coming up with theories of how
+to win. And some of this does come with
+experience, but a good thing I might
+look for in this deck is something like
+Mass Reanimation
+or Lands [music] Matter's game. And then
+once we add that win condition into the
+deck, we need to ask ourself,
+when we're at this board state,
+do we have enough card advantage to dig
+deep into our deck and find our
+condition? If that's a no, we need to do
+two things. Maybe add an extra win
+condition or two, so there's a higher
+density in our deck, and add high
+synergy card advantage, so we can dig
+nice and deep. Okay, last, but certainly
+not least, is secret six, which is the
+easiest way to get better Commander in
+just a few minutes. And it's something
+why I don't know a lot of people don't
+[music] do, as I do it all the time.
+And it's super easy, and it helps out
+immensely. Commander is so complicated,
+even I don't know what's going on all
+the time. So, what I do is I just
+routinely ask each of my opponents what
+they think is the most powerful thing on
+the board, and what they think is their
+[music] best card. I don't know if I've
+ever had anyone actually lie to me about
+what's on their board. They might choose
+[music] to stay silent, but typically
+another player will know. Sometimes they
+say it's me. A lot of times, they say
+it's me, [music] actually.
+And that's fine. But, the most valuable
+thing I get from this is understanding
+how their [music] board is set up and
+how it's working. By identifying what's
+providing them value and what they think
+is valuable on everyone else's board. In
+the [music] end, I was able to play this
+deck 17 times at my local game store,
+which I know is still kind of small
+sample size, but that's a lot of games
+of Commander. But, the real question is,
+did my secrets work and how much did it
+win?
+Well,
+it won
+a lot.
+Not every game, of course.
+I think that's pretty much impossible.
+But, it won way more than that 25%.
+It won nine
+out of the 17 games, which is 53%
+[music]
+and it never felt overwhelming.
+Actually, a lot of the games, I felt
+like I was eking out by the skin of my
+teeth, but it always seemed like I had
+the answers when I needed them and I was
+just a little bit ahead of my opponents.
+Some of that win percentage is probably
+[music] skill. I've been playing for a
+long time
+and when you build a deck like this, you
+get to know it really, really well. But,
+I'd like to know if you guys are able to
+implement this into your own decks and
+how it goes. [music] This video was a
+ton of fun to make. Thank you so much
+for watching. I hope you have a
+fantastic day.
