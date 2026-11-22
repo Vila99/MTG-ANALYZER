@@ -2,6 +2,13 @@
 
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { ResultsView } from "./components/ResultsView";
+import {
+  formatRelativeTime,
+  loadRecentAnalyses,
+  removeRecentAnalysis,
+  saveRecentAnalysis,
+  type RecentEntry,
+} from "./lib/recentAnalyses";
 import { AnalyzeRequest, AnalyzeResponse } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -44,8 +51,16 @@ export default function Home() {
   const [loadingStep, setLoadingStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
+  const [recent, setRecent] = useState<RecentEntry[]>([]);
 
   const stepIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    // localStorage solo existe en el cliente: se lee tras el montaje para no
+    // desincronizar el HTML del servidor con el del navegador.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setRecent(loadRecentAnalyses());
+  }, []);
 
   useEffect(() => {
     if (!loading) {
@@ -95,7 +110,9 @@ export default function Home() {
         throw new Error(payload?.detail ?? `Error ${response.status} al analizar el deck.`);
       }
 
-      setResult(await response.json());
+      const data: AnalyzeResponse = await response.json();
+      setResult(data);
+      setRecent(saveRecentAnalysis(data));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error desconocido al analizar el deck.");
       setResult(null);
@@ -131,6 +148,7 @@ export default function Home() {
       </header>
 
       {!result && !loading && (
+        <>
         <form onSubmit={handleSubmit} aria-labelledby="analyze-form-heading" className="flex flex-wrap gap-6">
           <h2 id="analyze-form-heading" className="sr-only">
             Formulario de análisis de deck
@@ -302,6 +320,45 @@ export default function Home() {
             </button>
           </fieldset>
         </form>
+
+        {recent.length > 0 && (
+          <section className="flex w-full flex-col gap-3">
+            <h2 className="font-head text-xs font-extrabold uppercase tracking-wide" style={{ color: "var(--ink-muted)" }}>
+              Análisis recientes
+            </h2>
+            <div
+              className="flex flex-col gap-px overflow-hidden rounded-sm border"
+              style={{ borderColor: "var(--border)", background: "var(--border)" }}
+            >
+              {recent.map((entry) => (
+                <div key={entry.id} className="flex items-center justify-between gap-3 p-3" style={{ background: "var(--surface)" }}>
+                  <button
+                    type="button"
+                    onClick={() => setResult(entry.result)}
+                    className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-3 text-left"
+                  >
+                    <span className="font-head truncate text-sm font-bold" style={{ color: "var(--foreground)" }}>
+                      {entry.commander}
+                    </span>
+                    <span className="text-xs" style={{ color: "var(--ink-muted)" }}>
+                      {entry.deckSize} cartas · {formatRelativeTime(entry.timestamp)}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRecent(removeRecentAnalysis(entry.id))}
+                    aria-label={`Eliminar análisis de ${entry.commander} de la lista`}
+                    className="font-head flex-shrink-0 text-xs font-bold"
+                    style={{ color: "var(--ink-muted)" }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+        </>
       )}
 
       <div role="status" aria-live="polite">

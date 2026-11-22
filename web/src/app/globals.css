@@ -73,6 +73,17 @@ button {
   outline-offset: 2px;
 }
 
+/* Las barras de Recharts quedan "focused" al hacer clic (para abrir la
+ * galeria de rol) y heredaban el anillo de foco de arriba como si fuera un
+ * recuadro de seleccion pegado al grafico; el propio cursor en forma de
+ * mano ya basta como pista de que son interactivas. */
+.recharts-bar-rectangle:focus,
+.recharts-bar-rectangle:focus-visible,
+.recharts-rectangle:focus,
+.recharts-rectangle:focus-visible {
+  outline: none;
+}
+
 .underline-card {
   border-bottom: 1px dotted var(--accent);
   cursor: default;

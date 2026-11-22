@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import {
   AñadidoSugerido,
   AnalyzeResponse,
@@ -8,6 +8,7 @@ import {
   CorteSugerido,
   ROLE_LABELS,
 } from "../types";
+import { ManaIcon } from "./ManaIcon";
 import { BarDatum, SingleSeriesBarChart } from "./SingleSeriesBarChart";
 
 const RUBRIC_ORDER = ["land", "ramp", "draw", "removal", "wipe"];
@@ -133,86 +134,97 @@ function FloatingCardPreview({
   );
 }
 
-interface SwapPair {
+interface SwapGroup {
   cut?: CorteSugerido;
-  addition?: AñadidoSugerido;
+  additions: AñadidoSugerido[];
 }
 
-/** Empareja cada añadido con el corte al que sustituye (por `reemplaza_a`),
- * para mostrar "Corta X -> Añade Y" en vez de dos listas sueltas. */
-function pairCutsAndAdditions(cuts: CorteSugerido[], additions: AñadidoSugerido[]): SwapPair[] {
-  const usedCutNames = new Set<string>();
-  const pairs: SwapPair[] = [];
+/** Agrupa todas las alternativas de añadido que sustituyen a un mismo corte
+ * (por `reemplaza_a`), para mostrar "Corta X -> Añade Y / Z / W" en vez de
+ * forzar una única alternativa por corte. */
+function pairCutsAndAdditions(cuts: CorteSugerido[], additions: AñadidoSugerido[]): SwapGroup[] {
+  const byReemplazaA = new Map<string, AñadidoSugerido[]>();
+  const standalone: AñadidoSugerido[] = [];
 
   for (const addition of additions) {
-    const matchingCut = addition.reemplaza_a
-      ? cuts.find((cut) => cut.carta === addition.reemplaza_a && !usedCutNames.has(cut.carta))
-      : undefined;
-    if (matchingCut) {
-      usedCutNames.add(matchingCut.carta);
-      pairs.push({ cut: matchingCut, addition });
+    if (addition.reemplaza_a && cuts.some((cut) => cut.carta === addition.reemplaza_a)) {
+      const list = byReemplazaA.get(addition.reemplaza_a) ?? [];
+      list.push(addition);
+      byReemplazaA.set(addition.reemplaza_a, list);
     } else {
-      pairs.push({ addition });
+      standalone.push(addition);
     }
   }
-  for (const cut of cuts) {
-    if (!usedCutNames.has(cut.carta)) {
-      pairs.push({ cut });
-    }
+
+  const groups: SwapGroup[] = cuts.map((cut) => ({
+    cut,
+    additions: byReemplazaA.get(cut.carta) ?? [],
+  }));
+  for (const addition of standalone) {
+    groups.push({ additions: [addition] });
   }
-  return pairs;
+  return groups;
 }
 
-function SwapCard({
-  pair,
+function SwapGroupCard({
+  group,
   cardImages,
   onHover,
 }: {
-  pair: SwapPair;
+  group: SwapGroup;
   cardImages: Record<string, string>;
   onHover: HoverHandler;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-4 p-4" style={{ background: "var(--surface)" }}>
-      {pair.cut && (
+    <div className="flex flex-col gap-3 p-4 sm:flex-row" style={{ background: "var(--surface)" }}>
+      {group.cut && (
         <div
-          className="underline-card flex-shrink-0 text-center"
-          onMouseEnter={(e) => onHover(pair.cut!.carta, e.currentTarget)}
+          className="underline-card flex-shrink-0 text-center sm:w-[130px]"
+          onMouseEnter={(e) => onHover(group.cut!.carta, e.currentTarget)}
           onMouseLeave={() => onHover(null, null)}
         >
           <div className="font-head text-[10px] font-extrabold uppercase" style={{ color: "var(--status-critical)" }}>
             Corta
           </div>
-          <div className="max-w-[140px] text-sm font-bold" style={{ color: "var(--foreground)" }}>
-            {pair.cut.carta}
+          <div className="text-sm font-bold" style={{ color: "var(--foreground)" }}>
+            {group.cut.carta}
           </div>
         </div>
       )}
-      {pair.cut && pair.addition && (
-        <span className="text-lg" style={{ color: "var(--ink-muted)" }}>
+      {group.cut && group.additions.length > 0 && (
+        <span className="hidden self-center text-lg sm:block" style={{ color: "var(--ink-muted)" }}>
           →
         </span>
       )}
-      {pair.addition && (
-        <div
-          className="underline-card flex-shrink-0 text-center"
-          onMouseEnter={(e) => onHover(pair.addition!.carta, e.currentTarget)}
-          onMouseLeave={() => onHover(null, null)}
-        >
-          <div className="font-head text-[10px] font-extrabold uppercase" style={{ color: "var(--status-good)" }}>
-            Añade
+      <div className="flex flex-1 flex-col gap-3">
+        {group.additions.length === 0 && group.cut && (
+          <p className="text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
+            <HighlightedText text={group.cut.motivo} cardImages={cardImages} onHover={onHover} />
+          </p>
+        )}
+        {group.additions.map((addition, i) => (
+          <div key={i} className="flex flex-wrap items-start gap-4">
+            <div
+              className="underline-card flex-shrink-0 text-center"
+              onMouseEnter={(e) => onHover(addition.carta, e.currentTarget)}
+              onMouseLeave={() => onHover(null, null)}
+            >
+              <div className="font-head text-[10px] font-extrabold uppercase" style={{ color: "var(--status-good)" }}>
+                Añade{group.additions.length > 1 ? ` (opción ${i + 1})` : ""}
+              </div>
+              <div className="max-w-[140px] text-sm font-bold" style={{ color: "var(--foreground)" }}>
+                {addition.carta}
+              </div>
+              <div className="text-[11px]" style={{ color: "var(--ink-muted)" }}>
+                {addition.rol}
+              </div>
+            </div>
+            <p className="min-w-[200px] flex-1 text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
+              <HighlightedText text={addition.motivo} cardImages={cardImages} onHover={onHover} />
+            </p>
           </div>
-          <div className="max-w-[140px] text-sm font-bold" style={{ color: "var(--foreground)" }}>
-            {pair.addition.carta}
-          </div>
-          <div className="text-[11px]" style={{ color: "var(--ink-muted)" }}>
-            {pair.addition.rol}
-          </div>
-        </div>
-      )}
-      <p className="min-w-[220px] flex-1 text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
-        <HighlightedText text={pair.addition?.motivo ?? pair.cut?.motivo ?? ""} cardImages={cardImages} onHover={onHover} />
-      </p>
+        ))}
+      </div>
     </div>
   );
 }
@@ -222,14 +234,16 @@ function RoleCardGallery({
   cardNames,
   cardImages,
   onClose,
+  onCardClick,
 }: {
   roleLabel: string;
   cardNames: string[];
   cardImages: Record<string, string>;
   onClose: () => void;
+  onCardClick: (name: string) => void;
 }) {
   return (
-    <div className="rounded-sm border p-4 sm:col-span-2" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
+    <div className="rounded-sm border p-4" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
       <div className="mb-3 flex items-center justify-between">
         <h3 className="font-head text-xs font-extrabold uppercase tracking-wide" style={{ color: "var(--ink-muted)" }}>
           Cartas en &quot;{roleLabel}&quot; ({cardNames.length})
@@ -243,9 +257,15 @@ function RoleCardGallery({
           Cerrar ✕
         </button>
       </div>
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
+      <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-10">
         {cardNames.map((name) => (
-          <div key={name} className="flex flex-col gap-1">
+          <button
+            type="button"
+            key={name}
+            onClick={() => onCardClick(name)}
+            disabled={!cardImages[name]}
+            className="flex flex-col gap-1 text-left transition-transform hover:scale-[1.04] disabled:cursor-default disabled:hover:scale-100"
+          >
             <div
               className="overflow-hidden rounded-sm border"
               style={{ aspectRatio: "5/7", borderColor: "var(--border)", background: "var(--surface-muted)" }}
@@ -258,9 +278,59 @@ function RoleCardGallery({
             <p className="truncate text-center text-[11px]" style={{ color: "var(--ink-secondary)" }} title={name}>
               {name}
             </p>
-          </div>
+          </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+/** Vista ampliada de una carta al hacer clic en su miniatura, con una
+ * pequeña animación de entrada en vez de aparecer de golpe. */
+function CardZoomModal({
+  name,
+  imageUrl,
+  onClose,
+}: {
+  name: string;
+  imageUrl: string;
+  onClose: () => void;
+}) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setVisible(true));
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center p-6"
+      style={{ background: "rgba(0,0,0,0.75)", opacity: visible ? 1 : 0, transition: "opacity 150ms ease" }}
+      onClick={onClose}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element -- imagen externa de Scryfall */}
+      <img
+        src={imageUrl}
+        alt={name}
+        onClick={(e) => e.stopPropagation()}
+        className="max-h-full rounded-md"
+        style={{
+          width: 360,
+          aspectRatio: "5/7",
+          objectFit: "cover",
+          boxShadow: "0 24px 60px rgba(0,0,0,0.6)",
+          transform: visible ? "scale(1)" : "scale(0.85)",
+          transition: "transform 150ms ease",
+        }}
+      />
     </div>
   );
 }
@@ -268,6 +338,7 @@ function RoleCardGallery({
 export function ResultsView({ result }: { result: AnalyzeResponse }) {
   const [hoverTarget, setHoverTarget] = useState<HoverTarget | null>(null);
   const [expandedRole, setExpandedRole] = useState<string | null>(null);
+  const [zoomedCard, setZoomedCard] = useState<string | null>(null);
   const cardImages = result.card_images ?? {};
   const cartasPorRol = result.cartas_por_rol ?? {};
 
@@ -298,10 +369,13 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
   return (
     <div className="flex flex-col gap-7" onMouseLeave={() => setHoverTarget(null)}>
       <FloatingCardPreview target={hoverTarget} cardImages={cardImages} />
+      {zoomedCard && cardImages[zoomedCard] && (
+        <CardZoomModal name={zoomedCard} imageUrl={cardImages[zoomedCard]} onClose={() => setZoomedCard(null)} />
+      )}
 
-      <section className="flex flex-col gap-5 border-b pb-6 lg:flex-row" style={{ borderColor: "var(--border)" }}>
+      <section className="flex flex-col gap-5 border-b pb-6 lg:flex-row lg:items-start" style={{ borderColor: "var(--border)" }}>
         {result.comandantes.length > 0 && (
-          <div className="flex flex-shrink-0 gap-2 lg:w-[200px]">
+          <div className="flex flex-shrink-0 gap-2 lg:w-[220px]">
             {result.comandantes.map((name) => (
               <div
                 key={name}
@@ -310,10 +384,15 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
               >
                 {cardImages[name] ? (
                   // eslint-disable-next-line @next/next/no-img-element -- imagen externa de Scryfall
-                  <img src={cardImages[name]} alt={name} className="h-full w-full object-cover" style={{ aspectRatio: "5/7" }} />
+                  <img
+                    src={cardImages[name]}
+                    alt={name}
+                    className="block w-full"
+                    style={{ aspectRatio: "5/7", objectFit: "cover" }}
+                  />
                 ) : (
                   <div
-                    className="flex h-full items-center justify-center p-3 text-center text-xs"
+                    className="flex items-center justify-center p-3 text-center text-xs"
                     style={{ aspectRatio: "5/7", background: "var(--surface-muted)", color: "var(--ink-muted)" }}
                   >
                     Sin imagen
@@ -324,7 +403,7 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
           </div>
         )}
 
-        <div className="flex min-w-0 flex-1 flex-col gap-5">
+        <div className="flex min-w-0 flex-1 flex-col gap-4">
           <div>
             <h2 className="font-head text-2xl font-extrabold" style={{ color: "var(--foreground)" }}>
               {result.comandantes.length > 0 ? result.comandantes.join(" + ") : "Sin comandante detectado"}
@@ -357,17 +436,19 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
               valueLabel="cartas"
               onBarClick={handleRoleBarClick}
             />
-            {expandedRole && cartasPorRol[expandedRole] && (
-              <RoleCardGallery
-                roleLabel={ROLE_LABELS[expandedRole] ?? expandedRole}
-                cardNames={cartasPorRol[expandedRole]}
-                cardImages={cardImages}
-                onClose={() => setExpandedRole(null)}
-              />
-            )}
           </div>
         </div>
       </section>
+
+      {expandedRole && cartasPorRol[expandedRole] && (
+        <RoleCardGallery
+          roleLabel={ROLE_LABELS[expandedRole] ?? expandedRole}
+          cardNames={cartasPorRol[expandedRole]}
+          cardImages={cardImages}
+          onClose={() => setExpandedRole(null)}
+          onCardClick={(name) => setZoomedCard(name)}
+        />
+      )}
 
       {(result.no_encontradas.length > 0 || result.no_legales.length > 0) && (
         <section
@@ -476,7 +557,10 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
               {Object.entries(COLOR_LABELS).map(([code, label]) => (
                 <tr key={code} style={{ borderTop: "1px solid var(--border)" }}>
                   <th scope="row" className="p-2 text-left font-normal" style={{ color: "var(--foreground)" }}>
-                    {label}
+                    <span className="inline-flex items-center gap-2">
+                      <ManaIcon color={code} />
+                      {label}
+                    </span>
                   </th>
                   <td className="p-2 font-mono" style={{ color: "var(--foreground)" }}>
                     {result.pips[code] ?? 0}
@@ -606,8 +690,8 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
               <div>
                 <SectionLabel>Cambios sugeridos</SectionLabel>
                 <div className="flex flex-col gap-px overflow-hidden rounded-sm border" style={{ borderColor: "var(--border)", background: "var(--border)" }}>
-                  {swaps.map((pair, i) => (
-                    <SwapCard key={i} pair={pair} cardImages={cardImages} onHover={handleHover} />
+                  {swaps.map((group, i) => (
+                    <SwapGroupCard key={i} group={group} cardImages={cardImages} onHover={handleHover} />
                   ))}
                 </div>
               </div>

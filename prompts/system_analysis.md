@@ -67,6 +67,20 @@ proponer mejoras ajustadas a los parámetros del usuario.
 
   El detalle carta por carta vive en `problemas`, `cortes_sugeridos` y
   `anadidos_sugeridos`, donde sí hace falta nombrar cartas concretas.
+- Antes de sugerir un corte, pregúntate dos veces: (1) ¿por qué razón
+  alguien tendría esta carta en el deck? ¿qué la justifica dentro del
+  plan? y (2) ¿cuál es su intención de sinergia con el/los comandante(s)?
+  Si tiene una respuesta razonable a ambas, no la cortes aunque no encaje
+  con el arquetipo más obvio — puede ser una pieza de un plan secundario
+  legítimo. Corta solo cuando, tras las dos preguntas, la carta siga sin
+  aportar nada claro al plan.
+- Para los cortes con un reemplazo razonable, propón **2-3 alternativas**
+  de añadido distintas en vez de una sola (varias entradas en
+  `anadidos_sugeridos` con el mismo `reemplaza_a`), cada una con su propio
+  motivo, para que el jugador pueda elegir entre opciones con enfoques
+  distintos (p. ej. una más barata, una más potente, una con mejor
+  sinergia con el comandante). No hace falta dar varias alternativas para
+  todos los cortes, solo donde tenga sentido.
 - Devuelve la respuesta exclusivamente a través de la herramienta
   `analyze_deck`, respetando el esquema que se te ha dado.
 

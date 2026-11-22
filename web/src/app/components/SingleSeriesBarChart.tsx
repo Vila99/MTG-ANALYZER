@@ -23,9 +23,17 @@ interface SingleSeriesBarChartProps {
   colorVar: string; // ej. "var(--chart-mana)"
   valueLabel: string;
   onBarClick?: (item: BarDatum) => void;
+  height?: number;
 }
 
-export function SingleSeriesBarChart({ title, data, colorVar, valueLabel, onBarClick }: SingleSeriesBarChartProps) {
+export function SingleSeriesBarChart({
+  title,
+  data,
+  colorVar,
+  valueLabel,
+  onBarClick,
+  height = 200,
+}: SingleSeriesBarChartProps) {
   if (data.length === 0) {
     return (
       <div className="rounded-sm border p-4" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
@@ -49,7 +57,7 @@ export function SingleSeriesBarChart({ title, data, colorVar, valueLabel, onBarC
           </span>
         )}
       </h3>
-      <ResponsiveContainer width="100%" height={240}>
+      <ResponsiveContainer width="100%" height={height}>
         <BarChart data={data} margin={{ top: 20, right: 8, bottom: 0, left: 0 }} barCategoryGap="20%">
           <CartesianGrid vertical={false} stroke="var(--chart-grid)" strokeDasharray="0" />
           <XAxis
@@ -66,7 +74,7 @@ export function SingleSeriesBarChart({ title, data, colorVar, valueLabel, onBarC
             width={28}
           />
           <Tooltip
-            cursor={{ fill: "var(--surface-muted)" }}
+            cursor={false}
             contentStyle={{
               background: "var(--surface)",
               border: "1px solid var(--border)",
@@ -84,7 +92,9 @@ export function SingleSeriesBarChart({ title, data, colorVar, valueLabel, onBarC
             maxBarSize={24}
             isAnimationActive={false}
             onClick={onBarClick ? (datum) => onBarClick(datum as unknown as BarDatum) : undefined}
+            onMouseDown={onBarClick ? (_data, _index, event) => event?.preventDefault() : undefined}
             style={{ cursor: onBarClick ? "pointer" : undefined }}
+            background={onBarClick ? { fill: "transparent" } : undefined}
           >
             <LabelList
               dataKey="value"

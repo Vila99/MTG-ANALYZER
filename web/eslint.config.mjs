@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Paquete de iconos de maná vendorizado (JS/CSS de terceros, sin tocar).
+    "public/mana-master/**",
   ]),
 ]);
 
