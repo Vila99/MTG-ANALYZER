@@ -141,6 +141,47 @@ def test_analyze_includes_approximate_deck_cost_even_without_ai(client: TestClie
     assert response.json()["coste_aproximado"] == {"total_eur": 0.85, "cartas_sin_precio": ["Forest"]}
 
 
+def test_analyze_fetches_deck_from_moxfield_url(client: TestClient, monkeypatch):
+    monkeypatch.setattr(
+        "analyzer.moxfield.requests.get",
+        lambda *a, **k: type(
+            "R",
+            (),
+            {
+                "status_code": 200,
+                "ok": True,
+                "json": lambda self: {
+                    "commanders": {"Atraxa, Praetors' Voice": {"quantity": 1}},
+                    "mainboard": {"Sol Ring": {"quantity": 1}},
+                },
+            },
+        )(),
+    )
+    response = client.post(
+        "/analyze", json={"moxfield_url": "https://www.moxfield.com/decks/abc123"}
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["comandantes"] == ["Atraxa, Praetors' Voice"]
+    assert body["tamano_deck"] == 2
+
+
+def test_analyze_without_deck_text_or_moxfield_url_returns_400(client: TestClient):
+    response = client.post("/analyze", json={})
+    assert response.status_code == 400
+
+
+def test_analyze_moxfield_not_found_returns_400(client: TestClient, monkeypatch):
+    monkeypatch.setattr(
+        "analyzer.moxfield.requests.get",
+        lambda *a, **k: type("R", (), {"status_code": 404, "ok": False})(),
+    )
+    response = client.post(
+        "/analyze", json={"moxfield_url": "https://www.moxfield.com/decks/no-existe"}
+    )
+    assert response.status_code == 400
+
+
 def test_analyze_uses_explicit_commander_field(client: TestClient):
     response = client.post(
         "/analyze",

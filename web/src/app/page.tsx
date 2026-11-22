@@ -29,6 +29,7 @@ function fieldStyle() {
 
 export default function Home() {
   const commanderId = useId();
+  const moxfieldUrlId = useId();
   const deckTextId = useId();
   const descriptionId = useId();
   const budgetId = useId();
@@ -37,6 +38,7 @@ export default function Home() {
   const aiId = useId();
 
   const [commander, setCommander] = useState("");
+  const [moxfieldUrl, setMoxfieldUrl] = useState("");
   const [deckText, setDeckText] = useState("");
   const [description, setDescription] = useState("");
   const [budget, setBudget] = useState("");
@@ -82,7 +84,8 @@ export default function Home() {
     setError(null);
 
     const body: AnalyzeRequest = {
-      deck_text: deckText,
+      deck_text: deckText || undefined,
+      moxfield_url: moxfieldUrl.trim() || undefined,
       commander: commander.trim() || undefined,
       description: description.trim() || undefined,
       budget: budget ? Number(budget) : undefined,
@@ -171,6 +174,25 @@ export default function Home() {
               </p>
             </div>
 
+            <div className="flex flex-col gap-1">
+              <label htmlFor={moxfieldUrlId} className="font-head text-xs font-bold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
+                URL de Moxfield (opcional)
+              </label>
+              <input
+                id={moxfieldUrlId}
+                name="moxfield_url"
+                type="text"
+                placeholder="https://www.moxfield.com/decks/..."
+                value={moxfieldUrl}
+                onChange={(e) => setMoxfieldUrl(e.target.value)}
+                className="h-11 rounded-sm border px-3.5 text-[15px]"
+                style={fieldStyle()}
+              />
+              <p className="text-xs" style={{ color: "var(--ink-muted)" }}>
+                Si pegas la URL de un deck público de Moxfield, no hace falta pegar la lista debajo.
+              </p>
+            </div>
+
             <div className="flex min-h-0 flex-1 flex-col gap-1">
               <label htmlFor={deckTextId} className="font-head text-xs font-bold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
                 Lista del deck
@@ -178,7 +200,7 @@ export default function Home() {
               <textarea
                 id={deckTextId}
                 name="deck_text"
-                required
+                required={!moxfieldUrl.trim()}
                 rows={16}
                 placeholder={"Commander:\n1 Atraxa, Praetors' Voice\n\nDeck:\n1 Sol Ring\n..."}
                 value={deckText}

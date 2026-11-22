@@ -17,6 +17,7 @@ from pydantic import BaseModel, Field
 
 from analyzer import budget as budget_module
 from analyzer import cards as cards_module
+from analyzer import moxfield as moxfield_module
 from analyzer import prices as prices_module
 from analyzer import report
 from analyzer import roles as roles_module
@@ -35,7 +36,8 @@ app.add_middleware(
 
 
 class AnalyzeRequest(BaseModel):
-    deck_text: str
+    deck_text: str | None = None
+    moxfield_url: str | None = None
     commander: str | None = None
     description: str | None = None
     budget: float | None = None
@@ -88,7 +90,17 @@ def analyze(request: AnalyzeRequest) -> dict:
         except RuntimeError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    parsed = parse_decklist(request.deck_text)
+    if request.moxfield_url:
+        try:
+            parsed = moxfield_module.fetch_moxfield_deck(request.moxfield_url)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+    elif request.deck_text:
+        parsed = parse_decklist(request.deck_text)
+    else:
+        raise HTTPException(
+            status_code=400, detail="Falta la lista del deck o una URL de Moxfield."
+        )
 
     conn = cards_module.connect(cards_module.DEFAULT_DB_PATH)
     try:

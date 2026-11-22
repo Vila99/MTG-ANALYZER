@@ -76,7 +76,8 @@ export interface AnalyzeResponse {
 }
 
 export interface AnalyzeRequest {
-  deck_text: string;
+  deck_text?: string;
+  moxfield_url?: string;
   commander?: string;
   description?: string;
   budget?: number;

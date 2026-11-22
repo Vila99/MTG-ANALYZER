@@ -9,6 +9,7 @@ from pathlib import Path
 
 from analyzer import budget as budget_module
 from analyzer import cards as cards_module
+from analyzer import moxfield as moxfield_module
 from analyzer import prices as prices_module
 from analyzer import report
 from analyzer import roles as roles_module
@@ -24,7 +25,12 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="analyze", description="Analiza un deck de Magic: The Gathering (Commander/EDH)."
     )
-    parser.add_argument("deck_file", type=Path, help="Ruta a la lista del deck en texto plano")
+    parser.add_argument(
+        "deck_file", type=Path, nargs="?", help="Ruta a la lista del deck en texto plano"
+    )
+    parser.add_argument(
+        "--moxfield-url", help="URL (o id) de un deck público de Moxfield, en vez de deck_file"
+    )
     parser.add_argument("--budget", type=float, help="Precio máximo por carta o total")
     parser.add_argument("--json", action="store_true", help="Salida en JSON en vez de texto")
     parser.add_argument(
@@ -52,7 +58,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    if not args.deck_file.exists():
+    if not args.moxfield_url and not args.deck_file:
+        print("Falta deck_file o --moxfield-url.", file=sys.stderr)
+        return 1
+
+    if args.deck_file and not args.deck_file.exists():
         print(f"No se encontró el archivo del deck: {args.deck_file}", file=sys.stderr)
         return 1
 
@@ -71,8 +81,15 @@ def main(argv: list[str] | None = None) -> int:
             print(str(exc), file=sys.stderr)
             return 1
 
-    text = args.deck_file.read_text(encoding="utf-8")
-    parsed = parse_decklist(text)
+    if args.moxfield_url:
+        try:
+            parsed = moxfield_module.fetch_moxfield_deck(args.moxfield_url)
+        except ValueError as exc:
+            print(str(exc), file=sys.stderr)
+            return 1
+    else:
+        text = args.deck_file.read_text(encoding="utf-8")
+        parsed = parse_decklist(text)
 
     analysis_run = None
     conn = cards_module.connect(args.db)
