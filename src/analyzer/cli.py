@@ -7,6 +7,7 @@ import json
 import sys
 from pathlib import Path
 
+from analyzer import budget as budget_module
 from analyzer import cards as cards_module
 from analyzer import report
 from analyzer import roles as roles_module
@@ -96,11 +97,14 @@ def main(argv: list[str] | None = None) -> int:
             analysis_run = pipeline.run_analysis(
                 client, conn, commanders, deck_cards, card_roles, params
             )
+
+        analysis = analysis_run.validated_analysis if analysis_run else None
+        if analysis is not None:
+            analysis = budget_module.apply_budget_to_analysis(conn, analysis, args.budget)
     finally:
         conn.close()
 
     rubric_status = rubric.evaluate_role_counts(role_counts)
-    analysis = analysis_run.validated_analysis if analysis_run else None
 
     if args.json:
         summary = report.build_summary(

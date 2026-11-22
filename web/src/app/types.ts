@@ -15,7 +15,18 @@ export interface AñadidoSugerido {
   carta: string;
   rol: string;
   reemplaza_a: string | null;
+  categoria_problema: string | null;
   motivo: string;
+  // Presentes solo si se dio `budget` en la petición (ver analyzer.budget).
+  precio_eur?: number | null;
+  incluido?: boolean;
+}
+
+export interface PresupuestoResumen {
+  presupuesto: number;
+  coste_estimado: number;
+  supera_presupuesto: boolean;
+  diferencia: number;
 }
 
 export interface SenalDura {
@@ -42,6 +53,7 @@ export interface Analisis {
   cortes_sugeridos: CorteSugerido[];
   anadidos_sugeridos: AñadidoSugerido[];
   bracket: BracketAnalisis;
+  presupuesto?: PresupuestoResumen | null;
 }
 
 export interface AnalyzeResponse {

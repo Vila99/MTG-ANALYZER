@@ -11,7 +11,7 @@ from dataclasses import dataclass
 
 import anthropic
 
-from analyzer import bracket, llm, validate
+from analyzer import bracket, llm, synergy, validate
 from analyzer.cards import Card
 
 
@@ -38,6 +38,13 @@ def run_analysis(
     comparar versiones del prompt/rubric más adelante.
     """
     bracket_floor = bracket.compute_floor(commanders, deck_cards)
+    if candidate_pool is None:
+        candidate_pool = synergy.build_candidate_pool(
+            conn,
+            commanders,
+            deck_cards,
+            llm_extract=lambda commander: llm.extract_synergy_keywords_with_haiku(client, commander),
+        )
     payload = llm.build_analysis_payload(
         commanders, deck_cards, card_roles, params, candidate_pool, bracket_floor
     )

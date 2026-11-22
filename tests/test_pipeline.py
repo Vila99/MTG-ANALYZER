@@ -121,3 +121,92 @@ def test_run_analysis_builds_payload_calls_claude_and_validates():
         {"carta": "Arcane Signet", "rol": "ramp", "reemplaza_a": None, "motivo": "ramp eficiente"}
     ]
     assert run.validated_analysis["cortes_sugeridos"] == raw_analysis["cortes_sugeridos"]
+
+
+def _fake_keywords_tool_use_message(keywords: list[str]):
+    block = MagicMock()
+    block.type = "tool_use"
+    block.name = "extract_synergy_keywords"
+    block.input = {"keywords": keywords}
+    message = MagicMock()
+    message.content = [block]
+    return message
+
+
+def test_run_analysis_builds_candidate_pool_from_commander_keywords_when_not_given():
+    conn = make_db()
+    conn.execute(
+        "INSERT INTO cards VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+        (
+            "2",
+            "Ramp Rock",
+            "ramp rock",
+            "{2}",
+            2.0,
+            "Artifact",
+            "Add one mana of any color. Ramp your mana base.",
+            json.dumps([]),
+            json.dumps([]),
+            json.dumps([]),
+            json.dumps({"commander": "legal"}),
+        ),
+    )
+    conn.commit()
+    commander = make_commander()
+    raw_analysis = {
+        "estrategia_detectada": "control",
+        "arquetipo": "artifacts",
+        "puntos_fuertes": [],
+        "problemas": [],
+        "cortes_sugeridos": [],
+        "anadidos_sugeridos": [],
+    }
+
+    def fake_create(*, tools, **kwargs):
+        if tools[0]["name"] == "extract_synergy_keywords":
+            return _fake_keywords_tool_use_message(["ramp"])
+        return _fake_analysis_tool_use_message(raw_analysis)
+
+    client = MagicMock()
+    client.messages.create.side_effect = fake_create
+
+    run = run_analysis(
+        client,
+        conn,
+        commanders=[commander],
+        deck_cards=[make_deck_card()],
+        card_roles={"Sol Ring": ["ramp"]},
+        params={},
+    )
+
+    assert run.payload["pool_candidatas"] == [
+        {"nombre": "Ramp Rock", "texto_oracle": "Add one mana of any color. Ramp your mana base."}
+    ]
+
+
+def test_run_analysis_does_not_rebuild_pool_when_candidate_pool_given_explicitly():
+    conn = make_db()
+    commander = make_commander()
+    raw_analysis = {
+        "estrategia_detectada": "control",
+        "arquetipo": "artifacts",
+        "puntos_fuertes": [],
+        "problemas": [],
+        "cortes_sugeridos": [],
+        "anadidos_sugeridos": [],
+    }
+    client = MagicMock()
+    client.messages.create.return_value = _fake_analysis_tool_use_message(raw_analysis)
+
+    run = run_analysis(
+        client,
+        conn,
+        commanders=[commander],
+        deck_cards=[make_deck_card()],
+        card_roles={"Sol Ring": ["ramp"]},
+        params={},
+        candidate_pool=[],
+    )
+
+    assert run.payload["pool_candidatas"] == []
+    client.messages.create.assert_called_once()  # solo la llamada de analyze_deck, sin extraer keywords

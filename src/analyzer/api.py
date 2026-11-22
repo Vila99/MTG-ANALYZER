@@ -15,6 +15,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from analyzer import budget as budget_module
 from analyzer import cards as cards_module
 from analyzer import report
 from analyzer import roles as roles_module
@@ -117,6 +118,10 @@ def analyze(request: AnalyzeRequest) -> dict:
             )
 
         validated_analysis = analysis_run.validated_analysis if analysis_run else None
+        if validated_analysis is not None:
+            validated_analysis = budget_module.apply_budget_to_analysis(
+                conn, validated_analysis, request.budget
+            )
         card_images = _collect_card_images(conn, commanders, deck_cards, validated_analysis)
     finally:
         conn.close()

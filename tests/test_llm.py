@@ -7,6 +7,7 @@ from analyzer.llm import (
     analyze_deck,
     build_analysis_payload,
     classify_card_with_haiku,
+    extract_synergy_keywords_with_haiku,
     get_client,
     load_system_prompt,
 )
@@ -66,6 +67,36 @@ def test_classify_card_with_haiku_defaults_to_other_without_tool_use():
     roles = classify_card_with_haiku(client, make_card())
 
     assert roles == ["other"]
+
+
+def _fake_keywords_tool_use_message(keywords: list[str]):
+    block = MagicMock()
+    block.type = "tool_use"
+    block.name = "extract_synergy_keywords"
+    block.input = {"keywords": keywords}
+    message = MagicMock()
+    message.content = [block]
+    return message
+
+
+def test_extract_synergy_keywords_with_haiku_parses_tool_use_response():
+    client = MagicMock()
+    client.messages.create.return_value = _fake_keywords_tool_use_message(["token", "enchantment"])
+
+    keywords = extract_synergy_keywords_with_haiku(client, make_card())
+
+    assert keywords == ["token", "enchantment"]
+    _, kwargs = client.messages.create.call_args
+    assert kwargs["tool_choice"] == {"type": "tool", "name": "extract_synergy_keywords"}
+
+
+def test_extract_synergy_keywords_with_haiku_returns_empty_list_without_tool_use():
+    client = MagicMock()
+    message = MagicMock()
+    message.content = []
+    client.messages.create.return_value = message
+
+    assert extract_synergy_keywords_with_haiku(client, make_card()) == []
 
 
 def test_get_client_requires_api_key(monkeypatch):

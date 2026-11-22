@@ -43,7 +43,7 @@ def connect(db_path: Path | str = DEFAULT_DB_PATH) -> sqlite3.Connection:
     return conn
 
 
-def _row_to_card(row: sqlite3.Row) -> Card:
+def row_to_card(row: sqlite3.Row) -> Card:
     keys = row.keys()
     return Card(
         name=row["name"],
@@ -76,7 +76,7 @@ def get_card_by_name(conn: sqlite3.Connection, name: str) -> Card | None:
         ).fetchone()
     if row is None:
         return None
-    return _row_to_card(row)
+    return row_to_card(row)
 
 
 def find_card_by_name_fuzzy(conn: sqlite3.Connection, name: str) -> Card | None:
@@ -103,7 +103,7 @@ def find_card_by_name_fuzzy(conn: sqlite3.Connection, name: str) -> Card | None:
             (pattern,),
         ).fetchone()
         if row is not None:
-            return _row_to_card(row)
+            return row_to_card(row)
     return None
 
 

@@ -36,8 +36,12 @@ proponer mejoras ajustadas a los parámetros del usuario.
   además de su rol funcional (ramp, robo, removal...) que ya viene en los
   datos de entrada. Esta clasificación estructural es tuya: no viene
   precalculada, porque es interpretativa y depende del plan del deck.
-- Respetar los parámetros del usuario: `budget`,
-  `style` (casual/focused/cEDH), `avoid` (cartas o mecánicas a evitar) y
+- Respetar los parámetros del usuario: `budget` (presupuesto **total**, no
+  por carta, para el conjunto de añadidos de este análisis; no hace falta
+  que calcules el precio exacto de cada carta — el código consulta el
+  precio real después y prioriza/recorta la selección si hace falta, así
+  que céntrate en el plan, no en adivinar precios), `style`
+  (casual/focused/cEDH), `avoid` (cartas o mecánicas a evitar) y
   `description`, la idea del jugador para el deck **en sus propias
   palabras**, si la dio. Dale peso real a `description`: si el jugador
   dice para qué construyó el deck, usa eso para leer su intención antes
@@ -80,6 +84,12 @@ proponer mejoras ajustadas a los parámetros del usuario.
   distintos (p. ej. una más barata, una más potente, una con mejor
   sinergia con el comandante). No hace falta dar varias alternativas para
   todos los cortes, solo donde tenga sentido.
+- Rellena `categoria_problema` en cada añadido con la `categoria` exacta
+  (tal cual la escribiste en `problemas`) del problema que ese añadido
+  soluciona, o `null` si es una mejora de sinergia que no corresponde a
+  ningún problema listado. El código usa este enlace para priorizar qué
+  añadidos entran si el presupuesto no da para todos: primero los que
+  resuelven problemas de severidad `alta`.
 - Devuelve la respuesta exclusivamente a través de la herramienta
   `analyze_deck`, respetando el esquema que se te ha dado.
 

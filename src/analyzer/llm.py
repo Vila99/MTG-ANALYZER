@@ -89,6 +89,65 @@ def classify_card_with_haiku(client: anthropic.Anthropic, card: Card) -> list[st
     return ["other"]
 
 
+_SYNERGY_KEYWORDS_TOOL = {
+    "name": "extract_synergy_keywords",
+    "description": (
+        "Extrae palabras o frases cortas del texto oracle de un comandante que "
+        "describan sus mecánicas principales, para buscar cartas que las "
+        "compartan literalmente en su propio texto oracle."
+    ),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "keywords": {
+                "type": "array",
+                "items": {"type": "string"},
+                "minItems": 1,
+                "maxItems": 6,
+                "description": (
+                    "3-6 palabras o frases de 1-3 palabras (en inglés, tal cual "
+                    "aparecerían en el texto oracle de otra carta: 'token', "
+                    "'sacrifice', 'graveyard', 'enchantment', '+1/+1 counter'...). "
+                    "Nunca nombres de carta ni frases largas."
+                ),
+            }
+        },
+        "required": ["keywords"],
+    },
+}
+
+
+def extract_synergy_keywords_with_haiku(client: anthropic.Anthropic, commander: Card) -> list[str]:
+    """Pide a Haiku 3-6 palabras clave mecánicas del texto oracle del
+    comandante (p. ej. "token", "sacrifice", "graveyard"), para buscar
+    después cartas que las compartan de verdad (ver ``analyzer.synergy``).
+
+    Es una extracción interpretativa barata (Haiku), no una búsqueda: la
+    búsqueda real sobre las cartas es SQL determinista, no de Claude.
+    """
+    message = client.messages.create(
+        model=HAIKU_MODEL,
+        max_tokens=256,
+        tools=[_SYNERGY_KEYWORDS_TOOL],
+        tool_choice={"type": "tool", "name": "extract_synergy_keywords"},
+        messages=[
+            {
+                "role": "user",
+                "content": (
+                    f"Comandante: {commander.name}\n"
+                    f"Texto oracle: {commander.oracle_text}\n\n"
+                    "Extrae las palabras clave mecánicas de este comandante."
+                ),
+            }
+        ],
+    )
+    for block in message.content:
+        if block.type == "tool_use" and block.name == "extract_synergy_keywords":
+            keywords = block.input.get("keywords", [])
+            return [k for k in keywords if isinstance(k, str) and k.strip()]
+    return []
+
+
 _ANALYSIS_TOOL = {
     "name": "analyze_deck",
     "description": "Registra el análisis estructurado de un deck de Commander/EDH.",
@@ -137,9 +196,17 @@ _ANALYSIS_TOOL = {
                                 "reemplaza ninguna en concreto."
                             ),
                         },
+                        "categoria_problema": {
+                            "anyOf": [{"type": "string"}, {"type": "null"}],
+                            "description": (
+                                "La `categoria` exacta (tal cual aparece en `problemas`) del "
+                                "problema que este añadido soluciona, o null si no soluciona "
+                                "ninguno en concreto (p. ej. es una mejora de sinergia)."
+                            ),
+                        },
                         "motivo": {"type": "string"},
                     },
-                    "required": ["carta", "rol", "reemplaza_a", "motivo"],
+                    "required": ["carta", "rol", "reemplaza_a", "categoria_problema", "motivo"],
                     "additionalProperties": False,
                 },
             },

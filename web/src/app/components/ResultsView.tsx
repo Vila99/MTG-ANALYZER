@@ -203,7 +203,11 @@ function SwapGroupCard({
           </p>
         )}
         {group.additions.map((addition, i) => (
-          <div key={i} className="flex flex-wrap items-start gap-4">
+          <div
+            key={i}
+            className="flex flex-wrap items-start gap-4"
+            style={{ opacity: addition.incluido === false ? 0.5 : 1 }}
+          >
             <div
               className="underline-card flex-shrink-0 text-center"
               onMouseEnter={(e) => onHover(addition.carta, e.currentTarget)}
@@ -218,6 +222,16 @@ function SwapGroupCard({
               <div className="text-[11px]" style={{ color: "var(--ink-muted)" }}>
                 {addition.rol}
               </div>
+              {typeof addition.precio_eur === "number" && (
+                <div className="font-mono text-[11px] font-bold" style={{ color: "var(--ink-secondary)" }}>
+                  {addition.precio_eur.toFixed(2)} €
+                </div>
+              )}
+              {addition.incluido === false && (
+                <div className="font-head text-[10px] font-bold uppercase" style={{ color: "var(--status-warning)" }}>
+                  Fuera de presupuesto
+                </div>
+              )}
             </div>
             <p className="min-w-[200px] flex-1 text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
               <HighlightedText text={addition.motivo} cardImages={cardImages} onHover={onHover} />
@@ -683,6 +697,19 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
             {swaps.length > 0 && (
               <div>
                 <SectionLabel>Cambios sugeridos</SectionLabel>
+                {analisis.presupuesto && (
+                  <p
+                    className="mb-3 text-sm"
+                    style={{ color: analisis.presupuesto.supera_presupuesto ? "var(--status-warning)" : "var(--ink-secondary)" }}
+                  >
+                    Coste estimado de lo incluido:{" "}
+                    <strong>{analisis.presupuesto.coste_estimado.toFixed(2)} €</strong> de{" "}
+                    {analisis.presupuesto.presupuesto.toFixed(2)} € de presupuesto
+                    {analisis.presupuesto.supera_presupuesto &&
+                      ` — se pasa por ${analisis.presupuesto.diferencia.toFixed(2)} € para no dejar sin resolver los problemas más graves`}
+                    .
+                  </p>
+                )}
                 <div className="flex flex-col gap-px overflow-hidden rounded-sm border" style={{ borderColor: "var(--border)", background: "var(--border)" }}>
                   {swaps.map((group, i) => (
                     <SwapGroupCard key={i} group={group} cardImages={cardImages} onHover={handleHover} />
