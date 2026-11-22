@@ -324,9 +324,9 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex min-w-[280px] max-w-[360px] flex-1 flex-col gap-3">
+          <div className="flex h-fit min-w-[280px] max-w-[360px] flex-1 flex-col gap-3">
           <fieldset
-            className="flex flex-1 flex-col gap-4 rounded-sm border p-5"
+            className="flex flex-col gap-4 rounded-sm border p-5"
             style={{ borderColor: "var(--border)", background: "var(--surface)" }}
           >
             <legend className="font-head border-b px-1 pb-3 text-xs font-extrabold uppercase tracking-wide" style={{ borderColor: "var(--border)", color: "var(--foreground)" }}>
@@ -418,7 +418,7 @@ export default function Home() {
           <button
             type="button"
             onClick={() => setShowRecentModal(true)}
-            className="font-head h-11 rounded-sm border text-xs font-bold uppercase tracking-wide"
+            className="font-head h-11 rounded-sm border text-[11px] font-bold uppercase tracking-wide"
             style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
           >
             Últimos decks analizados{recent.length > 0 ? ` (${recent.length})` : ""}
