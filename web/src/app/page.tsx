@@ -295,7 +295,7 @@ export default function Home() {
                 id={deckTextId}
                 name="deck_text"
                 required={!moxfieldUrl.trim()}
-                rows={16}
+                rows={13}
                 placeholder={"Commander:\n1 Atraxa, Praetors' Voice\n\nDeck:\n1 Sol Ring\n..."}
                 value={deckText}
                 onChange={(e) => setDeckText(e.target.value)}
