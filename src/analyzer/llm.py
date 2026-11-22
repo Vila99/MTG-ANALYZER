@@ -107,6 +107,7 @@ _ANALYSIS_TOOL = {
                         "explicacion": {"type": "string"},
                     },
                     "required": ["categoria", "severidad", "explicacion"],
+                    "additionalProperties": False,
                 },
             },
             "cortes_sugeridos": {
@@ -118,6 +119,7 @@ _ANALYSIS_TOOL = {
                         "motivo": {"type": "string"},
                     },
                     "required": ["carta", "motivo"],
+                    "additionalProperties": False,
                 },
             },
             "anadidos_sugeridos": {
@@ -127,10 +129,17 @@ _ANALYSIS_TOOL = {
                     "properties": {
                         "carta": {"type": "string"},
                         "rol": {"type": "string"},
-                        "reemplaza_a": {"type": ["string", "null"]},
+                        "reemplaza_a": {
+                            "anyOf": [{"type": "string"}, {"type": "null"}],
+                            "description": (
+                                "Nombre de la carta a la que reemplaza, o null si no "
+                                "reemplaza ninguna en concreto."
+                            ),
+                        },
                         "motivo": {"type": "string"},
                     },
-                    "required": ["carta", "rol", "motivo"],
+                    "required": ["carta", "rol", "reemplaza_a", "motivo"],
+                    "additionalProperties": False,
                 },
             },
         },
@@ -142,7 +151,11 @@ _ANALYSIS_TOOL = {
             "cortes_sugeridos",
             "anadidos_sugeridos",
         ],
+        "additionalProperties": False,
     },
+    # Sonnet 5.5 ya no acepta tool_choice forzado ("tool"/"any"): se pide con
+    # strict tool use + tool_choice "auto" en su lugar (ver analyze_deck).
+    "strict": True,
 }
 
 
@@ -213,10 +226,18 @@ def analyze_deck(client: anthropic.Anthropic, payload: dict) -> dict:
 
     El system prompt (con el rubric) va con ``cache_control`` para
     aprovechar el prompt caching entre análisis sucesivos.
+
+    Sonnet 5.5 no acepta ``tool_choice`` forzado (``"tool"``/``"any"``): se
+    usa ``strict`` tool use (ver ``_ANALYSIS_TOOL``) con ``tool_choice``
+    ``"auto"``, pidiendo explícitamente en el mensaje que use la
+    herramienta. ``max_tokens`` y el nivel de esfuerzo son generosos porque
+    Sonnet 5.5 piensa (``thinking`` adaptativo) antes de responder, y ese
+    razonamiento también consume el presupuesto de tokens de salida.
     """
     message = client.messages.create(
         model=SONNET_MODEL,
-        max_tokens=4096,
+        max_tokens=16000,
+        output_config={"effort": "high"},
         system=[
             {
                 "type": "text",
@@ -225,8 +246,16 @@ def analyze_deck(client: anthropic.Anthropic, payload: dict) -> dict:
             }
         ],
         tools=[_ANALYSIS_TOOL],
-        tool_choice={"type": "tool", "name": "analyze_deck"},
-        messages=[{"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
+        tool_choice={"type": "auto"},
+        messages=[
+            {
+                "role": "user",
+                "content": (
+                    json.dumps(payload, ensure_ascii=False)
+                    + "\n\nUsa la herramienta analyze_deck para responder con el análisis."
+                ),
+            }
+        ],
     )
     for block in message.content:
         if block.type == "tool_use" and block.name == "analyze_deck":

@@ -181,7 +181,11 @@ def test_analyze_deck_returns_tool_input():
 
     assert result == fake_analysis
     _, kwargs = client.messages.create.call_args
-    assert kwargs["tool_choice"] == {"type": "tool", "name": "analyze_deck"}
+    # Sonnet 5.5 rechaza tool_choice forzado ("tool"/"any"): se usa "auto" +
+    # strict tool use, con una instrucción explícita en el mensaje.
+    assert kwargs["tool_choice"] == {"type": "auto"}
+    assert kwargs["tools"][0]["strict"] is True
+    assert "analyze_deck" in kwargs["messages"][0]["content"]
     assert kwargs["system"][0]["cache_control"] == {"type": "ephemeral"}
 
 
