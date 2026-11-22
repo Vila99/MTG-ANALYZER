@@ -23,7 +23,6 @@ def main(argv: list[str] | None = None) -> int:
         prog="analyze", description="Analiza un deck de Magic: The Gathering (Commander/EDH)."
     )
     parser.add_argument("deck_file", type=Path, help="Ruta a la lista del deck en texto plano")
-    parser.add_argument("--bracket", type=int, choices=range(1, 6), help="Nivel de poder objetivo (1-5)")
     parser.add_argument("--budget", type=float, help="Precio máximo por carta o total")
     parser.add_argument("--json", action="store_true", help="Salida en JSON en vez de texto")
     parser.add_argument(
@@ -88,7 +87,6 @@ def main(argv: list[str] | None = None) -> int:
             from analyzer import pipeline
 
             params = {
-                "bracket": args.bracket,
                 "budget": args.budget,
                 "style": args.style,
                 "allow_combos": args.allow_combos,

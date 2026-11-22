@@ -178,17 +178,6 @@ _ANALYSIS_TOOL = {
                         "required": ["bajar", "subir"],
                         "additionalProperties": False,
                     },
-                    "objetivo_usuario": {
-                        "anyOf": [{"type": "integer"}, {"type": "null"}],
-                        "description": "Bracket objetivo indicado por el usuario, o null si no se indicó.",
-                    },
-                    "diferencia_con_objetivo": {
-                        "anyOf": [{"type": "string"}, {"type": "null"}],
-                        "description": (
-                            "Si hay objetivo: si el deck está por encima, por debajo o a "
-                            "su altura, y por qué. null si no hay objetivo."
-                        ),
-                    },
                 },
                 "required": [
                     "deducido",
@@ -199,8 +188,6 @@ _ANALYSIS_TOOL = {
                     "senales_duras",
                     "razones",
                     "que_lo_moveria",
-                    "objetivo_usuario",
-                    "diferencia_con_objetivo",
                 ],
                 "additionalProperties": False,
             },

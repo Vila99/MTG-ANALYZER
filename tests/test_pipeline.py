@@ -109,7 +109,7 @@ def test_run_analysis_builds_payload_calls_claude_and_validates():
         commanders=[commander],
         deck_cards=[sol_ring],
         card_roles={"Sol Ring": ["ramp"]},
-        params={"bracket": 3},
+        params={"budget": 3},
     )
 
     assert run.payload["comandantes"][0]["nombre"] == "Commander"

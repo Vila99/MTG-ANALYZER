@@ -630,12 +630,6 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
                   )}
                 </div>
               )}
-              {analisis.bracket.diferencia_con_objetivo && (
-                <p className="mt-3 text-sm" style={{ color: "var(--foreground)" }}>
-                  <strong>Frente a tu objetivo ({analisis.bracket.objetivo_usuario}):</strong>{" "}
-                  {analisis.bracket.diferencia_con_objetivo}
-                </p>
-              )}
             </section>
           )}
 

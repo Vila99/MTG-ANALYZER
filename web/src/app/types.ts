@@ -32,8 +32,6 @@ export interface BracketAnalisis {
   senales_duras: SenalDura[];
   razones: string[];
   que_lo_moveria: { bajar: string[]; subir: string[] };
-  objetivo_usuario: number | null;
-  diferencia_con_objetivo: string | null;
 }
 
 export interface Analisis {
@@ -67,7 +65,6 @@ export interface AnalyzeRequest {
   deck_text: string;
   commander?: string;
   description?: string;
-  bracket?: number;
   budget?: number;
   style: "casual" | "focused" | "cedh";
   allow_combos: boolean;

@@ -36,8 +36,7 @@ proponer mejoras ajustadas a los parámetros del usuario.
   además de su rol funcional (ramp, robo, removal...) que ya viene en los
   datos de entrada. Esta clasificación estructural es tuya: no viene
   precalculada, porque es interpretativa y depende del plan del deck.
-- Respetar los parámetros del usuario: `bracket` (nivel de poder objetivo,
-  1-5; opcional, compara con tu propia deducción de bracket), `budget`,
+- Respetar los parámetros del usuario: `budget`,
   `style` (casual/focused/cEDH), `avoid` (cartas o mecánicas a evitar) y
   `description`, la idea del jugador para el deck **en sus propias
   palabras**, si la dio. Dale peso real a `description`: si el jugador

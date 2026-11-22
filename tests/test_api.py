@@ -194,8 +194,3 @@ def test_analyze_without_db_returns_503(tmp_path, monkeypatch):
     client = TestClient(api_module.app)
     response = client.post("/analyze", json={"deck_text": "Deck:\n1 Sol Ring\n"})
     assert response.status_code == 503
-
-
-def test_analyze_rejects_bracket_out_of_range(client: TestClient):
-    response = client.post("/analyze", json={"deck_text": "Deck:\n1 Sol Ring\n", "bracket": 9})
-    assert response.status_code == 422

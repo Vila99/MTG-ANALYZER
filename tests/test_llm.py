@@ -122,7 +122,7 @@ def test_build_analysis_payload_groups_duplicates_and_includes_roles():
     card_roles = {"Sol Ring": ["ramp"], "Forest": ["land"]}
 
     payload = build_analysis_payload(
-        [commander], deck_cards, card_roles, params={"bracket": 3}
+        [commander], deck_cards, card_roles, params={"budget": 3}
     )
 
     assert payload["comandantes"] == [
@@ -137,7 +137,7 @@ def test_build_analysis_payload_groups_duplicates_and_includes_roles():
     assert cartas_by_name["Forest"]["cantidad"] == 3
     assert cartas_by_name["Forest"]["roles"] == ["land"]
     assert cartas_by_name["Sol Ring"]["roles"] == ["ramp"]
-    assert payload["parametros_usuario"] == {"bracket": 3}
+    assert payload["parametros_usuario"] == {"budget": 3}
     assert payload["pool_candidatas"] == []
 
 

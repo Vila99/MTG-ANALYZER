@@ -159,7 +159,7 @@ python scripts/load_scryfall.py
 
 # Analizar un deck
 analyze data/sample_decks/ejemplo.txt
-analyze data/sample_decks/ejemplo.txt --bracket 3 --budget 10 --json
+analyze data/sample_decks/ejemplo.txt --budget 10 --json
 
 # Tests
 pytest

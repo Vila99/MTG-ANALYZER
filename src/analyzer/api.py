@@ -36,7 +36,6 @@ class AnalyzeRequest(BaseModel):
     deck_text: str
     commander: str | None = None
     description: str | None = None
-    bracket: int | None = Field(default=None, ge=1, le=5)
     budget: float | None = None
     style: str = "casual"
     allow_combos: bool = False
@@ -107,7 +106,6 @@ def analyze(request: AnalyzeRequest) -> dict:
             from analyzer import pipeline
 
             params = {
-                "bracket": request.bracket,
                 "budget": request.budget,
                 "style": request.style,
                 "allow_combos": request.allow_combos,

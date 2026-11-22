@@ -119,14 +119,6 @@ Reglas:
 - **Razones**: las 2–4 señales que más pesan.
 - **Qué lo movería**: los cambios concretos que subirían o bajarían un bracket (por ejemplo: "quitando Cyclonic Rift y Rhystic Study pasa a 0 Game Changers; con su curva y su camino a la victoria jugaría como un bracket 2 alto").
 
-### 4.4 Si el usuario indica un bracket objetivo
-
-Es opcional. Si lo indica:
-- Compara el bracket deducido con el objetivo.
-- Si el deck está **por encima**, lista lo que lo sube (Game Changers, combos, maná rápido) y propone sustitutos que mantengan el plan.
-- Si está **por debajo**, propón mejoras dentro de las reglas del bracket objetivo (sin pasarse del límite de Game Changers, sin combos tempranos en el 3…).
-- Todas las sugerencias de cortes y añadidos deben respetar el bracket objetivo, o el deducido si no hay objetivo.
-
 ---
 
 ## 5. Formato de salida
@@ -147,8 +139,6 @@ Añadir al JSON del análisis:
   "que_lo_moveria": {
     "bajar": ["string"],
     "subir": ["string"]
-  },
-  "objetivo_usuario": null,
-  "diferencia_con_objetivo": null
+  }
 }
 ```

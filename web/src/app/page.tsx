@@ -31,7 +31,6 @@ export default function Home() {
   const commanderId = useId();
   const deckTextId = useId();
   const descriptionId = useId();
-  const bracketId = useId();
   const budgetId = useId();
   const styleId = useId();
   const avoidId = useId();
@@ -40,7 +39,6 @@ export default function Home() {
   const [commander, setCommander] = useState("");
   const [deckText, setDeckText] = useState("");
   const [description, setDescription] = useState("");
-  const [bracket, setBracket] = useState("");
   const [budget, setBudget] = useState("");
   const [style, setStyle] = useState<AnalyzeRequest["style"]>("casual");
   const [allowCombos, setAllowCombos] = useState(false);
@@ -87,7 +85,6 @@ export default function Home() {
       deck_text: deckText,
       commander: commander.trim() || undefined,
       description: description.trim() || undefined,
-      bracket: bracket ? Number(bracket) : undefined,
       budget: budget ? Number(budget) : undefined,
       style,
       allow_combos: allowCombos,
@@ -219,26 +216,7 @@ export default function Home() {
               Parámetros
             </legend>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1">
-                <label htmlFor={bracketId} className="text-xs font-bold" style={{ color: "var(--foreground)" }}>
-                  Bracket
-                </label>
-                <input
-                  id={bracketId}
-                  name="bracket"
-                  type="number"
-                  min={1}
-                  max={5}
-                  inputMode="numeric"
-                  placeholder="1–5"
-                  value={bracket}
-                  onChange={(e) => setBracket(e.target.value)}
-                  className="h-9 rounded-sm border px-2.5"
-                  style={fieldStyle()}
-                />
-              </div>
-
+            <div className="grid grid-cols-1 gap-3">
               <div className="flex flex-col gap-1">
                 <label htmlFor={budgetId} className="text-xs font-bold" style={{ color: "var(--foreground)" }}>
                   Presupuesto $

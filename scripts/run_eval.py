@@ -5,7 +5,7 @@ largo del tiempo (Fase 5 de CLAUDE.md).
 Uso:
     python scripts/run_eval.py
     python scripts/run_eval.py --deck data/sample_decks/jasnah.txt
-    python scripts/run_eval.py --bracket 3 --style focused
+    python scripts/run_eval.py --style focused
 
 Requiere ANTHROPIC_API_KEY configurada: hace una llamada real a Sonnet por
 cada deck evaluado.
@@ -61,7 +61,6 @@ def main(argv: list[str] | None = None) -> int:
         "--deck", type=Path, action="append", help="Ruta a un deck concreto (se puede repetir); por defecto, todos los de data/sample_decks/"
     )
     parser.add_argument("--db", type=Path, default=cards_module.DEFAULT_DB_PATH)
-    parser.add_argument("--bracket", type=int, choices=range(1, 6))
     parser.add_argument("--budget", type=float)
     parser.add_argument("--style", choices=["casual", "focused", "cedh"], default="casual")
     parser.add_argument("--allow-combos", action="store_true")
@@ -76,7 +75,6 @@ def main(argv: list[str] | None = None) -> int:
 
     client = llm.get_client()
     params = {
-        "bracket": args.bracket,
         "budget": args.budget,
         "style": args.style,
         "allow_combos": args.allow_combos,
