@@ -19,7 +19,7 @@ from analyzer import cards as cards_module
 from analyzer import report
 from analyzer import roles as roles_module
 from analyzer import rubric
-from analyzer.parser import parse_decklist
+from analyzer.parser import apply_commander_override, parse_decklist
 
 FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:3000")
 
@@ -34,6 +34,8 @@ app.add_middleware(
 
 class AnalyzeRequest(BaseModel):
     deck_text: str
+    commander: str | None = None
+    description: str | None = None
     bracket: int | None = Field(default=None, ge=1, le=5)
     budget: float | None = None
     style: str = "casual"
@@ -45,6 +47,27 @@ class AnalyzeRequest(BaseModel):
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok", "cards_db": cards_module.DEFAULT_DB_PATH.exists()}
+
+
+def _collect_card_images(conn, commanders, deck_cards, analysis: dict | None) -> dict[str, str]:
+    """Nombres de carta que pueden salir en la respuesta (deck + sugerencias
+    de Claude) -> URL de imagen de Scryfall, para la vista previa al pasar
+    el cursor en la web."""
+    names: set[str] = {c.name for c in commanders} | {c.name for c in deck_cards}
+    if analysis:
+        for cut in analysis.get("cortes_sugeridos", []):
+            names.add(cut["carta"])
+        for addition in analysis.get("anadidos_sugeridos", []):
+            names.add(addition["carta"])
+            if addition.get("reemplaza_a"):
+                names.add(addition["reemplaza_a"])
+
+    images: dict[str, str] = {}
+    for name in names:
+        card = cards_module.get_card_by_name(conn, name)
+        if card is not None and card.image_uri:
+            images[name] = card.image_uri
+    return images
 
 
 @app.post("/analyze")
@@ -65,6 +88,7 @@ def analyze(request: AnalyzeRequest) -> dict:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     parsed = parse_decklist(request.deck_text)
+    apply_commander_override(parsed, request.commander)
 
     conn = cards_module.connect(cards_module.DEFAULT_DB_PATH)
     try:
@@ -82,15 +106,20 @@ def analyze(request: AnalyzeRequest) -> dict:
                 "style": request.style,
                 "allow_combos": request.allow_combos,
                 "avoid": request.avoid,
+                "description": request.description,
             }
             analysis_run = pipeline.run_analysis(
                 client, conn, commanders, deck_cards, card_roles, params
             )
+
+        validated_analysis = analysis_run.validated_analysis if analysis_run else None
+        card_images = _collect_card_images(conn, commanders, deck_cards, validated_analysis)
     finally:
         conn.close()
 
     rubric_status = rubric.evaluate_role_counts(role_counts)
     summary = report.build_summary(commanders, deck_cards, missing, role_counts, rubric_status)
-    if analysis_run is not None:
-        summary["analisis"] = analysis_run.validated_analysis
+    if validated_analysis is not None:
+        summary["analisis"] = validated_analysis
+    summary["card_images"] = card_images
     return summary

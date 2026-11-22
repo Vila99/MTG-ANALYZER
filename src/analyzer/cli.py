@@ -11,7 +11,7 @@ from analyzer import cards as cards_module
 from analyzer import report
 from analyzer import roles as roles_module
 from analyzer import rubric
-from analyzer.parser import parse_decklist
+from analyzer.parser import apply_commander_override, parse_decklist
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -43,6 +43,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--avoid", action="append", default=[], help="Carta o mecánica a evitar (con --ai; se puede repetir)"
     )
+    parser.add_argument(
+        "--commander", help="Nombre del comandante, si no está ya marcado en la lista (*CMDR* o 'Commander:')"
+    )
+    parser.add_argument(
+        "--description", help="Tu idea para el deck, en tus palabras (con --ai, le da contexto a Claude)"
+    )
     args = parser.parse_args(argv)
 
     if not args.deck_file.exists():
@@ -66,6 +72,7 @@ def main(argv: list[str] | None = None) -> int:
 
     text = args.deck_file.read_text(encoding="utf-8")
     parsed = parse_decklist(text)
+    apply_commander_override(parsed, args.commander)
 
     analysis_run = None
     conn = cards_module.connect(args.db)
@@ -83,6 +90,7 @@ def main(argv: list[str] | None = None) -> int:
                 "style": args.style,
                 "allow_combos": args.allow_combos,
                 "avoid": args.avoid,
+                "description": args.description,
             }
             analysis_run = pipeline.run_analysis(
                 client, conn, commanders, deck_cards, card_roles, params

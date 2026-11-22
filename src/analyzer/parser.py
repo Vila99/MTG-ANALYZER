@@ -108,3 +108,18 @@ def parse_decklist(text: str) -> ParsedDeck:
             deck.cards.append(DeckEntry(quantity=quantity, name=name))
 
     return deck
+
+
+def apply_commander_override(parsed: ParsedDeck, commander_name: str | None) -> None:
+    """Añade un comandante indicado explícitamente (ej. desde un campo aparte
+    en la web), si no estaba ya detectado en el texto de la lista.
+
+    Modifica ``parsed`` en el sitio. No hace nada si ``commander_name`` es
+    ``None`` o está en blanco.
+    """
+    if not commander_name or not commander_name.strip():
+        return
+    name = commander_name.strip()
+    normalized = name.lower()
+    if not any(existing.strip().lower() == normalized for existing in parsed.commanders):
+        parsed.commanders.append(name)

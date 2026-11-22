@@ -36,7 +36,8 @@ CREATE TABLE IF NOT EXISTS cards (
     colors TEXT,
     color_identity TEXT,
     produced_mana TEXT,
-    legalities TEXT
+    legalities TEXT,
+    image_uri TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_cards_name_normalized ON cards(name_normalized);
 """
@@ -70,13 +71,16 @@ def _card_row(card: dict) -> tuple | None:
     if card.get("layout") in _SKIP_LAYOUTS or card.get("set_type") == "memorabilia":
         return None
 
-    # Las cartas de doble cara (transform, modal_dfc...) traen el coste y el
-    # texto oracle en 'card_faces'; se usa la cara frontal como referencia.
+    # Las cartas de doble cara (transform, modal_dfc...) traen el coste, el
+    # texto oracle y las imágenes en 'card_faces'; se usa la cara frontal
+    # como referencia (es la que se suele nombrar en una lista de deck).
     faces = card.get("card_faces")
     mana_cost = card.get("mana_cost") or (faces[0].get("mana_cost", "") if faces else "")
     oracle_text = card.get("oracle_text") or (
         " // ".join(f.get("oracle_text", "") for f in faces) if faces else ""
     )
+    image_uris = card.get("image_uris") or (faces[0].get("image_uris", {}) if faces else {})
+    image_uri = image_uris.get("normal") or image_uris.get("large") or ""
 
     return (
         card["oracle_id"],
@@ -90,22 +94,30 @@ def _card_row(card: dict) -> tuple | None:
         json.dumps(card.get("color_identity", [])),
         json.dumps(card.get("produced_mana") or []),
         json.dumps(card.get("legalities", {})),
+        image_uri,
     )
+
+
+def _ensure_schema(conn: sqlite3.Connection) -> None:
+    conn.executescript(SCHEMA)
+    columns = {row[1] for row in conn.execute("PRAGMA table_info(cards)")}
+    if "image_uri" not in columns:
+        conn.execute("ALTER TABLE cards ADD COLUMN image_uri TEXT")
 
 
 def load_into_sqlite(cards_data: list[dict], db_path: Path = DB_PATH) -> int:
     db_path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(db_path)
     try:
-        conn.executescript(SCHEMA)
+        _ensure_schema(conn)
         rows = [row for card in cards_data if (row := _card_row(card)) is not None]
         conn.executemany(
             """
             INSERT INTO cards (
                 oracle_id, name, name_normalized, mana_cost, cmc,
                 type_line, oracle_text, colors, color_identity,
-                produced_mana, legalities
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                produced_mana, legalities, image_uri
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(oracle_id) DO UPDATE SET
                 name=excluded.name,
                 name_normalized=excluded.name_normalized,
@@ -116,7 +128,8 @@ def load_into_sqlite(cards_data: list[dict], db_path: Path = DB_PATH) -> int:
                 colors=excluded.colors,
                 color_identity=excluded.color_identity,
                 produced_mana=excluded.produced_mana,
-                legalities=excluded.legalities
+                legalities=excluded.legalities,
+                image_uri=excluded.image_uri
             """,
             rows,
         )

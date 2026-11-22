@@ -127,6 +127,19 @@ def test_main_happy_path_returns_zero(db_path, deck_path, capsys):
     assert "Tamaño del deck: 5 cartas" in captured.out
 
 
+def test_main_commander_flag_overrides_when_not_in_deck_text(db_path, tmp_path, capsys):
+    deck_without_commander = tmp_path / "no_commander.txt"
+    deck_without_commander.write_text("Deck:\n1 Sol Ring\n1 Command Tower\n2 Forest\n", encoding="utf-8")
+
+    exit_code = main(
+        [str(deck_without_commander), "--db", str(db_path), "--commander", "Atraxa, Praetors' Voice"]
+    )
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Atraxa, Praetors' Voice" in captured.out
+
+
 def test_main_json_output_has_expected_shape(db_path, deck_path, capsys):
     exit_code = main([str(deck_path), "--db", str(db_path), "--json"])
     captured = capsys.readouterr()

@@ -1,4 +1,4 @@
-from analyzer.parser import DeckEntry, parse_decklist
+from analyzer.parser import DeckEntry, ParsedDeck, apply_commander_override, parse_decklist
 
 
 def test_basic_quantity_and_name():
@@ -63,3 +63,22 @@ def test_strips_set_and_collector_number_and_foil_tag():
 def test_quantity_with_x_suffix():
     deck = parse_decklist("1x Sol Ring")
     assert deck.cards == [DeckEntry(quantity=1, name="Sol Ring")]
+
+
+def test_apply_commander_override_adds_name_when_missing():
+    deck = ParsedDeck(commanders=[], cards=[DeckEntry(quantity=1, name="Sol Ring")])
+    apply_commander_override(deck, "Sythis, Harvest's Hand")
+    assert deck.commanders == ["Sythis, Harvest's Hand"]
+
+
+def test_apply_commander_override_does_not_duplicate_existing_commander():
+    deck = ParsedDeck(commanders=["Sythis, Harvest's Hand"], cards=[])
+    apply_commander_override(deck, "sythis, harvest's hand")
+    assert deck.commanders == ["Sythis, Harvest's Hand"]
+
+
+def test_apply_commander_override_ignores_blank_or_none():
+    deck = ParsedDeck(commanders=[], cards=[])
+    apply_commander_override(deck, None)
+    apply_commander_override(deck, "   ")
+    assert deck.commanders == []

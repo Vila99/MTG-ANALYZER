@@ -23,7 +23,8 @@ def make_db(path: Path) -> None:
             colors TEXT,
             color_identity TEXT,
             produced_mana TEXT,
-            legalities TEXT
+            legalities TEXT,
+            image_uri TEXT
         );
         """
     )
@@ -40,6 +41,7 @@ def make_db(path: Path) -> None:
             ["W", "U", "B", "G"],
             [],
             {"commander": "legal"},
+            "https://cards.scryfall.io/normal/atraxa.jpg",
         ),
         (
             "2",
@@ -53,6 +55,7 @@ def make_db(path: Path) -> None:
             [],
             [],
             {"commander": "legal"},
+            "https://cards.scryfall.io/normal/sol-ring.jpg",
         ),
         (
             "3",
@@ -66,11 +69,12 @@ def make_db(path: Path) -> None:
             ["G"],
             ["G"],
             {"commander": "legal"},
+            "",
         ),
     ]
     for r in rows:
         conn.execute(
-            "INSERT INTO cards VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            "INSERT INTO cards VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
             (
                 r[0],
                 r[1],
@@ -83,6 +87,7 @@ def make_db(path: Path) -> None:
                 json.dumps(r[8]),
                 json.dumps(r[9]),
                 json.dumps(r[10]),
+                r[11],
             ),
         )
     conn.commit()
@@ -115,6 +120,30 @@ def test_analyze_happy_path(client: TestClient):
     assert body["tierras"] == 2
     assert body["no_encontradas"] == []
     assert "analisis" not in body
+    assert body["card_images"]["Atraxa, Praetors' Voice"] == "https://cards.scryfall.io/normal/atraxa.jpg"
+    assert body["card_images"]["Sol Ring"] == "https://cards.scryfall.io/normal/sol-ring.jpg"
+    assert "Forest" not in body["card_images"]  # sin image_uri real, se omite
+
+
+def test_analyze_uses_explicit_commander_field(client: TestClient):
+    response = client.post(
+        "/analyze",
+        json={"deck_text": "Deck:\n1 Sol Ring\n", "commander": "Atraxa, Praetors' Voice"},
+    )
+    assert response.status_code == 200
+    assert response.json()["comandantes"] == ["Atraxa, Praetors' Voice"]
+
+
+def test_analyze_does_not_duplicate_commander_already_in_deck_text(client: TestClient):
+    response = client.post(
+        "/analyze",
+        json={
+            "deck_text": "Commander:\n1 Atraxa, Praetors' Voice\n\nDeck:\n1 Sol Ring\n",
+            "commander": "Atraxa, Praetors' Voice",
+        },
+    )
+    assert response.status_code == 200
+    assert response.json()["comandantes"] == ["Atraxa, Praetors' Voice"]
 
 
 def test_analyze_reports_missing_cards(client: TestClient):

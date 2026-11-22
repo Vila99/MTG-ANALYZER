@@ -66,6 +66,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--style", choices=["casual", "focused", "cedh"], default="casual")
     parser.add_argument("--allow-combos", action="store_true")
     parser.add_argument("--avoid", action="append", default=[])
+    parser.add_argument("--description", help="Idea del jugador para el deck, para darle contexto a Claude")
     args = parser.parse_args(argv)
 
     deck_paths = args.deck or sorted(SAMPLE_DECKS_DIR.glob("*.txt"))
@@ -80,6 +81,7 @@ def main(argv: list[str] | None = None) -> int:
         "style": args.style,
         "allow_combos": args.allow_combos,
         "avoid": args.avoid,
+        "description": args.description,
     }
 
     for deck_path in deck_paths:

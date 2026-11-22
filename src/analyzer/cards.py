@@ -23,6 +23,7 @@ class Card:
     color_identity: list[str]
     produced_mana: list[str]
     legalities: dict[str, str]
+    image_uri: str = ""
 
     @property
     def is_land(self) -> bool:
@@ -43,6 +44,7 @@ def connect(db_path: Path | str = DEFAULT_DB_PATH) -> sqlite3.Connection:
 
 
 def _row_to_card(row: sqlite3.Row) -> Card:
+    keys = row.keys()
     return Card(
         name=row["name"],
         mana_cost=row["mana_cost"] or "",
@@ -53,6 +55,9 @@ def _row_to_card(row: sqlite3.Row) -> Card:
         color_identity=json.loads(row["color_identity"] or "[]"),
         produced_mana=json.loads(row["produced_mana"] or "[]"),
         legalities=json.loads(row["legalities"] or "{}"),
+        # Compatibilidad con bases de datos generadas antes de añadir esta
+        # columna: sin ella, no hay imagen hasta recargar con load_scryfall.py.
+        image_uri=(row["image_uri"] or "") if "image_uri" in keys else "",
     )
 
 
