@@ -11,32 +11,7 @@ from analyzer import cards as cards_module
 from analyzer import report
 from analyzer import roles as roles_module
 from analyzer import rubric
-from analyzer.cards import Card
 from analyzer.parser import parse_decklist
-
-
-def _build_json_summary(
-    commanders: list[Card],
-    deck_cards: list[Card],
-    missing: list[str],
-    role_counts: dict[str, int],
-    rubric_status: dict[str, str],
-) -> dict:
-    from analyzer import metrics
-
-    return {
-        "comandantes": [c.name for c in commanders],
-        "tamano_deck": metrics.deck_size(deck_cards, commanders),
-        "tierras": metrics.count_lands(deck_cards),
-        "cmc_medio": round(metrics.average_cmc(deck_cards), 2),
-        "curva_mana": metrics.mana_curve(deck_cards),
-        "pips": metrics.color_pips(deck_cards),
-        "fuentes_mana": metrics.mana_sources(deck_cards),
-        "no_legales": [c.name for c in metrics.illegal_cards(deck_cards)],
-        "no_encontradas": missing,
-        "roles": role_counts,
-        "rubric": rubric_status,
-    }
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -119,7 +94,7 @@ def main(argv: list[str] | None = None) -> int:
     analysis = analysis_run.validated_analysis if analysis_run else None
 
     if args.json:
-        summary = _build_json_summary(commanders, deck_cards, missing, role_counts, rubric_status)
+        summary = report.build_summary(commanders, deck_cards, missing, role_counts, rubric_status)
         if analysis is not None:
             summary["analisis"] = analysis
         print(json.dumps(summary, ensure_ascii=False, indent=2))
