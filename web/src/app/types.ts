@@ -18,6 +18,24 @@ export interface AñadidoSugerido {
   motivo: string;
 }
 
+export interface SenalDura {
+  tipo: string;
+  detalle: string;
+}
+
+export interface BracketAnalisis {
+  deducido: number;
+  confianza: "alta" | "media" | "baja";
+  suelo: number;
+  estimacion_juego: number;
+  game_changers: string[];
+  senales_duras: SenalDura[];
+  razones: string[];
+  que_lo_moveria: { bajar: string[]; subir: string[] };
+  objetivo_usuario: number | null;
+  diferencia_con_objetivo: string | null;
+}
+
 export interface Analisis {
   estrategia_detectada: string;
   arquetipo: string;
@@ -25,6 +43,7 @@ export interface Analisis {
   problemas: Problema[];
   cortes_sugeridos: CorteSugerido[];
   anadidos_sugeridos: AñadidoSugerido[];
+  bracket: BracketAnalisis;
 }
 
 export interface AnalyzeResponse {
@@ -40,10 +59,13 @@ export interface AnalyzeResponse {
   roles: Record<string, number>;
   rubric: Record<string, RubricStatus>;
   analisis?: Analisis;
+  card_images: Record<string, string>;
 }
 
 export interface AnalyzeRequest {
   deck_text: string;
+  commander?: string;
+  description?: string;
   bracket?: number;
   budget?: number;
   style: "casual" | "focused" | "cedh";

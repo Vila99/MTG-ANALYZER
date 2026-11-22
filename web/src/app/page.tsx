@@ -1,20 +1,38 @@
 "use client";
 
-import { useId, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { ResultsView } from "./components/ResultsView";
 import { AnalyzeRequest, AnalyzeResponse } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
+const LOADING_MESSAGES = [
+  "Resolviendo cartas contra la base de datos de Scryfall…",
+  "Clasificando cada carta por su rol (reglas + Haiku)…",
+  "Analizando la estrategia con Claude (Sonnet)…",
+];
+
+function fieldStyle() {
+  return {
+    borderColor: "var(--border)",
+    background: "var(--surface)",
+    color: "var(--foreground)",
+  } as const;
+}
+
 export default function Home() {
+  const commanderId = useId();
   const deckTextId = useId();
+  const descriptionId = useId();
   const bracketId = useId();
   const budgetId = useId();
   const styleId = useId();
   const avoidId = useId();
   const aiId = useId();
 
+  const [commander, setCommander] = useState("");
   const [deckText, setDeckText] = useState("");
+  const [description, setDescription] = useState("");
   const [bracket, setBracket] = useState("");
   const [budget, setBudget] = useState("");
   const [style, setStyle] = useState<AnalyzeRequest["style"]>("casual");
@@ -23,16 +41,37 @@ export default function Home() {
   const [ai, setAi] = useState(false);
 
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
 
+  const stepIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (!loading) {
+      return;
+    }
+    stepIntervalRef.current = setInterval(() => {
+      setLoadingStep((step) => Math.min(step + 1, LOADING_MESSAGES.length - 1));
+    }, 1600);
+    return () => {
+      if (stepIntervalRef.current) {
+        clearInterval(stepIntervalRef.current);
+        stepIntervalRef.current = null;
+      }
+    };
+  }, [loading]);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setLoadingStep(0);
     setLoading(true);
     setError(null);
 
     const body: AnalyzeRequest = {
       deck_text: deckText,
+      commander: commander.trim() || undefined,
+      description: description.trim() || undefined,
       bracket: bracket ? Number(bracket) : undefined,
       budget: budget ? Number(budget) : undefined,
       style,
@@ -65,83 +104,144 @@ export default function Home() {
     }
   }
 
+  function handleReset() {
+    setResult(null);
+    setError(null);
+  }
+
   return (
-    <main className="mx-auto max-w-4xl w-full px-4 py-8 flex flex-col gap-8">
-      <header>
-        <h1 className="text-2xl font-bold" style={{ color: "var(--foreground)" }}>
-          MTG Commander Deck Analyzer
-        </h1>
-        <p style={{ color: "var(--ink-secondary)" }}>
-          Pega la lista de tu deck de Commander/EDH para ver sus métricas y, si lo pides, un análisis de Claude.
-        </p>
+    <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-7 px-5 py-8 sm:px-10">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b pb-5" style={{ borderColor: "var(--border)" }}>
+        <div className="flex items-center gap-2.5">
+          <span aria-hidden="true" className="inline-block h-2.5 w-2.5" style={{ background: "var(--accent)" }} />
+          <h1 className="font-head text-sm font-extrabold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
+            MTG Deck Analyzer
+          </h1>
+        </div>
+        {result && (
+          <button
+            type="button"
+            onClick={handleReset}
+            className="font-head border px-3.5 py-2 text-xs font-bold"
+            style={{ borderColor: "var(--border)", color: "var(--ink-muted)" }}
+          >
+            ← Nuevo análisis
+          </button>
+        )}
       </header>
 
-      <form onSubmit={handleSubmit} aria-labelledby="analyze-form-heading" className="flex flex-col gap-4">
-        <h2 id="analyze-form-heading" className="sr-only">
-          Formulario de análisis de deck
-        </h2>
+      {!result && !loading && (
+        <form onSubmit={handleSubmit} aria-labelledby="analyze-form-heading" className="flex flex-wrap gap-6">
+          <h2 id="analyze-form-heading" className="sr-only">
+            Formulario de análisis de deck
+          </h2>
 
-        <div className="flex flex-col gap-1">
-          <label htmlFor={deckTextId} style={{ color: "var(--foreground)" }}>
-            Lista del deck
-          </label>
-          <textarea
-            id={deckTextId}
-            name="deck_text"
-            required
-            rows={12}
-            placeholder={"Commander:\n1 Atraxa, Praetors' Voice\n\nDeck:\n1 Sol Ring\n..."}
-            value={deckText}
-            onChange={(e) => setDeckText(e.target.value)}
-            className="rounded-lg border p-3 font-mono text-sm"
-            style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--foreground)" }}
-          />
-        </div>
-
-        <fieldset className="rounded-lg border p-4 flex flex-col gap-3" style={{ borderColor: "var(--border)" }}>
-          <legend className="px-1 font-semibold" style={{ color: "var(--foreground)" }}>
-            Parámetros
-          </legend>
-
-          <div className="grid sm:grid-cols-3 gap-3">
+          <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-5">
             <div className="flex flex-col gap-1">
-              <label htmlFor={bracketId} style={{ color: "var(--foreground)" }}>
-                Bracket (1-5)
+              <label htmlFor={commanderId} className="font-head text-xs font-bold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
+                Comandante
               </label>
               <input
-                id={bracketId}
-                name="bracket"
-                type="number"
-                min={1}
-                max={5}
-                inputMode="numeric"
-                value={bracket}
-                onChange={(e) => setBracket(e.target.value)}
-                className="rounded-lg border p-2"
-                style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--foreground)" }}
+                id={commanderId}
+                name="commander"
+                type="text"
+                placeholder="p. ej. Sythis, Harvest's Hand"
+                value={commander}
+                onChange={(e) => setCommander(e.target.value)}
+                className="h-11 rounded-sm border px-3.5 text-[15px]"
+                style={fieldStyle()}
+              />
+              <p className="text-xs" style={{ color: "var(--ink-muted)" }}>
+                Déjalo vacío si ya está marcado en la lista con *CMDR* o bajo una sección &quot;Commander:&quot;.
+              </p>
+            </div>
+
+            <div className="flex min-h-0 flex-1 flex-col gap-1">
+              <label htmlFor={deckTextId} className="font-head text-xs font-bold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
+                Lista del deck
+              </label>
+              <textarea
+                id={deckTextId}
+                name="deck_text"
+                required
+                rows={16}
+                placeholder={"Commander:\n1 Atraxa, Praetors' Voice\n\nDeck:\n1 Sol Ring\n..."}
+                value={deckText}
+                onChange={(e) => setDeckText(e.target.value)}
+                className="flex-1 resize-y rounded-sm border p-3.5 font-mono text-[13.5px]"
+                style={fieldStyle()}
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <label htmlFor={budgetId} style={{ color: "var(--foreground)" }}>
-                Presupuesto máx. ($)
+              <label htmlFor={descriptionId} className="font-head text-xs font-bold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
+                Tu idea para el deck (opcional)
               </label>
-              <input
-                id={budgetId}
-                name="budget"
-                type="number"
-                min={0}
-                step="0.01"
-                inputMode="decimal"
-                value={budget}
-                onChange={(e) => setBudget(e.target.value)}
-                className="rounded-lg border p-2"
-                style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--foreground)" }}
+              <textarea
+                id={descriptionId}
+                name="description"
+                rows={3}
+                placeholder="Ej.: quiero ir a lo ancho con tokens y encantamientos, sin depender del comandante en mesa."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="resize-y rounded-sm border p-3 text-sm"
+                style={fieldStyle()}
               />
+              <p className="text-xs" style={{ color: "var(--ink-muted)" }}>
+                Cuéntale a Claude qué querías construir, en tus palabras — le da contexto antes de analizar las cartas.
+              </p>
+            </div>
+          </div>
+
+          <fieldset
+            className="flex h-fit min-w-[280px] max-w-[360px] flex-1 flex-col gap-4 rounded-sm border p-5"
+            style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+          >
+            <legend className="font-head border-b px-1 pb-3 text-xs font-extrabold uppercase tracking-wide" style={{ borderColor: "var(--border)", color: "var(--foreground)" }}>
+              Parámetros
+            </legend>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1">
+                <label htmlFor={bracketId} className="text-xs font-bold" style={{ color: "var(--foreground)" }}>
+                  Bracket
+                </label>
+                <input
+                  id={bracketId}
+                  name="bracket"
+                  type="number"
+                  min={1}
+                  max={5}
+                  inputMode="numeric"
+                  placeholder="1–5"
+                  value={bracket}
+                  onChange={(e) => setBracket(e.target.value)}
+                  className="h-9 rounded-sm border px-2.5"
+                  style={fieldStyle()}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label htmlFor={budgetId} className="text-xs font-bold" style={{ color: "var(--foreground)" }}>
+                  Presupuesto $
+                </label>
+                <input
+                  id={budgetId}
+                  name="budget"
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  inputMode="decimal"
+                  value={budget}
+                  onChange={(e) => setBudget(e.target.value)}
+                  className="h-9 rounded-sm border px-2.5"
+                  style={fieldStyle()}
+                />
+              </div>
             </div>
 
             <div className="flex flex-col gap-1">
-              <label htmlFor={styleId} style={{ color: "var(--foreground)" }}>
+              <label htmlFor={styleId} className="text-xs font-bold" style={{ color: "var(--foreground)" }}>
                 Estilo
               </label>
               <select
@@ -149,69 +249,85 @@ export default function Home() {
                 name="style"
                 value={style}
                 onChange={(e) => setStyle(e.target.value as AnalyzeRequest["style"])}
-                className="rounded-lg border p-2"
-                style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--foreground)" }}
+                className="h-9 rounded-sm border px-2.5"
+                style={fieldStyle()}
               >
                 <option value="casual">Casual</option>
                 <option value="focused">Focused</option>
                 <option value="cedh">cEDH</option>
               </select>
             </div>
-          </div>
 
-          <div className="flex flex-col gap-1">
-            <label htmlFor={avoidId} style={{ color: "var(--foreground)" }}>
-              Cartas o mecánicas a evitar (separadas por comas)
+            <div className="flex flex-col gap-1">
+              <label htmlFor={avoidId} className="text-xs font-bold" style={{ color: "var(--foreground)" }}>
+                Evitar (cartas o mecánicas)
+              </label>
+              <input
+                id={avoidId}
+                name="avoid"
+                type="text"
+                value={avoid}
+                onChange={(e) => setAvoid(e.target.value)}
+                className="h-9 rounded-sm border px-2.5"
+                style={fieldStyle()}
+              />
+            </div>
+
+            <label className="flex items-start gap-2 text-sm">
+              <input
+                type="checkbox"
+                className="mt-0.5"
+                checked={allowCombos}
+                onChange={(e) => setAllowCombos(e.target.checked)}
+              />
+              <span style={{ color: "var(--foreground)" }}>
+                Permitir sugerir combos nuevos
+                <span className="mt-0.5 block text-xs font-normal" style={{ color: "var(--ink-muted)" }}>
+                  No afecta a los combos que ya tengas en la lista pegada — solo controla si Claude te propone alguno más.
+                </span>
+              </span>
             </label>
-            <input
-              id={avoidId}
-              name="avoid"
-              type="text"
-              value={avoid}
-              onChange={(e) => setAvoid(e.target.value)}
-              className="rounded-lg border p-2"
-              style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--foreground)" }}
-            />
-          </div>
 
-          <div className="flex items-center gap-2">
-            <input
-              id="allow-combos"
-              name="allow_combos"
-              type="checkbox"
-              checked={allowCombos}
-              onChange={(e) => setAllowCombos(e.target.checked)}
-            />
-            <label htmlFor="allow-combos" style={{ color: "var(--foreground)" }}>
-              Permitir sugerir combos
+            <label className="flex items-center gap-2 text-sm font-bold">
+              <input id={aiId} name="ai" type="checkbox" checked={ai} onChange={(e) => setAi(e.target.checked)} />
+              <span style={{ color: "var(--foreground)" }}>Pedir análisis de Claude</span>
             </label>
-          </div>
 
-          <div className="flex items-center gap-2">
-            <input id={aiId} name="ai" type="checkbox" checked={ai} onChange={(e) => setAi(e.target.checked)} />
-            <label htmlFor={aiId} style={{ color: "var(--foreground)" }}>
-              Pedir análisis de Claude (requiere ANTHROPIC_API_KEY en el servidor)
-            </label>
-          </div>
-        </fieldset>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="self-start rounded-lg px-4 py-2 font-semibold text-white disabled:opacity-60"
-          style={{ background: "var(--chart-mana)" }}
-        >
-          {loading ? "Analizando..." : "Analizar deck"}
-        </button>
-      </form>
+            <button
+              type="submit"
+              className="font-head mt-auto h-11 text-sm font-extrabold uppercase tracking-wide"
+              style={{ background: "var(--accent)", color: "var(--accent-ink)" }}
+            >
+              Analizar deck
+            </button>
+          </fieldset>
+        </form>
+      )}
 
       <div role="status" aria-live="polite">
         {error && (
-          <p className="rounded-lg border p-3" style={{ borderColor: "var(--status-critical)", color: "var(--foreground)" }}>
+          <p className="rounded-sm border p-3" style={{ borderColor: "var(--status-critical)", color: "var(--foreground)" }}>
             {error}
           </p>
         )}
       </div>
+
+      {loading && (
+        <div className="mx-auto w-full max-w-xl py-16">
+          <p className="font-head mb-2 text-xs font-bold uppercase tracking-wide" style={{ color: "var(--ink-muted)" }}>
+            Paso {loadingStep + 1} de {LOADING_MESSAGES.length}
+          </p>
+          <h2 className="font-head mb-6 text-xl font-extrabold" style={{ color: "var(--foreground)" }}>
+            {LOADING_MESSAGES[loadingStep]}
+          </h2>
+          <div className="relative h-[3px] overflow-hidden" style={{ background: "var(--border)" }}>
+            <div
+              className="absolute top-0 left-0 h-full w-[30%] animate-[sweep_1.1s_ease-in-out_infinite]"
+              style={{ background: "var(--accent)" }}
+            />
+          </div>
+        </div>
+      )}
 
       {result && <ResultsView result={result} />}
     </main>

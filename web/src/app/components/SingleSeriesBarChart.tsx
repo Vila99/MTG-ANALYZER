@@ -4,6 +4,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  LabelList,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -20,8 +21,8 @@ interface SingleSeriesBarChartProps {
 export function SingleSeriesBarChart({ title, data, colorVar, valueLabel }: SingleSeriesBarChartProps) {
   if (data.length === 0) {
     return (
-      <div className="rounded-lg border p-4" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
-        <h3 className="text-sm font-semibold mb-2" style={{ color: "var(--foreground)" }}>
+      <div className="rounded-sm border p-4" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
+        <h3 className="font-head text-xs font-extrabold uppercase tracking-wide mb-2" style={{ color: "var(--ink-muted)" }}>
           {title}
         </h3>
         <p className="text-sm" style={{ color: "var(--ink-muted)" }}>
@@ -32,12 +33,12 @@ export function SingleSeriesBarChart({ title, data, colorVar, valueLabel }: Sing
   }
 
   return (
-    <div className="rounded-lg border p-4" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
-      <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--foreground)" }}>
+    <div className="rounded-sm border p-4" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
+      <h3 className="font-head text-xs font-extrabold uppercase tracking-wide mb-3" style={{ color: "var(--ink-muted)" }}>
         {title}
       </h3>
       <ResponsiveContainer width="100%" height={240}>
-        <BarChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: 0 }} barCategoryGap="20%">
+        <BarChart data={data} margin={{ top: 20, right: 8, bottom: 0, left: 0 }} barCategoryGap="20%">
           <CartesianGrid vertical={false} stroke="var(--chart-grid)" strokeDasharray="0" />
           <XAxis
             dataKey="label"
@@ -57,7 +58,7 @@ export function SingleSeriesBarChart({ title, data, colorVar, valueLabel }: Sing
             contentStyle={{
               background: "var(--surface)",
               border: "1px solid var(--border)",
-              borderRadius: 8,
+              borderRadius: 4,
               color: "var(--foreground)",
               fontSize: 13,
             }}
@@ -67,10 +68,16 @@ export function SingleSeriesBarChart({ title, data, colorVar, valueLabel }: Sing
           <Bar
             dataKey="value"
             fill={colorVar}
-            radius={[4, 4, 0, 0]}
+            radius={[2, 2, 0, 0]}
             maxBarSize={24}
             isAnimationActive={false}
-          />
+          >
+            <LabelList
+              dataKey="value"
+              position="top"
+              style={{ fill: "var(--ink-secondary)", fontSize: 11, fontWeight: 600 }}
+            />
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
     </div>

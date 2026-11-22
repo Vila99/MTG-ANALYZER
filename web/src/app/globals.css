@@ -1,20 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f9f9f7;
-  --foreground: #0b0b0b;
-  --surface: #fcfcfb;
-  --surface-muted: #f1f0ed;
-  --border: rgba(11, 11, 11, 0.1);
-  --ink-secondary: #52514e;
-  --ink-muted: #898781;
-  --chart-grid: #e1e0d9;
-  --chart-axis: #c3c2b7;
-  --chart-mana: #2a78d6;
-  --chart-roles: #1baf7a;
-  --status-good: #0ca30c;
-  --status-warning: #fab219;
-  --status-critical: #d03b3b;
+  --background: #f5f4ee;
+  --foreground: #15171a;
+  --surface: #ffffff;
+  --surface-muted: #eeece3;
+  --border: rgba(21, 23, 26, 0.14);
+  --ink-secondary: #454c47;
+  --ink-muted: #767e74;
+  --accent: #0f8b8d;
+  --accent-ink: #ffffff;
+  --chart-mana: #0f8b8d;
+  --chart-roles: #1e8e3e;
+  --chart-grid: #ddd9ca;
+  --chart-axis: #b7b2a0;
+  --status-good: #1e8e3e;
+  --status-warning: #b8860b;
+  --status-critical: #c23b3b;
 
   /* MANDATORY: Automatically adapt native UI (scrollbars, form controls...) to the user's preference */
   color-scheme: light dark;
@@ -23,33 +25,39 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-roboto);
+  --font-head: var(--font-montserrat);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0d0d0d;
-    --foreground: #ffffff;
-    --surface: #1a1a19;
-    --surface-muted: #202020;
-    --border: rgba(255, 255, 255, 0.1);
-    --ink-secondary: #c3c2b7;
-    --ink-muted: #898781;
-    --chart-grid: #2c2c2a;
-    --chart-axis: #383835;
-    --chart-mana: #3987e5;
-    --chart-roles: #199e70;
-    --status-good: #0ca30c;
-    --status-warning: #fab219;
-    --status-critical: #d03b3b;
+    --background: #121316;
+    --foreground: #eceae4;
+    --surface: #1b1d21;
+    --surface-muted: #202126;
+    --border: rgba(255, 255, 255, 0.12);
+    --ink-secondary: #c7c3b2;
+    --ink-muted: #a7acb3;
+    --accent: #26c6c9;
+    --accent-ink: #0b1314;
+    --chart-mana: #26c6c9;
+    --chart-roles: #3ddc84;
+    --chart-grid: #2a2b26;
+    --chart-axis: #3c3d36;
+    --status-good: #3ddc84;
+    --status-warning: #f0a83b;
+    --status-critical: #ff6b5e;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: var(--font-roboto), -apple-system, "Segoe UI", system-ui, sans-serif;
+}
+
+.font-head {
+  font-family: var(--font-montserrat), -apple-system, "Segoe UI", system-ui, sans-serif;
 }
 
 input,
@@ -61,6 +69,24 @@ button {
 }
 
 :focus-visible {
-  outline: 3px solid var(--chart-mana);
+  outline: 3px solid var(--accent);
   outline-offset: 2px;
+}
+
+.underline-card {
+  border-bottom: 1px dotted var(--accent);
+  cursor: default;
+}
+
+.underline-card:hover {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+@keyframes sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(340%);
+  }
 }
