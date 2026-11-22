@@ -69,6 +69,43 @@ function DeckScoreBadge({ score }: { score: number }) {
   );
 }
 
+const COLOR_GLOW: Record<string, string> = {
+  W: "#e8dfb8",
+  U: "#2f6fd1",
+  B: "#7c5ba6",
+  R: "#e0552f",
+  G: "#2f9e58",
+};
+
+/** Fondo decorativo: manchas difuminadas con los colores de la identidad del
+ * comandante, fijas detrás del contenido, para dar un toque temático sin
+ * estorbar la lectura. */
+function ColorThemeBackground({ colors }: { colors: string[] }) {
+  if (colors.length === 0) return null;
+  return (
+    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
+      {colors.map((color, i) => (
+        <div
+          key={color}
+          style={{
+            position: "absolute",
+            top: "-15%",
+            left: `${(i / Math.max(colors.length - 1, 1)) * 70}%`,
+            width: "45vw",
+            height: "45vw",
+            maxWidth: 560,
+            maxHeight: 560,
+            borderRadius: "50%",
+            background: COLOR_GLOW[color],
+            filter: "blur(110px)",
+            opacity: 0.22,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 function StatTile({
   label,
   value,
@@ -499,6 +536,7 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
 
   return (
     <div className="flex flex-col gap-7" onMouseLeave={() => setHoverTarget(null)}>
+      <ColorThemeBackground colors={result.identidad_color} />
       <FloatingCardPreview target={hoverTarget} cardImages={cardImages} />
       {zoomedCard && cardImages[zoomedCard] && (
         <CardZoomModal name={zoomedCard} imageUrl={cardImages[zoomedCard]} onClose={() => setZoomedCard(null)} />

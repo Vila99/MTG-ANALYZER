@@ -242,26 +242,31 @@ export default function Home() {
   return (
     <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-7 px-5 py-8 sm:px-10">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b pb-5" style={{ borderColor: "var(--border)" }}>
-        <div className="flex items-center gap-2.5">
-          <span aria-hidden="true" className="inline-block h-2.5 w-2.5" style={{ background: "var(--accent)" }} />
-          <h1 className="font-head text-sm font-extrabold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
-            MTG Deck Analyzer
-          </h1>
-          <span className="flex items-center gap-1 text-base" aria-hidden="true">
-            {["W", "U", "B", "R", "G"].map((color) => (
-              <ManaIcon key={color} color={color} />
-            ))}
-          </span>
-        </div>
-        {result && (
+        {result ? (
           <button
             type="button"
             onClick={handleReset}
-            className="font-head border px-3.5 py-2 text-xs font-bold"
-            style={{ borderColor: "var(--border)", color: "var(--ink-muted)" }}
+            aria-label="Nuevo análisis"
+            title="Nuevo análisis"
+            className="flex items-center justify-center rounded-sm border p-2"
+            style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
           >
-            ← Nuevo análisis
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M19 12H5M11 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </button>
+        ) : (
+          <div className="flex items-center gap-2.5">
+            <span aria-hidden="true" className="inline-block h-2.5 w-2.5" style={{ background: "var(--accent)" }} />
+            <h1 className="font-head text-sm font-extrabold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
+              MTG Deck Analyzer
+            </h1>
+            <span className="flex items-center gap-1 text-base" aria-hidden="true">
+              {["W", "U", "B", "R", "G"].map((color) => (
+                <ManaIcon key={color} color={color} />
+              ))}
+            </span>
+          </div>
         )}
       </header>
 
