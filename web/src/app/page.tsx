@@ -27,6 +27,91 @@ function fieldStyle() {
   } as const;
 }
 
+function RecentAnalysesModal({
+  recent,
+  onSelect,
+  onRemove,
+  onClose,
+}: {
+  recent: RecentEntry[];
+  onSelect: (result: AnalyzeResponse) => void;
+  onRemove: (id: string) => void;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto p-6 sm:items-center"
+      style={{ background: "rgba(0,0,0,0.75)" }}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-xl rounded-sm border"
+        style={{ borderColor: "var(--border)", background: "var(--background)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b p-4" style={{ borderColor: "var(--border)" }}>
+          <h2 className="font-head text-sm font-extrabold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
+            Últimos decks analizados
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="font-head text-xs font-bold"
+            style={{ color: "var(--ink-muted)" }}
+          >
+            Cerrar ✕
+          </button>
+        </div>
+
+        {recent.length === 0 ? (
+          <p className="p-4 text-sm" style={{ color: "var(--ink-muted)" }}>
+            Todavía no has analizado ningún deck.
+          </p>
+        ) : (
+          <div className="flex flex-col gap-px" style={{ background: "var(--border)" }}>
+            {recent.map((entry) => (
+              <div key={entry.id} className="flex items-center justify-between gap-3 p-3" style={{ background: "var(--surface)" }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onSelect(entry.result);
+                    onClose();
+                  }}
+                  className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-3 text-left"
+                >
+                  <span className="font-head truncate text-sm font-bold" style={{ color: "var(--foreground)" }}>
+                    {entry.commander}
+                  </span>
+                  <span className="text-xs" style={{ color: "var(--ink-muted)" }}>
+                    {entry.deckSize} cartas · {formatRelativeTime(entry.timestamp)}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onRemove(entry.id)}
+                  aria-label={`Eliminar análisis de ${entry.commander} de la lista`}
+                  className="font-head flex-shrink-0 text-xs font-bold"
+                  style={{ color: "var(--ink-muted)" }}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const commanderId = useId();
   const moxfieldUrlId = useId();
@@ -52,6 +137,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [recent, setRecent] = useState<RecentEntry[]>([]);
+  const [showRecentModal, setShowRecentModal] = useState(false);
 
   const stepIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -156,6 +242,33 @@ export default function Home() {
 
           <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-5">
             <div className="flex flex-col gap-1">
+              <label htmlFor={moxfieldUrlId} className="font-head text-xs font-bold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
+                URL de Moxfield
+              </label>
+              <input
+                id={moxfieldUrlId}
+                name="moxfield_url"
+                type="text"
+                placeholder="https://www.moxfield.com/decks/..."
+                value={moxfieldUrl}
+                onChange={(e) => setMoxfieldUrl(e.target.value)}
+                className="h-11 rounded-sm border px-3.5 text-[15px]"
+                style={fieldStyle()}
+              />
+              <p className="text-xs" style={{ color: "var(--ink-muted)" }}>
+                Si pegas la URL de un deck público de Moxfield, no hace falta rellenar nada más abajo.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3" aria-hidden="true">
+              <div className="h-px flex-1" style={{ background: "var(--border)" }} />
+              <span className="font-head text-xs font-extrabold uppercase" style={{ color: "var(--ink-muted)" }}>
+                o
+              </span>
+              <div className="h-px flex-1" style={{ background: "var(--border)" }} />
+            </div>
+
+            <div className="flex flex-col gap-1">
               <label htmlFor={commanderId} className="font-head text-xs font-bold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
                 Comandante
               </label>
@@ -171,25 +284,6 @@ export default function Home() {
               />
               <p className="text-xs" style={{ color: "var(--ink-muted)" }}>
                 Déjalo vacío si ya está marcado en la lista con *CMDR* o bajo una sección &quot;Commander:&quot;.
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label htmlFor={moxfieldUrlId} className="font-head text-xs font-bold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
-                URL de Moxfield (opcional)
-              </label>
-              <input
-                id={moxfieldUrlId}
-                name="moxfield_url"
-                type="text"
-                placeholder="https://www.moxfield.com/decks/..."
-                value={moxfieldUrl}
-                onChange={(e) => setMoxfieldUrl(e.target.value)}
-                className="h-11 rounded-sm border px-3.5 text-[15px]"
-                style={fieldStyle()}
-              />
-              <p className="text-xs" style={{ color: "var(--ink-muted)" }}>
-                Si pegas la URL de un deck público de Moxfield, no hace falta pegar la lista debajo.
               </p>
             </div>
 
@@ -230,8 +324,9 @@ export default function Home() {
             </div>
           </div>
 
+          <div className="flex min-w-[280px] max-w-[360px] flex-1 flex-col gap-3">
           <fieldset
-            className="flex h-fit min-w-[280px] max-w-[360px] flex-1 flex-col gap-4 rounded-sm border p-5"
+            className="flex flex-1 flex-col gap-4 rounded-sm border p-5"
             style={{ borderColor: "var(--border)", background: "var(--surface)" }}
           >
             <legend className="font-head border-b px-1 pb-3 text-xs font-extrabold uppercase tracking-wide" style={{ borderColor: "var(--border)", color: "var(--foreground)" }}>
@@ -319,44 +414,25 @@ export default function Home() {
               Analizar deck
             </button>
           </fieldset>
+
+          <button
+            type="button"
+            onClick={() => setShowRecentModal(true)}
+            className="font-head h-11 rounded-sm border text-xs font-bold uppercase tracking-wide"
+            style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+          >
+            Últimos decks analizados{recent.length > 0 ? ` (${recent.length})` : ""}
+          </button>
+          </div>
         </form>
 
-        {recent.length > 0 && (
-          <section className="flex w-full flex-col gap-3">
-            <h2 className="font-head text-xs font-extrabold uppercase tracking-wide" style={{ color: "var(--ink-muted)" }}>
-              Análisis recientes
-            </h2>
-            <div
-              className="flex flex-col gap-px overflow-hidden rounded-sm border"
-              style={{ borderColor: "var(--border)", background: "var(--border)" }}
-            >
-              {recent.map((entry) => (
-                <div key={entry.id} className="flex items-center justify-between gap-3 p-3" style={{ background: "var(--surface)" }}>
-                  <button
-                    type="button"
-                    onClick={() => setResult(entry.result)}
-                    className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-3 text-left"
-                  >
-                    <span className="font-head truncate text-sm font-bold" style={{ color: "var(--foreground)" }}>
-                      {entry.commander}
-                    </span>
-                    <span className="text-xs" style={{ color: "var(--ink-muted)" }}>
-                      {entry.deckSize} cartas · {formatRelativeTime(entry.timestamp)}
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setRecent(removeRecentAnalysis(entry.id))}
-                    aria-label={`Eliminar análisis de ${entry.commander} de la lista`}
-                    className="font-head flex-shrink-0 text-xs font-bold"
-                    style={{ color: "var(--ink-muted)" }}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-            </div>
-          </section>
+        {showRecentModal && (
+          <RecentAnalysesModal
+            recent={recent}
+            onSelect={(selected) => setResult(selected)}
+            onRemove={(id) => setRecent(removeRecentAnalysis(id))}
+            onClose={() => setShowRecentModal(false)}
+          />
         )}
         </>
       )}
