@@ -64,8 +64,26 @@ def test_select_within_budget_prefers_cheaper_option_within_same_severity():
     assert by_name["Cara"]["incluido"] is False
 
 
-def test_apply_budget_to_analysis_returns_unchanged_when_budget_is_none():
+def test_apply_budget_to_analysis_attaches_prices_without_budget(monkeypatch):
+    # Bug real: los precios no se veian en el informe porque antes solo se
+    # consultaban cuando habia presupuesto puesto. El precio es informacion
+    # util por si sola, se ponga o no un presupuesto.
+    import analyzer.budget as budget_module
+
+    monkeypatch.setattr(
+        budget_module.prices_module, "fetch_prices", lambda conn, names: {name: 1.5 for name in names}
+    )
     analysis = {"anadidos_sugeridos": [make_addition("X")], "problemas": []}
+
+    result = apply_budget_to_analysis(conn=None, analysis=analysis, budget=None)
+
+    assert result["anadidos_sugeridos"][0]["precio_eur"] == 1.5
+    assert "incluido" not in result["anadidos_sugeridos"][0]  # sin presupuesto no se filtra, solo se informa
+    assert "presupuesto" not in result
+
+
+def test_apply_budget_to_analysis_returns_unchanged_without_additions():
+    analysis = {"anadidos_sugeridos": [], "problemas": []}
     assert apply_budget_to_analysis(conn=None, analysis=analysis, budget=None) == analysis
 
 

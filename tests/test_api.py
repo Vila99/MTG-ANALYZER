@@ -242,6 +242,55 @@ def test_analyze_with_budget_enriches_additions_with_real_prices(client: TestCli
     }
 
 
+def test_analyze_shows_prices_even_without_budget(client: TestClient, monkeypatch):
+    # Bug real: los precios no aparecian en el informe si no se marcaba un
+    # presupuesto, porque antes solo se consultaban en ese caso.
+    from analyzer.pipeline import AnalysisRun
+
+    monkeypatch.setattr("analyzer.llm.load_dotenv", lambda *a, **k: None)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "fake-key-for-test")
+
+    validated_analysis = {
+        "estrategia_detectada": "control",
+        "arquetipo": "artifacts",
+        "puntos_fuertes": [],
+        "problemas": [],
+        "cortes_sugeridos": [],
+        "anadidos_sugeridos": [
+            {
+                "carta": "Sol Ring",
+                "rol": "ramp",
+                "reemplaza_a": None,
+                "categoria_problema": None,
+                "motivo": "ramp eficiente",
+            }
+        ],
+        "bracket": {
+            "deducido": 2,
+            "confianza": "alta",
+            "suelo": 1,
+            "estimacion_juego": 2,
+            "game_changers": [],
+            "senales_duras": [],
+            "razones": [],
+            "que_lo_moveria": {"bajar": [], "subir": []},
+        },
+    }
+    fake_run = AnalysisRun(payload={}, raw_analysis=validated_analysis, validated_analysis=validated_analysis)
+    monkeypatch.setattr("analyzer.pipeline.run_analysis", lambda *a, **k: fake_run)
+    monkeypatch.setattr("analyzer.prices.fetch_prices", lambda conn, names: {"Sol Ring": 0.85})
+
+    response = client.post(
+        "/analyze",
+        json={"deck_text": "Deck:\n1 Sol Ring\n2 Forest\n", "ai": True},
+    )
+
+    assert response.status_code == 200
+    addition = response.json()["analisis"]["anadidos_sugeridos"][0]
+    assert addition["precio_eur"] == 0.85
+    assert "presupuesto" not in response.json()["analisis"]
+
+
 def test_analyze_without_db_returns_503(tmp_path, monkeypatch):
     monkeypatch.setattr(api_module.cards_module, "DEFAULT_DB_PATH", tmp_path / "missing.db")
     client = TestClient(api_module.app)

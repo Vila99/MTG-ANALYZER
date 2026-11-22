@@ -54,12 +54,21 @@ _WIPE_PATTERNS = [
     re.compile(rf"all creatures get {_PT_MODIFIER}", re.IGNORECASE),
     re.compile(r"deals? \d+ damage to each creature", re.IGNORECASE),
 ]
+_REMOVAL_TARGET_NOUNS = r"(creature|permanent|artifact|enchantment|planeswalker)"
+# "target" casi nunca va pegado al sustantivo ni al verbo en el texto real:
+# "exile up to one target nonland permanent", "exile another target creature",
+# "put target attacking creature"... Se tolera relleno antes de "target"
+# (cantidades, "another") y hasta 3 adjetivos entre "target" y el sustantivo.
+_TARGET_PHRASE = rf"target(?:\s+[a-z][a-z-]*){{0,3}}\s+{_REMOVAL_TARGET_NOUNS}"
 _REMOVAL_PATTERNS = [
-    re.compile(r"destroy target (creature|permanent|artifact|enchantment|planeswalker)", re.IGNORECASE),
-    re.compile(r"exile target (creature|permanent|artifact|enchantment|planeswalker)", re.IGNORECASE),
+    re.compile(rf"destroy\b(?:(?!\btarget\b).){{0,20}}\b{_TARGET_PHRASE}", re.IGNORECASE),
+    re.compile(rf"exile\b(?:(?!\btarget\b).){{0,20}}\b{_TARGET_PHRASE}", re.IGNORECASE),
     re.compile(rf"target creature gets {_PT_MODIFIER}", re.IGNORECASE),
     re.compile(r"deals? \d+ damage to target (creature|player|any target)", re.IGNORECASE),
-    re.compile(r"put target creature.*(library|graveyard)", re.IGNORECASE),
+    re.compile(
+        rf"put\b(?:(?!\btarget\b).){{0,20}}\btarget(?:\s+[a-z][a-z-]*){{0,3}}\s+creature.*(library|graveyard)",
+        re.IGNORECASE,
+    ),
     re.compile(r"return target .*to (its|their) owner's hand", re.IGNORECASE),
 ]
 _PROTECTION_PATTERNS = [
@@ -108,7 +117,7 @@ def classify_by_rules(card: Card) -> list[str]:
 # Incrementar cada vez que cambien los patrones de classify_by_rules: invalida
 # automáticamente las entradas de caché con source="rules" calculadas con
 # una versión anterior de las reglas (las de source="llm" no se ven afectadas).
-RULES_VERSION = 2
+RULES_VERSION = 3
 
 
 def ensure_role_cache_table(conn: sqlite3.Connection) -> None:

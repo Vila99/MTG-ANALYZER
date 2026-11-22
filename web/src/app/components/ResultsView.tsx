@@ -166,79 +166,122 @@ function pairCutsAndAdditions(cuts: CorteSugerido[], additions: AñadidoSugerido
   return groups;
 }
 
+/** Miniatura clicable (zoom) de una carta dentro de un cambio sugerido, con
+ * su etiqueta (Corta/Añade) encima para identificarla de un vistazo sin
+ * tener que pasar el ratón por el nombre. */
+function SwapThumbnail({
+  name,
+  label,
+  labelColor,
+  imageUrl,
+  onZoom,
+  dimmed,
+}: {
+  name: string;
+  label: string;
+  labelColor: string;
+  imageUrl: string | undefined;
+  onZoom: (name: string) => void;
+  dimmed?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => imageUrl && onZoom(name)}
+      disabled={!imageUrl}
+      className="flex w-[84px] flex-shrink-0 flex-col items-center gap-1 text-center transition-transform enabled:hover:scale-[1.05] disabled:cursor-default"
+      style={{ opacity: dimmed ? 0.5 : 1 }}
+    >
+      <div className="font-head text-[10px] font-extrabold uppercase" style={{ color: labelColor }}>
+        {label}
+      </div>
+      <div
+        className="w-full overflow-hidden rounded-sm border"
+        style={{ aspectRatio: "5/7", borderColor: "var(--border)", background: "var(--surface-muted)" }}
+      >
+        {imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element -- imagen externa de Scryfall
+          <img src={imageUrl} alt={name} className="h-full w-full object-cover" />
+        ) : null}
+      </div>
+      <p className="w-full truncate text-[11px]" style={{ color: "var(--foreground)" }} title={name}>
+        {name}
+      </p>
+    </button>
+  );
+}
+
 function SwapGroupCard({
   group,
   cardImages,
   onHover,
+  onZoom,
 }: {
   group: SwapGroup;
   cardImages: Record<string, string>;
   onHover: HoverHandler;
+  onZoom: (name: string) => void;
 }) {
   return (
-    <div className="flex flex-col gap-3 p-4 sm:flex-row" style={{ background: "var(--surface)" }}>
-      {group.cut && (
-        <div
-          className="underline-card flex-shrink-0 text-center sm:w-[130px]"
-          onMouseEnter={(e) => onHover(group.cut!.carta, e.currentTarget)}
-          onMouseLeave={() => onHover(null, null)}
-        >
-          <div className="font-head text-[10px] font-extrabold uppercase" style={{ color: "var(--status-critical)" }}>
-            Corta
-          </div>
-          <div className="text-sm font-bold" style={{ color: "var(--foreground)" }}>
-            {group.cut.carta}
-          </div>
-        </div>
-      )}
-      {group.cut && group.additions.length > 0 && (
-        <span className="hidden self-center text-lg sm:block" style={{ color: "var(--ink-muted)" }}>
-          →
-        </span>
-      )}
-      <div className="flex flex-1 flex-col gap-3">
-        {group.additions.length === 0 && group.cut && (
-          <p className="text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
-            <HighlightedText text={group.cut.motivo} cardImages={cardImages} onHover={onHover} />
-          </p>
+    <div className="flex flex-col gap-3 p-4" style={{ background: "var(--surface)" }}>
+      <div className="flex flex-wrap items-start gap-3">
+        {group.cut && (
+          <SwapThumbnail
+            name={group.cut.carta}
+            label="Corta"
+            labelColor="var(--status-critical)"
+            imageUrl={cardImages[group.cut.carta]}
+            onZoom={onZoom}
+          />
+        )}
+        {group.cut && group.additions.length > 0 && (
+          <span className="hidden self-center text-lg sm:block" style={{ color: "var(--ink-muted)" }}>
+            →
+          </span>
         )}
         {group.additions.map((addition, i) => (
-          <div
+          <SwapThumbnail
             key={i}
-            className="flex flex-wrap items-start gap-4"
-            style={{ opacity: addition.incluido === false ? 0.5 : 1 }}
-          >
-            <div
-              className="underline-card flex-shrink-0 text-center"
-              onMouseEnter={(e) => onHover(addition.carta, e.currentTarget)}
-              onMouseLeave={() => onHover(null, null)}
-            >
-              <div className="font-head text-[10px] font-extrabold uppercase" style={{ color: "var(--status-good)" }}>
-                Añade{group.additions.length > 1 ? ` (opción ${i + 1})` : ""}
-              </div>
-              <div className="max-w-[140px] text-sm font-bold" style={{ color: "var(--foreground)" }}>
-                {addition.carta}
-              </div>
-              <div className="text-[11px]" style={{ color: "var(--ink-muted)" }}>
-                {addition.rol}
-              </div>
-              {typeof addition.precio_eur === "number" && (
-                <div className="font-mono text-[11px] font-bold" style={{ color: "var(--ink-secondary)" }}>
-                  {addition.precio_eur.toFixed(2)} €
-                </div>
-              )}
-              {addition.incluido === false && (
-                <div className="font-head text-[10px] font-bold uppercase" style={{ color: "var(--status-warning)" }}>
-                  Fuera de presupuesto
-                </div>
-              )}
-            </div>
-            <p className="min-w-[200px] flex-1 text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
-              <HighlightedText text={addition.motivo} cardImages={cardImages} onHover={onHover} />
-            </p>
-          </div>
+            name={addition.carta}
+            label={`Añade${group.additions.length > 1 ? ` · opción ${i + 1}` : ""}`}
+            labelColor="var(--status-good)"
+            imageUrl={cardImages[addition.carta]}
+            onZoom={onZoom}
+            dimmed={addition.incluido === false}
+          />
         ))}
       </div>
+
+      {group.additions.length === 0 && group.cut && (
+        <p className="text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
+          <HighlightedText text={group.cut.motivo} cardImages={cardImages} onHover={onHover} />
+        </p>
+      )}
+      {group.additions.map((addition, i) => (
+        <div key={i} className="flex flex-wrap items-baseline gap-2" style={{ opacity: addition.incluido === false ? 0.6 : 1 }}>
+          {group.additions.length > 1 && (
+            <span className="font-head flex-shrink-0 text-[11px] font-extrabold" style={{ color: "var(--status-good)" }}>
+              Opción {i + 1}:
+            </span>
+          )}
+          <span className="flex-shrink-0 text-[11px]" style={{ color: "var(--ink-muted)" }}>
+            {addition.rol}
+          </span>
+          {typeof addition.precio_eur === "number" && (
+            <span className="flex-shrink-0 font-mono text-[11px] font-bold" style={{ color: "var(--ink-secondary)" }}>
+              {addition.precio_eur.toFixed(2)} €
+            </span>
+          )}
+          {addition.incluido === false && (
+            <span className="font-head flex-shrink-0 text-[10px] font-bold uppercase" style={{ color: "var(--status-warning)" }}>
+              Fuera de presupuesto
+            </span>
+          )}
+          <p className="min-w-[200px] flex-1 basis-full text-sm leading-relaxed sm:basis-0" style={{ color: "var(--foreground)" }}>
+            <HighlightedText text={addition.motivo} cardImages={cardImages} onHover={onHover} />
+          </p>
+        </div>
+      ))}
     </div>
   );
 }
@@ -712,7 +755,13 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
                 )}
                 <div className="flex flex-col gap-px overflow-hidden rounded-sm border" style={{ borderColor: "var(--border)", background: "var(--border)" }}>
                   {swaps.map((group, i) => (
-                    <SwapGroupCard key={i} group={group} cardImages={cardImages} onHover={handleHover} />
+                    <SwapGroupCard
+                      key={i}
+                      group={group}
+                      cardImages={cardImages}
+                      onHover={handleHover}
+                      onZoom={(name) => setZoomedCard(name)}
+                    />
                   ))}
                 </div>
               </div>

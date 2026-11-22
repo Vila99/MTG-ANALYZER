@@ -62,6 +62,55 @@ def test_removal_pattern():
     assert "removal" in classify_by_rules(card)
 
 
+def test_removal_pattern_exile_with_up_to_one_and_adjective():
+    # Bug real: "Grasp of Fate" no se clasificaba como removal porque el
+    # patrón antiguo exigía "exile target X" pegado, y aquí hay relleno
+    # ("up to one") entre "exile" y "target", y un adjetivo ("nonland")
+    # entre "target" y el sustantivo.
+    card = make_card(
+        "Grasp of Fate",
+        oracle_text=(
+            "When this enchantment enters, for each opponent, exile up to one target "
+            "nonland permanent that player controls until this enchantment leaves the "
+            "battlefield."
+        ),
+        type_line="Enchantment",
+    )
+    assert "removal" in classify_by_rules(card)
+
+
+def test_removal_pattern_exile_another_target():
+    card = make_card(
+        "Oblivion Ring",
+        oracle_text="When this enchantment enters, exile another target nonland permanent.",
+        type_line="Enchantment",
+    )
+    assert "removal" in classify_by_rules(card)
+
+
+def test_removal_pattern_destroy_with_adjective_before_noun():
+    card = make_card(
+        "Murderous Compulsion", oracle_text="Destroy target tapped creature.", type_line="Sorcery"
+    )
+    assert "removal" in classify_by_rules(card)
+
+
+def test_removal_pattern_put_target_with_adjective_before_noun():
+    card = make_card(
+        "Condemn",
+        oracle_text="Put target attacking creature on the bottom of its owner's library.",
+        type_line="Instant",
+    )
+    assert "removal" in classify_by_rules(card)
+
+
+def test_removal_pattern_does_not_match_unrelated_target_text():
+    card = make_card(
+        "Divination", oracle_text="Target player draws two cards.", type_line="Sorcery"
+    )
+    assert "removal" not in classify_by_rules(card)
+
+
 def test_protection_pattern():
     card = make_card("Swiftfoot Boots", oracle_text="Equipped creature has hexproof and haste.", type_line="Artifact")
     assert "protection" in classify_by_rules(card)

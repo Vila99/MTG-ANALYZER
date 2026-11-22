@@ -85,18 +85,21 @@ def select_within_budget(
 def apply_budget_to_analysis(
     conn: sqlite3.Connection, analysis: dict, budget: float | None
 ) -> dict:
-    """Si hay `budget`, consulta precios reales (``analyzer.prices``) para
-    los añadidos ya validados y decide cuáles entran. Si no hay `budget`,
-    devuelve el análisis sin tocar (sin gastar llamadas a Scryfall)."""
-    if budget is None:
-        return analysis
-
+    """Consulta precios reales (``analyzer.prices``) para los añadidos ya
+    validados y los adjunta como ``precio_eur``, se haya dado presupuesto o
+    no (el precio es información útil por sí sola). Si además hay
+    ``budget``, decide cuáles entran y añade el resumen ``presupuesto``."""
     additions = analysis.get("anadidos_sugeridos", [])
     if not additions:
-        return {**analysis, "presupuesto": None}
+        return analysis
 
     names = [addition["carta"] for addition in additions]
     prices = prices_module.fetch_prices(conn, names)
+
+    if budget is None:
+        enriched = [{**addition, "precio_eur": prices.get(addition["carta"])} for addition in additions]
+        return {**analysis, "anadidos_sugeridos": enriched}
+
     problem_severity = {
         problema["categoria"]: problema["severidad"] for problema in analysis.get("problemas", [])
     }
