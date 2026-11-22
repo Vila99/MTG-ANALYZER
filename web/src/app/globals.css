@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f9f9f7;
+  --foreground: #0b0b0b;
+  --surface: #fcfcfb;
+  --surface-muted: #f1f0ed;
+  --border: rgba(11, 11, 11, 0.1);
+  --ink-secondary: #52514e;
+  --ink-muted: #898781;
+  --chart-grid: #e1e0d9;
+  --chart-axis: #c3c2b7;
+  --chart-mana: #2a78d6;
+  --chart-roles: #1baf7a;
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --status-critical: #d03b3b;
+
+  /* MANDATORY: Automatically adapt native UI (scrollbars, form controls...) to the user's preference */
+  color-scheme: light dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0d0d0d;
+    --foreground: #ffffff;
+    --surface: #1a1a19;
+    --surface-muted: #202020;
+    --border: rgba(255, 255, 255, 0.1);
+    --ink-secondary: #c3c2b7;
+    --ink-muted: #898781;
+    --chart-grid: #2c2c2a;
+    --chart-axis: #383835;
+    --chart-mana: #3987e5;
+    --chart-roles: #199e70;
+    --status-good: #0ca30c;
+    --status-warning: #fab219;
+    --status-critical: #d03b3b;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
+  font-size: max(1rem, 1em);
+}
+
+:focus-visible {
+  outline: 3px solid var(--chart-mana);
+  outline-offset: 2px;
+}
