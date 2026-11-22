@@ -15,6 +15,7 @@ import os
 from pathlib import Path
 
 import anthropic
+from dotenv import load_dotenv
 
 from analyzer.cards import Card
 from analyzer.roles import ROLES
@@ -48,6 +49,7 @@ _CLASSIFY_TOOL = {
 
 
 def get_client() -> anthropic.Anthropic:
+    load_dotenv()  # lee .env si existe; no sobrescribe variables ya puestas en el entorno
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
         raise RuntimeError("Falta ANTHROPIC_API_KEY en el entorno (ver .env.example).")
@@ -118,7 +120,7 @@ _ANALYSIS_TOOL = {
                     "required": ["carta", "motivo"],
                 },
             },
-            "añadidos_sugeridos": {
+            "anadidos_sugeridos": {
                 "type": "array",
                 "items": {
                     "type": "object",
@@ -138,7 +140,7 @@ _ANALYSIS_TOOL = {
             "puntos_fuertes",
             "problemas",
             "cortes_sugeridos",
-            "añadidos_sugeridos",
+            "anadidos_sugeridos",
         ],
     },
 }

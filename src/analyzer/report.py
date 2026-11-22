@@ -158,7 +158,7 @@ def render_analysis(analysis: dict) -> str:
         for cut in cortes:
             lines.append(f"  - {cut['carta']}: {cut['motivo']}")
 
-    añadidos = analysis.get("añadidos_sugeridos") or []
+    añadidos = analysis.get("anadidos_sugeridos") or []
     if añadidos:
         lines.append("")
         lines.append("Añadidos sugeridos:")

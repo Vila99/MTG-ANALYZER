@@ -95,7 +95,7 @@ def test_run_analysis_builds_payload_calls_claude_and_validates():
         "puntos_fuertes": [],
         "problemas": [],
         "cortes_sugeridos": [{"carta": "Sol Ring", "motivo": "innecesario"}],
-        "añadidos_sugeridos": [
+        "anadidos_sugeridos": [
             {"carta": "Arcane Signet", "rol": "ramp", "reemplaza_a": None, "motivo": "ramp eficiente"},
             {"carta": "Not A Real Card", "rol": "ramp", "reemplaza_a": None, "motivo": "no existe"},
         ],
@@ -115,7 +115,7 @@ def test_run_analysis_builds_payload_calls_claude_and_validates():
     assert run.payload["comandantes"][0]["nombre"] == "Commander"
     assert run.raw_analysis == raw_analysis
     # "Not A Real Card" no existe en la BD de prueba: se descarta en la validación.
-    assert run.validated_analysis["añadidos_sugeridos"] == [
+    assert run.validated_analysis["anadidos_sugeridos"] == [
         {"carta": "Arcane Signet", "rol": "ramp", "reemplaza_a": None, "motivo": "ramp eficiente"}
     ]
     assert run.validated_analysis["cortes_sugeridos"] == raw_analysis["cortes_sugeridos"]

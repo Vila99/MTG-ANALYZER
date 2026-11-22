@@ -124,6 +124,8 @@ def test_analyze_reports_missing_cards(client: TestClient):
 
 
 def test_analyze_ai_without_api_key_returns_400(client: TestClient, monkeypatch):
+    # Evita que un .env real en el repo del desarrollador filtre la key aquí.
+    monkeypatch.setattr("analyzer.llm.load_dotenv", lambda *a, **k: None)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     response = client.post(
         "/analyze",

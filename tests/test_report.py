@@ -46,7 +46,7 @@ def test_render_analysis_includes_all_sections():
             {"categoria": "removal", "severidad": "alta", "explicacion": "muy poco removal"}
         ],
         "cortes_sugeridos": [{"carta": "Carta Mala", "motivo": "no aporta nada"}],
-        "añadidos_sugeridos": [
+        "anadidos_sugeridos": [
             {
                 "carta": "Carta Buena",
                 "rol": "removal",
@@ -73,7 +73,7 @@ def test_render_analysis_handles_empty_sections():
         "puntos_fuertes": [],
         "problemas": [],
         "cortes_sugeridos": [],
-        "añadidos_sugeridos": [],
+        "anadidos_sugeridos": [],
     }
     text = render_analysis(analysis)
     assert "aggro" in text

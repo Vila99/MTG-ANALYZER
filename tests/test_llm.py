@@ -69,6 +69,9 @@ def test_classify_card_with_haiku_defaults_to_other_without_tool_use():
 
 
 def test_get_client_requires_api_key(monkeypatch):
+    # Evita que un .env real en el repo del desarrollador filtre la key aquí:
+    # el test comprueba el caso sin key, independientemente de lo que haya en disco.
+    monkeypatch.setattr("analyzer.llm.load_dotenv", lambda *a, **k: None)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     with pytest.raises(RuntimeError):
         get_client()
@@ -169,7 +172,7 @@ def test_analyze_deck_returns_tool_input():
         "puntos_fuertes": ["buena ventaja de cartas"],
         "problemas": [],
         "cortes_sugeridos": [],
-        "añadidos_sugeridos": [],
+        "anadidos_sugeridos": [],
     }
     client = MagicMock()
     client.messages.create.return_value = _fake_analysis_tool_use_message(fake_analysis)

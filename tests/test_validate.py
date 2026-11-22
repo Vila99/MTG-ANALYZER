@@ -144,7 +144,7 @@ def test_validate_analysis_filters_invalid_suggestions():
             {"carta": "Sol Ring", "motivo": "ya tienes suficiente ramp"},
             {"carta": "Phantom Card", "motivo": "no existe en el deck"},
         ],
-        "añadidos_sugeridos": [
+        "anadidos_sugeridos": [
             {"carta": "Arcane Signet", "rol": "ramp", "reemplaza_a": None, "motivo": "ramp eficiente"},
             {"carta": "Lightning Bolt", "rol": "removal", "reemplaza_a": None, "motivo": "fuera de color"},
             {"carta": "Channel", "rol": "ramp", "reemplaza_a": None, "motivo": "banida"},
@@ -154,7 +154,7 @@ def test_validate_analysis_filters_invalid_suggestions():
     result = validate_analysis(conn, analysis, commanders, deck_cards)
 
     assert result["cortes_sugeridos"] == [{"carta": "Sol Ring", "motivo": "ya tienes suficiente ramp"}]
-    assert result["añadidos_sugeridos"] == [
+    assert result["anadidos_sugeridos"] == [
         {"carta": "Arcane Signet", "rol": "ramp", "reemplaza_a": None, "motivo": "ramp eficiente"}
     ]
     assert result["estrategia_detectada"] == "control"

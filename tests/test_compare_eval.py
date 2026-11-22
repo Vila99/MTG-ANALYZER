@@ -19,7 +19,7 @@ def make_record(
             "puntos_fuertes": [],
             "problemas": problemas or [],
             "cortes_sugeridos": cortes or [],
-            "añadidos_sugeridos": añadidos or [],
+            "anadidos_sugeridos": añadidos or [],
         },
     }
 

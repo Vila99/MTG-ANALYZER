@@ -106,7 +106,11 @@ Parámetros de usuario:
 
 ## Contrato con Claude
 
-El análisis se pide con **tool use** para forzar este esquema de salida:
+El análisis se pide con **tool use** para forzar este esquema de salida.
+`anadidos_sugeridos` va sin tilde (no `añadidos_sugeridos`): los nombres de
+propiedad de un tool schema de la API solo admiten `^[a-zA-Z0-9_.-]{1,64}$`,
+y la `ñ` lo rompe con un 400 (`BadRequestError`, descubierto probando en
+real). El texto de las sugerencias, en español, no tiene esa restricción.
 
 ```json
 {
@@ -119,7 +123,7 @@ El análisis se pide con **tool use** para forzar este esquema de salida:
   "cortes_sugeridos": [
     { "carta": "string", "motivo": "string" }
   ],
-  "añadidos_sugeridos": [
+  "anadidos_sugeridos": [
     { "carta": "string", "rol": "string", "reemplaza_a": "string|null", "motivo": "string" }
   ]
 }

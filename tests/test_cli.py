@@ -168,6 +168,8 @@ def test_main_missing_db_returns_one(tmp_path, deck_path, capsys):
 
 
 def test_main_ai_without_api_key_fails_gracefully(db_path, deck_path, monkeypatch, capsys):
+    # Evita que un .env real en el repo del desarrollador filtre la key aquí.
+    monkeypatch.setattr("analyzer.llm.load_dotenv", lambda *a, **k: None)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     exit_code = main([str(deck_path), "--db", str(db_path), "--ai"])
     captured = capsys.readouterr()

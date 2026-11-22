@@ -24,7 +24,7 @@ export interface Analisis {
   puntos_fuertes: string[];
   problemas: Problema[];
   cortes_sugeridos: CorteSugerido[];
-  añadidos_sugeridos: AñadidoSugerido[];
+  anadidos_sugeridos: AñadidoSugerido[];
 }
 
 export interface AnalyzeResponse {

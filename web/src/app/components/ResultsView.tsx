@@ -260,13 +260,13 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
             </div>
           )}
 
-          {result.analisis.añadidos_sugeridos.length > 0 && (
+          {result.analisis.anadidos_sugeridos.length > 0 && (
             <div>
               <h3 className="font-semibold mb-1" style={{ color: "var(--foreground)" }}>
                 Añadidos sugeridos
               </h3>
               <ul className="list-disc list-inside" style={{ color: "var(--ink-secondary)" }}>
-                {result.analisis.añadidos_sugeridos.map((addition, i) => (
+                {result.analisis.anadidos_sugeridos.map((addition, i) => (
                   <li key={i}>
                     <strong style={{ color: "var(--foreground)" }}>{addition.carta}</strong> [{addition.rol}]
                     {addition.reemplaza_a ? ` (reemplaza a ${addition.reemplaza_a})` : ""}: {addition.motivo}

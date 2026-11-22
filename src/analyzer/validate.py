@@ -56,7 +56,7 @@ def validate_analysis(
     deck_cards: list[Card],
 ) -> dict:
     """Devuelve una copia del análisis de Claude con ``cortes_sugeridos`` y
-    ``añadidos_sugeridos`` filtrados a solo las sugerencias que pasan la
+    ``anadidos_sugeridos`` filtrados a solo las sugerencias que pasan la
     validación."""
     commander_identity: set[str] = set()
     for commander in commanders:
@@ -70,7 +70,7 @@ def validate_analysis(
     ]
     validated_additions = [
         addition
-        for addition in analysis.get("añadidos_sugeridos", [])
+        for addition in analysis.get("anadidos_sugeridos", [])
         if validate_addition(
             conn, addition["carta"], commander_identity, deck_card_names
         ).valido
@@ -79,5 +79,5 @@ def validate_analysis(
     return {
         **analysis,
         "cortes_sugeridos": validated_cuts,
-        "añadidos_sugeridos": validated_additions,
+        "anadidos_sugeridos": validated_additions,
     }

@@ -40,8 +40,8 @@ def compare(old: dict, new: dict) -> str:
     if old_cuts - new_cuts:
         diffs.append(f"Cortes que ya no se sugieren: {sorted(old_cuts - new_cuts)}")
 
-    old_additions = _names(old_analysis.get("añadidos_sugeridos", []), "carta")
-    new_additions = _names(new_analysis.get("añadidos_sugeridos", []), "carta")
+    old_additions = _names(old_analysis.get("anadidos_sugeridos", []), "carta")
+    new_additions = _names(new_analysis.get("anadidos_sugeridos", []), "carta")
     if new_additions - old_additions:
         diffs.append(f"Añadidos nuevos: {sorted(new_additions - old_additions)}")
     if old_additions - new_additions:
