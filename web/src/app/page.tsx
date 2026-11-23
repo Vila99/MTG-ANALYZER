@@ -257,7 +257,8 @@ export default function Home() {
           </button>
         ) : (
           <div className="flex items-center gap-2.5">
-            <span aria-hidden="true" className="inline-block h-2.5 w-2.5" style={{ background: "var(--accent)" }} />
+            {/* eslint-disable-next-line @next/next/no-img-element -- icono estatico en public/, sin optimizar */}
+            <img src="/mana-colorless.svg" alt="" aria-hidden="true" className="h-5 w-5" />
             <h1 className="font-head text-sm font-extrabold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
               MTG Deck Analyzer
             </h1>

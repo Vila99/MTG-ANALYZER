@@ -11,13 +11,28 @@ export interface RecentEntry {
   result: AnalyzeResponse;
 }
 
+/** Rellena con valores por defecto los campos que se fueron añadiendo a
+ * AnalyzeResponse después de guardarse algunas entradas: localStorage
+ * conserva el JSON tal cual se guardó, así que un análisis antiguo puede
+ * no tener `identidad_color`, `nota_deck` o `coste_aproximado`. Sin esto,
+ * cargar una entrada vieja rompe la vista de resultados. */
+function normalizeStoredResult(result: Partial<AnalyzeResponse>): AnalyzeResponse {
+  return {
+    identidad_color: [],
+    nota_deck: 0,
+    coste_aproximado: { total_eur: 0, cartas_sin_precio: [] },
+    ...result,
+  } as AnalyzeResponse;
+}
+
 export function loadRecentAnalyses(): RecentEntry[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((entry) => ({ ...entry, result: normalizeStoredResult(entry.result) }));
   } catch {
     return [];
   }

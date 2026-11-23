@@ -80,8 +80,10 @@ const COLOR_GLOW: Record<string, string> = {
 /** Fondo decorativo: manchas difuminadas con los colores de la identidad del
  * comandante, fijas detrás del contenido, para dar un toque temático sin
  * estorbar la lectura. */
-function ColorThemeBackground({ colors }: { colors: string[] }) {
-  if (colors.length === 0) return null;
+function ColorThemeBackground({ colors }: { colors: string[] | undefined }) {
+  // defensivo: un analisis guardado en localStorage (ver lib/recentAnalyses)
+  // antes de que existiera este campo no lo tendria.
+  if (!colors || colors.length === 0) return null;
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
       {colors.map((color, i) => (
@@ -503,10 +505,103 @@ function CardZoomModal({
   );
 }
 
+/** Detalle de un combo detectado: imágenes de las cartas que lo forman y su
+ * explicación completa, en un modal en vez de saturar la sección de
+ * bracket con el texto de cada combo. */
+function ComboDetailModal({
+  combo,
+  cardImages,
+  onClose,
+  onZoomCard,
+}: {
+  combo: { cartas: string[]; produce: string[]; descripcion: string; velocidad?: string };
+  cardImages: Record<string, string>;
+  onClose: () => void;
+  onZoomCard: (name: string) => void;
+}) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex cursor-pointer items-center justify-center p-6"
+      style={{ background: "rgba(0,0,0,0.75)" }}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg rounded-sm border"
+        style={{ borderColor: "var(--border)", background: "var(--background)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b p-4" style={{ borderColor: "var(--border)" }}>
+          <h2 className="font-head text-sm font-extrabold uppercase tracking-wide" style={{ color: "var(--accent)" }}>
+            Combo detectado
+          </h2>
+          <button type="button" onClick={onClose} className="font-head text-xs font-bold" style={{ color: "var(--ink-muted)" }}>
+            Cerrar ✕
+          </button>
+        </div>
+
+        <div className="flex flex-wrap gap-3 p-4">
+          {combo.cartas.map((name) => (
+            <button
+              type="button"
+              key={name}
+              onClick={() => onZoomCard(name)}
+              disabled={!cardImages[name]}
+              className="flex w-[110px] flex-col gap-1 text-left transition-transform enabled:hover:scale-[1.04] disabled:cursor-default"
+            >
+              <div
+                className="overflow-hidden rounded-sm border"
+                style={{ aspectRatio: "5/7", borderColor: "var(--border)", background: "var(--surface-muted)" }}
+              >
+                {cardImages[name] ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- imagen externa de Scryfall
+                  <img src={cardImages[name]} alt={name} className="h-full w-full object-cover" />
+                ) : null}
+              </div>
+              <p className="truncate text-center text-[11px]" style={{ color: "var(--ink-secondary)" }} title={name}>
+                {name}
+              </p>
+            </button>
+          ))}
+        </div>
+
+        <div className="border-t p-4" style={{ borderColor: "var(--border)" }}>
+          {combo.velocidad && (
+            <span
+              className="font-head text-[10px] font-bold uppercase"
+              style={{ color: combo.velocidad === "temprano" ? "var(--status-critical)" : "var(--status-warning)" }}
+            >
+              {combo.velocidad}
+            </span>
+          )}
+          {combo.produce.length > 0 && (
+            <p className="mt-1 text-sm" style={{ color: "var(--foreground)" }}>
+              <strong>Produce:</strong> {combo.produce.join(", ")}
+            </p>
+          )}
+          {combo.descripcion && (
+            <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
+              {combo.descripcion}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ResultsView({ result }: { result: AnalyzeResponse }) {
   const [hoverTarget, setHoverTarget] = useState<HoverTarget | null>(null);
   const [expandedRole, setExpandedRole] = useState<string | null>(null);
   const [zoomedCard, setZoomedCard] = useState<string | null>(null);
+  const [openCombo, setOpenCombo] = useState<number | null>(null);
   const cardImages = result.card_images ?? {};
   const cartasPorRol = result.cartas_por_rol ?? {};
 
@@ -541,6 +636,14 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
       {zoomedCard && cardImages[zoomedCard] && (
         <CardZoomModal name={zoomedCard} imageUrl={cardImages[zoomedCard]} onClose={() => setZoomedCard(null)} />
       )}
+      {openCombo !== null && analisis?.combos_detectados?.[openCombo] && (
+        <ComboDetailModal
+          combo={analisis.combos_detectados[openCombo]}
+          cardImages={cardImages}
+          onClose={() => setOpenCombo(null)}
+          onZoomCard={(name) => setZoomedCard(name)}
+        />
+      )}
 
       <section className="flex flex-col gap-5 border-b pb-6" style={{ borderColor: "var(--border)" }}>
         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -549,7 +652,7 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
               <h2 className="font-head text-2xl font-extrabold" style={{ color: "var(--foreground)" }}>
                 {result.comandantes.length > 0 ? result.comandantes.join(" + ") : "Sin comandante detectado"}
               </h2>
-              {result.identidad_color.length > 0 && (
+              {result.identidad_color && result.identidad_color.length > 0 && (
                 <span className="flex items-center gap-1 text-xl" aria-hidden="true">
                   {result.identidad_color.map((color) => (
                     <ManaIcon key={color} color={color} />
@@ -792,8 +895,15 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
                   </p>
                   <ul className="mt-1.5 flex flex-col gap-1.5">
                     {analisis.combos_detectados.map((combo, i) => (
-                      <li key={i} className="text-sm" style={{ color: "var(--foreground)" }} title={combo.descripcion}>
-                        <span className="font-bold">{combo.cartas.join(" + ")}</span>
+                      <li key={i} className="text-sm" style={{ color: "var(--foreground)" }}>
+                        <button
+                          type="button"
+                          onClick={() => setOpenCombo(i)}
+                          className="font-bold underline-offset-2 hover:underline"
+                          style={{ color: "var(--accent)" }}
+                        >
+                          {combo.cartas.join(" + ")}
+                        </button>
                         {combo.produce.length > 0 && <> → {combo.produce.join(", ")}</>}
                         {combo.velocidad && (
                           <span
