@@ -108,16 +108,6 @@ function ColorThemeBackground({ colors }: { colors: string[] | undefined }) {
   );
 }
 
-/** Viñeta de lista con el símbolo de maná incoloro en vez del punto por
- * defecto del navegador, para mantener el aire temático también en el
- * texto corrido. */
-function BulletIcon() {
-  return (
-    // eslint-disable-next-line @next/next/no-img-element -- icono estatico en public/, sin optimizar
-    <img src="/mana-colorless.svg" alt="" aria-hidden="true" className="mt-1 h-3 w-3 flex-shrink-0" />
-  );
-}
-
 function StatTile({
   label,
   value,
@@ -928,12 +918,9 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
                 </div>
               )}
               {analisis.bracket.razones.length > 0 && (
-                <ul className="mt-2 flex flex-col gap-1.5 text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
+                <ul className="mt-2 list-inside list-disc text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
                   {analisis.bracket.razones.map((razon, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <BulletIcon />
-                      <span>{razon}</span>
-                    </li>
+                    <li key={i}>{razon}</li>
                   ))}
                 </ul>
               )}
@@ -951,13 +938,10 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
             {analisis.puntos_fuertes.length > 0 && (
               <div>
                 <SectionLabel color="var(--status-good)">Puntos fuertes</SectionLabel>
-                <ul className="flex flex-col gap-1.5 text-[15px] leading-7" style={{ color: "var(--foreground)" }}>
+                <ul className="list-inside list-disc space-y-1.5 text-[15px] leading-7" style={{ color: "var(--foreground)" }}>
                   {analisis.puntos_fuertes.map((punto, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <BulletIcon />
-                      <span>
-                        <HighlightedText text={punto} cardImages={cardImages} onHover={handleHover} />
-                      </span>
+                    <li key={i}>
+                      <HighlightedText text={punto} cardImages={cardImages} onHover={handleHover} />
                     </li>
                   ))}
                 </ul>
