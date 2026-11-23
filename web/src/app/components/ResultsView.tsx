@@ -108,6 +108,16 @@ function ColorThemeBackground({ colors }: { colors: string[] | undefined }) {
   );
 }
 
+/** Viñeta de lista con el símbolo de maná incoloro en vez del punto por
+ * defecto del navegador, para mantener el aire temático también en el
+ * texto corrido. */
+function BulletIcon() {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- icono estatico en public/, sin optimizar
+    <img src="/mana-colorless.svg" alt="" aria-hidden="true" className="mt-1 h-3 w-3 flex-shrink-0" />
+  );
+}
+
 function StatTile({
   label,
   value,
@@ -482,7 +492,7 @@ function CardZoomModal({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex cursor-pointer items-center justify-center p-6"
+      className="fixed inset-0 z-[80] flex cursor-pointer items-center justify-center p-6"
       style={{ background: "rgba(0,0,0,0.75)", opacity: visible ? 1 : 0, transition: "opacity 150ms ease" }}
       onClick={onClose}
     >
@@ -904,7 +914,6 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
                         >
                           {combo.cartas.join(" + ")}
                         </button>
-                        {combo.produce.length > 0 && <> → {combo.produce.join(", ")}</>}
                         {combo.velocidad && (
                           <span
                             className="font-head ml-2 text-[10px] font-bold uppercase"
@@ -919,9 +928,12 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
                 </div>
               )}
               {analisis.bracket.razones.length > 0 && (
-                <ul className="mt-2 list-inside list-disc text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
+                <ul className="mt-2 flex flex-col gap-1.5 text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
                   {analisis.bracket.razones.map((razon, i) => (
-                    <li key={i}>{razon}</li>
+                    <li key={i} className="flex items-start gap-2">
+                      <BulletIcon />
+                      <span>{razon}</span>
+                    </li>
                   ))}
                 </ul>
               )}
@@ -939,10 +951,13 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
             {analisis.puntos_fuertes.length > 0 && (
               <div>
                 <SectionLabel color="var(--status-good)">Puntos fuertes</SectionLabel>
-                <ul className="list-inside list-disc space-y-1.5 text-[15px] leading-7" style={{ color: "var(--foreground)" }}>
+                <ul className="flex flex-col gap-1.5 text-[15px] leading-7" style={{ color: "var(--foreground)" }}>
                   {analisis.puntos_fuertes.map((punto, i) => (
-                    <li key={i}>
-                      <HighlightedText text={punto} cardImages={cardImages} onHover={handleHover} />
+                    <li key={i} className="flex items-start gap-2">
+                      <BulletIcon />
+                      <span>
+                        <HighlightedText text={punto} cardImages={cardImages} onHover={handleHover} />
+                      </span>
                     </li>
                   ))}
                 </ul>
