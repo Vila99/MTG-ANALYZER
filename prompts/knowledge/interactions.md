@@ -73,7 +73,37 @@ efecto de superficie parezca ajeno al arquetipo.
   vez más; no crea una criatura ni dura en el campo de batalla salvo que
   la carta original lo haga.
 
-## 5. Cómo escala un efecto con el número de rivales
+## 5. No basta con la palabra clave: comprueba los números
+
+Que dos cartas compartan una palabra ("token", "entra al campo de
+batalla") no significa que la sinergia rinda lo que parece. Antes de
+afirmar que una carta alimenta un payoff del deck, comprueba los números
+concretos de ambas:
+
+- **"Deals damage equal to that creature's power"** (Terror of the
+  Peaks y similares) escala con el **poder** del token/criatura que
+  entra, no con que "sea una criatura que entra". Un token de poder 0
+  (p. ej. un Clue-maker que también crea un 0/X, un token defensivo)
+  dispara el efecto por **0 de daño**: la palabra "dispara" es literal
+  pero el resultado es nulo. Esto es distinto de triggers de daño **fijo**
+  ("deals 1 damage to each opponent", Impact Tremors) o que no dependen
+  del poder (ganar vida, energía): esos sí rinden igual con cualquier
+  token, poder 0 incluido. No generalices "genera un token → sinergiza
+  con los payoffs de ETB del deck" sin mirar qué pide cada payoff en
+  concreto.
+- Si el plan del deck es **tokens de criatura atacando** (para payoffs de
+  combate, duplicadores que buscan más atacantes), un generador de
+  **tokens que no atacan de forma realista** (defensivos, 0 de poder,
+  artefactos tipo Clue/Treasure que ni siquiera son criaturas) no sirve
+  ese plan aunque el deck tenga duplicadores de tokens genéricos. Un
+  duplicador de tokens no convierte un token que no encaja en uno que sí
+  — multiplica lo que sea, pero el jugador seguía queriendo *ese* tipo de
+  token.
+- Antes de recomendar un añadido citando un payoff concreto del deck como
+  motivo, confirma que el añadido de verdad alimenta ESE payoff con los
+  números que tiene, no solo que comparte categoría con él.
+
+## 6. Cómo escala un efecto con el número de rivales
 
 - Un disparador del tipo **"whenever an opponent..."** / "cada vez que un
   rival hace X" se dispara **una vez por cada rival que cumpla la
@@ -95,7 +125,7 @@ efecto de superficie parezca ajeno al arquetipo.
   eso sí reduce su fiabilidad, pero por el coste a pagar, no por el
   número de rivales en la mesa.
 
-## 6. Cómo usar esto
+## 7. Cómo usar esto
 
 - Antes de cortar una carta, comprueba si su **coste** (no solo su efecto)
   conecta con alguno de los puntos de arriba y con lo que el deck ya hace.

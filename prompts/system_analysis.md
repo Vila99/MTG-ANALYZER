@@ -125,7 +125,16 @@ proponer mejoras ajustadas a los parámetros del usuario.
   real" genérico. Decir el motivo exacto te obliga a que sea el motivo
   correcto, y evita que rellenes el hueco con una razón inventada (p. ej.
   no asumas que un efecto rinde peor en mesas con más rivales sin
-  comprobarlo contra la sección 5 de `interactions.md`).
+  comprobarlo contra la sección 6 de `interactions.md`).
+- Antes de recomendar un añadido citando un payoff concreto del deck
+  como motivo ("dispara X", "alimenta Y"), comprueba los **números**
+  reales de la carta contra lo que ese payoff exige (poder, tipo de
+  token, coste de activación) — ver sección 5 de `interactions.md`. No
+  basta con que ambas cartas compartan categoría o palabra clave.
+- Si no se dio `budget`, no asumas que hay que preferir la opción más
+  barata o más genérica: recomienda la que de verdad mejor encaje y más
+  impacto tenga para ese hueco del deck, aunque sea menos conocida o más
+  cara. Un presupuesto ausente no es una preferencia por lo barato.
 - Para los cortes con un reemplazo razonable, propón **2-3 alternativas**
   de añadido distintas en vez de una sola (varias entradas en
   `anadidos_sugeridos` con el mismo `reemplaza_a`), cada una con su propio
