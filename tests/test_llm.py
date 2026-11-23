@@ -115,6 +115,9 @@ def test_load_system_prompt_includes_the_deckbuilding_knowledge():
     # El marco de criterios de prompts/knowledge/deckbuilding.md
     assert "generador" in prompt
     assert "goldfish" in prompt
+    # Las interacciones no obvias de prompts/knowledge/interactions.md
+    assert "cementerio" in prompt
+    assert "Proliferate" in prompt
 
 
 def make_commander() -> Card:

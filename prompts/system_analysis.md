@@ -96,27 +96,14 @@ proponer mejoras ajustadas a los parámetros del usuario.
   aportar nada claro al plan.
 
   Para la pregunta (2), no mires solo el **efecto principal** de la
-  carta: revisa también si su **coste** alimenta algún motor del deck.
-  Una carta cuyo efecto parece ajeno al arquetipo puede encajar igualmente
-  si lo que pides para pagarla es justo lo que el deck quiere:
-  - Descartar una carta (como coste) alimenta recursión de cementerio,
-    reanimación, madness, flashback/aftermath/disturb.
-  - Sacrificar una criatura o permanente alimenta aristócratas, death
-    triggers, o cualquier "whenever a creature you control dies/is
-    sacrificed".
-  - Pagar vida alimenta payoffs de vida perdida (devotion a Mal, drain,
-    umbral de vida).
-  - Exiliar cartas propias alimenta foretell, impulsive draw, plot,
-    suspend, o cualquier "cast from exile".
-  - Tapear criaturas o perder turnos de ataque alimenta convoke/
-    vigilance payoffs o control de combate.
-
-  Ejemplo real: un artefacto que por "descarta una carta" hace una
-  criatura inatacable no es un corte obvio en un deck que recicla
-  encantamientos desde el cementerio — el coste de descarte **alimenta**
-  esa recursión a la vez que protege al atacante. Señala esta sinergia
-  indirecta en el motivo si decides mantenerla o si la citas como punto
-  fuerte, en vez de evaluarla solo por su efecto de superficie.
+  carta: revisa también si su **coste** alimenta algún motor del deck,
+  aunque ninguno de los dos mencione al otro. Usa
+  `prompts/knowledge/interactions.md` para esto — recoge las
+  implicaciones de reglas más comunes que un jugador experto ve sin
+  pensarlo (descartar alimenta el cementerio, sacrificar dispara death
+  triggers, exiliar NO alimenta el cementerio...). Señala la conexión
+  indirecta en el motivo si decides mantener la carta o la citas como
+  punto fuerte, en vez de evaluarla solo por su efecto de superficie.
 - Para los cortes con un reemplazo razonable, propón **2-3 alternativas**
   de añadido distintas en vez de una sola (varias entradas en
   `anadidos_sugeridos` con el mismo `reemplaza_a`), cada una con su propio

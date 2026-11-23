@@ -28,6 +28,9 @@ DECKBUILDING_KNOWLEDGE_PATH = (
     Path(__file__).resolve().parents[2] / "prompts" / "knowledge" / "deckbuilding.md"
 )
 BRACKETS_KNOWLEDGE_PATH = Path(__file__).resolve().parents[2] / "prompts" / "knowledge" / "brackets.md"
+INTERACTIONS_KNOWLEDGE_PATH = (
+    Path(__file__).resolve().parents[2] / "prompts" / "knowledge" / "interactions.md"
+)
 
 _CLASSIFY_TOOL = {
     "name": "classify_card",
@@ -280,12 +283,15 @@ def load_system_prompt() -> str:
     """Contrato de análisis (``system_analysis.md``) + el marco de criterios
     de construcción de decks (``prompts/knowledge/deckbuilding.md``), que
     sustituye al rubric fijo por uno condicional al plan del deck y al
-    bracket. Se concatenan en un solo bloque de texto cacheado."""
+    bracket, + las interacciones no obvias entre mecánicas
+    (``prompts/knowledge/interactions.md``), para que Claude no tenga que
+    reinventar cada vez implicaciones de reglas que no están escritas
+    literalmente en el texto de las cartas. Se concatenan en un solo bloque
+    de texto cacheado."""
     parts = [SYSTEM_PROMPT_PATH.read_text(encoding="utf-8")]
-    if DECKBUILDING_KNOWLEDGE_PATH.exists():
-        parts.append(DECKBUILDING_KNOWLEDGE_PATH.read_text(encoding="utf-8"))
-    if BRACKETS_KNOWLEDGE_PATH.exists():
-        parts.append(BRACKETS_KNOWLEDGE_PATH.read_text(encoding="utf-8"))
+    for path in (DECKBUILDING_KNOWLEDGE_PATH, BRACKETS_KNOWLEDGE_PATH, INTERACTIONS_KNOWLEDGE_PATH):
+        if path.exists():
+            parts.append(path.read_text(encoding="utf-8"))
     return "\n\n---\n\n".join(parts)
 
 
