@@ -104,6 +104,28 @@ proponer mejoras ajustadas a los parámetros del usuario.
   triggers, exiliar NO alimenta el cementerio...). Señala la conexión
   indirecta en el motivo si decides mantener la carta o la citas como
   punto fuerte, en vez de evaluarla solo por su efecto de superficie.
+- Si una carta compite por un **recurso compartido** del deck (maná,
+  energía, cartas en mano, tokens...), no la descartes solo por señalar
+  que "compite" por ese recurso: compara lo que **cuesta** contra lo que
+  **da a cambio**. Un coste de oportunidad real solo importa si lo que se
+  obtiene no lo compensa — dilo explícitamente en el motivo, no te quedes
+  en "esto también gasta X".
+- Sé **consistente dentro del mismo análisis**: si justificas mantener o
+  valorar bien una carta por un motivo concreto (p. ej. "protege al
+  comandante al atacar", "alimenta el cementerio"), aplica ese mismo
+  criterio a cualquier otra carta del deck que cumpla la misma función,
+  salvo que expliques por qué una sí y la otra no. No le des un pase a
+  una carta y marques a otra como de bajo impacto cuando ambas sirven al
+  mismo propósito declarado.
+- Cuando excluyas una carta de un recuento estricto (p. ej. "ventaja de
+  cartas neta" en `deckbuilding.md`, que no cuenta cantrips que solo se
+  reemplazan a sí mismos ni looters), **dilo explícitamente citando el
+  motivo concreto** ("no cuenta porque solo se reemplaza a sí misma",
+  "no cuenta porque es un looter") en vez de un "no cuenta como ventaja
+  real" genérico. Decir el motivo exacto te obliga a que sea el motivo
+  correcto, y evita que rellenes el hueco con una razón inventada (p. ej.
+  no asumas que un efecto rinde peor en mesas con más rivales sin
+  comprobarlo contra la sección 5 de `interactions.md`).
 - Para los cortes con un reemplazo razonable, propón **2-3 alternativas**
   de añadido distintas en vez de una sola (varias entradas en
   `anadidos_sugeridos` con el mismo `reemplaza_a`), cada una con su propio

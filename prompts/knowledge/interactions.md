@@ -73,7 +73,29 @@ efecto de superficie parezca ajeno al arquetipo.
   vez más; no crea una criatura ni dura en el campo de batalla salvo que
   la carta original lo haga.
 
-## 5. Cómo usar esto
+## 5. Cómo escala un efecto con el número de rivales
+
+- Un disparador del tipo **"whenever an opponent..."** / "cada vez que un
+  rival hace X" se dispara **una vez por cada rival que cumpla la
+  condición**, no una vez por turno propio. En una mesa de 3 rivales rinde
+  **más** que en un 1 contra 1, no menos: más jugadores → más
+  oportunidades de disparo. No asumas que "más rivales" diluye el valor
+  de una carta con este patrón — normalmente es al revés. Ejemplo real:
+  Esper Sentinel ("whenever an opponent casts their first noncreature
+  spell each turn, draw a card unless...") puede robar hasta una carta
+  por cada rival cada ronda; con 3 rivales es *mejor*, no peor, que en 1
+  contra 1.
+- Esto no aplica a disparadores por turno **propio** ("at the beginning
+  of your upkeep", "whenever you cast...") ni a los que se disparan **una
+  vez por turno de cualquiera** (esos sí rinden menos cuantos más
+  jugadores compitan por disparar primero).
+- Tampoco aplica si el rival puede **evitar pagar el coste** de forma
+  trivial (p. ej. Esper Sentinel: X es el poder de la criatura, así que
+  un X bajo hace fácil que el rival pague y no cuente como robo real) —
+  eso sí reduce su fiabilidad, pero por el coste a pagar, no por el
+  número de rivales en la mesa.
+
+## 6. Cómo usar esto
 
 - Antes de cortar una carta, comprueba si su **coste** (no solo su efecto)
   conecta con alguno de los puntos de arriba y con lo que el deck ya hace.
