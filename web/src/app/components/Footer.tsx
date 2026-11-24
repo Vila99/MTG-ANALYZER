@@ -60,12 +60,11 @@ export function Footer() {
       {/* Grid de 3 columnas iguales (33.3% cada una) en vez de un flex
        * justify-between: con columnas de ancho igual, la del medio queda
        * centrada de verdad sin importar que el bloque legal sea más largo
-       * que el de redes sociales. Ocupa todo el ancho de la pantalla, sin
-       * el max-width/gutter que sí lleva el contenido principal. */}
-      <div
-        className="grid grid-cols-1 items-center gap-4 px-2.5 py-5 sm:grid-cols-3 sm:px-5"
-        style={{ marginLeft: "10rem", marginRight: "10rem" }}
-      >
+       * que el de redes sociales. En móvil es una sola columna centrada; el
+       * margen lateral crece con la pantalla en vez de ser fijo (antes eran
+       * 10rem a cada lado siempre, que en un móvil dejaban el texto en una
+       * columna de pocas letras). */}
+      <div className="grid grid-cols-1 items-center gap-5 px-5 py-6 text-center sm:grid-cols-3 sm:gap-4 sm:px-10 sm:py-5 sm:text-left lg:px-40">
         <div className="flex flex-col gap-1 text-xs leading-relaxed" style={{ color: "var(--ink-muted)" }}>
           <p className="font-head text-xs font-extrabold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
             MTG Deck Analyzer
@@ -81,7 +80,7 @@ export function Footer() {
           ))}
         </span>
 
-        <div className="flex items-center justify-start gap-4 sm:justify-end">
+        <div className="flex items-center justify-center gap-1 sm:justify-end">
           {SOCIAL_LINKS.map(({ label, href, Icon }) => (
             <a
               key={label}
@@ -89,7 +88,7 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={label}
-              className="flex items-center justify-center transition-opacity hover:opacity-70"
+              className="flex h-11 w-11 items-center justify-center transition-opacity hover:opacity-70"
               style={{ color: "var(--ink-muted)" }}
             >
               <Icon />

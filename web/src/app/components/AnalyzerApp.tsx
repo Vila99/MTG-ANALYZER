@@ -61,7 +61,7 @@ function RecentAnalysesModal({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex cursor-pointer items-start justify-center overflow-y-auto p-6 sm:items-center"
+      className="modal-scroll fixed inset-0 z-[60] flex cursor-pointer items-start justify-center overflow-y-auto p-3 sm:items-center sm:p-6"
       style={{ background: "rgba(0,0,0,0.75)" }}
       onClick={onClose}
     >
@@ -77,7 +77,7 @@ function RecentAnalysesModal({
           <button
             type="button"
             onClick={onClose}
-            className="font-head text-xs font-bold"
+            className="font-head -mr-2 inline-flex min-h-11 items-center whitespace-nowrap px-2 text-xs font-bold"
             style={{ color: "var(--ink-muted)" }}
           >
             Cerrar ✕
@@ -159,7 +159,7 @@ function SampleAnalysesModal({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex cursor-pointer items-start justify-center overflow-y-auto p-6 sm:items-center"
+      className="modal-scroll fixed inset-0 z-[60] flex cursor-pointer items-start justify-center overflow-y-auto p-3 sm:items-center sm:p-6"
       style={{ background: "rgba(0,0,0,0.75)" }}
       onClick={onClose}
     >
@@ -178,7 +178,7 @@ function SampleAnalysesModal({
           <button
             type="button"
             onClick={onClose}
-            className="font-head text-xs font-bold"
+            className="font-head -mr-2 inline-flex min-h-11 items-center whitespace-nowrap px-2 text-xs font-bold"
             style={{ color: "var(--ink-muted)" }}
           >
             Cerrar ✕
@@ -447,7 +447,7 @@ export function AnalyzerApp({
             onClick={handleReset}
             aria-label="Nuevo análisis"
             title="Nuevo análisis"
-            className="flex items-center justify-center rounded-sm border p-2"
+            className="flex h-11 w-11 items-center justify-center rounded-sm border"
             style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -457,7 +457,7 @@ export function AnalyzerApp({
         ) : (
           <>
             <h1 className="font-head text-sm font-extrabold uppercase tracking-wide">
-              <Link href="/" style={{ color: "var(--foreground)", textDecoration: "none" }}>
+              <Link href="/" className="inline-flex min-h-11 items-center" style={{ color: "var(--foreground)", textDecoration: "none" }}>
                 MTG Deck Analyzer
               </Link>
             </h1>
@@ -488,7 +488,9 @@ export function AnalyzerApp({
 
       {!result && !loading && !sampleLoading && (
         <>
-        <form onSubmit={handleSubmit} aria-labelledby="analyze-form-heading" className="flex flex-wrap gap-6">
+        {/* `@container`: la columna de parámetros decide su ancho según el
+         * espacio del propio formulario (ver más abajo), no del viewport. */}
+        <form onSubmit={handleSubmit} aria-labelledby="analyze-form-heading" className="@container flex flex-wrap gap-6">
           <h2 id="analyze-form-heading" className="sr-only">
             Formulario de análisis de deck
           </h2>
@@ -534,7 +536,11 @@ export function AnalyzerApp({
             </div>
           </div>
 
-          <div className="flex h-fit min-w-[280px] max-w-[360px] flex-1 flex-col gap-3">
+          {/* Columna de parámetros: a ancho completo cuando el formulario va en
+           * una sola columna (móvil), igual que los campos de arriba; solo se
+           * limita a 360px cuando cabe al lado de ellos (560 + 24 de hueco +
+           * 280 = 864px de formulario). */}
+          <div className="flex h-fit min-w-[min(280px,100%)] flex-[1_1_280px] flex-col gap-3 @min-[864px]:max-w-[360px]">
           <fieldset
             className="flex flex-col gap-4 rounded-sm border p-5"
             style={{ borderColor: "var(--border)", background: "var(--surface)" }}
@@ -563,7 +569,7 @@ export function AnalyzerApp({
                   name="budget_mode"
                   value={budgetMode}
                   onChange={(e) => setBudgetMode(e.target.value as "ajustado" | "libre")}
-                  className="h-9 rounded-sm border px-2.5"
+                  className="h-11 rounded-sm border px-2.5"
                   style={fieldStyle()}
                 >
                   <option value="libre">Libre</option>
@@ -595,7 +601,7 @@ export function AnalyzerApp({
                 name="style"
                 value={style}
                 onChange={(e) => setStyle(e.target.value as AnalyzeRequest["style"])}
-                className="h-9 rounded-sm border px-2.5"
+                className="h-11 rounded-sm border px-2.5"
                 style={fieldStyle()}
               >
                 <option value="casual">Casual</option>
@@ -614,12 +620,12 @@ export function AnalyzerApp({
                 type="text"
                 value={avoid}
                 onChange={(e) => setAvoid(e.target.value)}
-                className="h-9 rounded-sm border px-2.5"
+                className="h-11 rounded-sm border px-2.5"
                 style={fieldStyle()}
               />
             </div>
 
-            <label className="flex items-start gap-2 text-sm">
+            <label className="flex items-start gap-3 py-1 text-sm">
               <input
                 type="checkbox"
                 className="mt-0.5"
@@ -634,7 +640,7 @@ export function AnalyzerApp({
               </span>
             </label>
 
-            <label className="flex items-center gap-2 text-sm font-bold">
+            <label className="flex items-center gap-3 text-sm font-bold">
               <input id={aiId} name="ai" type="checkbox" checked={ai} onChange={(e) => setAi(e.target.checked)} />
               <span style={{ color: "var(--foreground)" }}>Pedir análisis de Claude</span>
             </label>

@@ -72,6 +72,81 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-roboto), -apple-system, "Segoe UI", system-ui, sans-serif;
+  /* Palabras o URLs largas parten línea en vez de ensanchar la página. */
+  overflow-wrap: break-word;
+}
+
+/* Tipografía: titulares cortos equilibrados y texto sin huérfanas. */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p,
+li {
+  text-wrap: pretty;
+}
+
+/* Tamaño mínimo de los controles (WCAG 2.5.8 / 2.5.5): 24px con ratón y
+ * 44px en pantallas táctiles, donde el dedo es menos preciso. Va en la capa
+ * `base` de Tailwind para que cualquier utilidad (min-h-*, etc.) pueda
+ * ajustarlo en un componente concreto. Los enlaces dentro de una frase
+ * quedan fuera, como permite la norma. */
+:root {
+  --target-size: 24px;
+}
+
+@media (pointer: coarse) {
+  :root {
+    --target-size: 44px;
+  }
+}
+
+@layer base {
+  :where(button, select, input:not([type="checkbox"], [type="radio"]), textarea) {
+    min-block-size: var(--target-size);
+  }
+
+  :where(button) {
+    min-inline-size: var(--target-size);
+  }
+
+  /* Casillas: se agranda la propia casilla y la etiqueta que la envuelve,
+   * que es la zona que se toca. */
+  :where(input[type="checkbox"]) {
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  :where(label:has(input[type="checkbox"])) {
+    min-block-size: var(--target-size);
+  }
+}
+
+/* Iconos pequeños (el botón "i"): zona táctil ampliada con un ::after
+ * invisible, sin cambiar su tamaño visual ni el de la fila donde va. */
+.hit-area {
+  position: relative;
+  min-block-size: 0;
+  min-inline-size: 0;
+}
+
+.hit-area::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  inline-size: max(100%, var(--target-size));
+  block-size: max(100%, var(--target-size));
+  translate: -50% -50%;
+}
+
+/* Modales: el scroll dentro de un modal no arrastra la página de debajo. */
+.modal-scroll {
+  overscroll-behavior: contain;
 }
 
 .font-head {
@@ -148,9 +223,23 @@ button:not(:disabled) {
   }
 }
 
+/* Nombre de carta dentro de un texto: es un <button> (tocar o Enter abre la
+ * carta en grande), pero se ve y fluye como texto subrayado. Como cualquier
+ * enlace dentro de una frase, queda fuera del tamaño mínimo de control. */
 .underline-card {
+  display: inline;
+  min-block-size: 0;
+  min-inline-size: 0;
+  padding: 0;
+  border: 0;
   border-bottom: 1px dotted var(--accent);
-  cursor: default;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  cursor: pointer;
 }
 
 .underline-card:hover {

@@ -153,17 +153,22 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-/** Subraya los nombres de carta conocidos dentro de un texto libre; al pasar
- * el cursor por encima, avisa con el elemento para que una vista previa
- * flotante se posicione justo ahí (como un tooltip, no un panel aparte). */
+/** Subraya los nombres de carta conocidos dentro de un texto libre. Cada
+ * nombre es un botón: al tocarlo (o con Enter/Espacio) abre la carta en
+ * grande con `onSelect`. Con ratón, además, al pasar el cursor por encima
+ * avisa con el elemento para que una vista previa flotante se posicione
+ * justo ahí; en táctil no hay hover, así que esa vista previa no se usa
+ * (se quedaría pegada tras el toque). */
 function HighlightedText({
   text,
   cardImages,
   onHover,
+  onSelect,
 }: {
   text: string;
   cardImages: Record<string, string>;
   onHover: HoverHandler;
+  onSelect?: (name: string) => void;
 }) {
   const names = Object.keys(cardImages).sort((a, b) => b.length - a.length);
   if (names.length === 0) {
@@ -175,14 +180,23 @@ function HighlightedText({
     <>
       {parts.map((part, i) =>
         cardImages[part] ? (
-          <span
+          <button
             key={i}
+            type="button"
             className="underline-card"
-            onMouseEnter={(e) => onHover(part, e.currentTarget)}
-            onMouseLeave={() => onHover(null, null)}
+            onPointerEnter={(e) => {
+              if (e.pointerType === "mouse") onHover(part, e.currentTarget);
+            }}
+            onPointerLeave={(e) => {
+              if (e.pointerType === "mouse") onHover(null, null);
+            }}
+            onClick={() => {
+              onHover(null, null);
+              onSelect?.(part);
+            }}
           >
             {part}
-          </span>
+          </button>
         ) : (
           <Fragment key={i}>{part}</Fragment>
         ),
@@ -273,12 +287,14 @@ function CandidateDetailModal({
   cardImages,
   onClose,
   onHover,
+  onSelectCard,
 }: {
   candidata: CandidataSugerida;
   imageUrl: string | undefined;
   cardImages: Record<string, string>;
   onClose: () => void;
   onHover: HoverHandler;
+  onSelectCard: (name: string) => void;
 }) {
   const [visible, setVisible] = useState(false);
 
@@ -296,12 +312,12 @@ function CandidateDetailModal({
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex cursor-pointer items-center justify-center p-6"
+      className="modal-scroll fixed inset-0 z-[70] flex cursor-pointer items-center justify-center p-3 sm:p-6"
       style={{ background: "rgba(0,0,0,0.75)", opacity: visible ? 1 : 0, transition: "opacity 150ms ease" }}
       onClick={onClose}
     >
       <div
-        className="flex max-h-full w-full max-w-sm flex-col items-center gap-4 overflow-y-auto"
+        className="modal-scroll flex max-h-full w-full max-w-sm flex-col items-center gap-4 overflow-y-auto"
         style={{ transform: visible ? "scale(1)" : "scale(0.92)", transition: "transform 150ms ease" }}
       >
         {imageUrl && (
@@ -333,7 +349,7 @@ function CandidateDetailModal({
             )}
           </div>
           <p className="text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
-            <HighlightedText text={candidata.motivo} cardImages={cardImages} onHover={onHover} />
+            <HighlightedText text={candidata.motivo} cardImages={cardImages} onHover={onHover} onSelect={onSelectCard} />
           </p>
         </div>
       </div>
@@ -363,7 +379,7 @@ function RoleCardGallery({
         <button
           type="button"
           onClick={onClose}
-          className="font-head text-xs font-bold"
+          className="font-head -mr-2 inline-flex min-h-11 items-center whitespace-nowrap px-2 text-xs font-bold"
           style={{ color: "var(--ink-muted)" }}
         >
           Cerrar ✕
@@ -429,7 +445,7 @@ function CardZoomModal({
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex cursor-pointer items-center justify-center p-6"
+      className="modal-scroll fixed inset-0 z-[80] flex cursor-pointer items-center justify-center p-3 sm:p-6"
       style={{ background: "rgba(0,0,0,0.75)", opacity: visible ? 1 : 0, transition: "opacity 150ms ease" }}
       onClick={onClose}
     >
@@ -510,7 +526,7 @@ function ComboDetailModal({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex cursor-pointer items-center justify-center p-6"
+      className="modal-scroll fixed inset-0 z-[60] flex cursor-pointer items-center justify-center p-3 sm:p-6"
       style={{ background: "rgba(0,0,0,0.75)" }}
       onClick={onClose}
     >
@@ -523,7 +539,7 @@ function ComboDetailModal({
           <h2 className="font-head text-sm font-extrabold uppercase tracking-wide" style={{ color: "var(--accent)" }}>
             Combo detectado
           </h2>
-          <button type="button" onClick={onClose} className="font-head text-xs font-bold" style={{ color: "var(--ink-muted)" }}>
+          <button type="button" onClick={onClose} className="font-head -mr-2 inline-flex min-h-11 items-center whitespace-nowrap px-2 text-xs font-bold" style={{ color: "var(--ink-muted)" }}>
             Cerrar ✕
           </button>
         </div>
@@ -603,12 +619,12 @@ function SimulationModal({ simulation, onClose }: { simulation: SimulationResult
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex cursor-pointer items-center justify-center p-6"
+      className="modal-scroll fixed inset-0 z-[60] flex cursor-pointer items-center justify-center p-3 sm:p-6"
       style={{ background: "rgba(0,0,0,0.75)" }}
       onClick={onClose}
     >
       <div
-        className="w-full max-w-6xl overflow-y-auto overflow-x-hidden rounded-sm border"
+        className="modal-scroll w-full max-w-6xl overflow-y-auto overflow-x-hidden rounded-sm border"
         style={{ borderColor: "var(--border)", background: "var(--background)", maxHeight: "90vh" }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -616,7 +632,7 @@ function SimulationModal({ simulation, onClose }: { simulation: SimulationResult
           <h2 className="font-head text-sm font-extrabold uppercase tracking-wide" style={{ color: "var(--accent)" }}>
             Estadísticas de simulación
           </h2>
-          <button type="button" onClick={onClose} className="font-head text-xs font-bold" style={{ color: "var(--ink-muted)" }}>
+          <button type="button" onClick={onClose} className="font-head -mr-2 inline-flex min-h-11 items-center whitespace-nowrap px-2 text-xs font-bold" style={{ color: "var(--ink-muted)" }}>
             Cerrar ✕
           </button>
         </div>
@@ -774,6 +790,7 @@ export function ResultsView({
           cardImages={cardImages}
           onClose={() => setOpenCandidate(null)}
           onHover={handleHover}
+          onSelectCard={setZoomedCard}
         />
       )}
       {showSimulationModal && simulation && (
@@ -806,7 +823,7 @@ export function ResultsView({
 
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
           {result.comandantes.length > 0 && (
-            <div className="flex flex-shrink-0 flex-col gap-2 lg:w-[220px]">
+            <div className="mx-auto flex w-full max-w-[260px] flex-shrink-0 flex-col gap-2 lg:mx-0 lg:w-[220px]">
               <div className="flex gap-2">
                 {result.comandantes.map((name) => (
                   <div
@@ -1084,7 +1101,7 @@ export function ResultsView({
             <div>
               <SectionLabel>Estrategia</SectionLabel>
               <p className="text-[15px] leading-7" style={{ color: "var(--foreground)" }}>
-                <HighlightedText text={analisis.estrategia_detectada} cardImages={cardImages} onHover={handleHover} />
+                <HighlightedText text={analisis.estrategia_detectada} cardImages={cardImages} onHover={handleHover} onSelect={setZoomedCard} />
               </p>
             </div>
 
@@ -1094,7 +1111,7 @@ export function ResultsView({
                 <ul className="list-inside list-disc space-y-1.5 text-[15px] leading-7" style={{ color: "var(--foreground)" }}>
                   {analisis.puntos_fuertes.map((punto, i) => (
                     <li key={i}>
-                      <HighlightedText text={punto} cardImages={cardImages} onHover={handleHover} />
+                      <HighlightedText text={punto} cardImages={cardImages} onHover={handleHover} onSelect={setZoomedCard} />
                     </li>
                   ))}
                 </ul>
@@ -1122,14 +1139,14 @@ export function ResultsView({
                           </strong>
                         </div>
                         <p className="text-[15px] leading-7" style={{ color: "var(--foreground)" }}>
-                          <HighlightedText text={problema.explicacion} cardImages={cardImages} onHover={handleHover} />
+                          <HighlightedText text={problema.explicacion} cardImages={cardImages} onHover={handleHover} onSelect={setZoomedCard} />
                         </p>
                         {candidatas.length > 0 && (
                           <div className="mt-2">
                             <button
                               type="button"
                               onClick={() => setExpandedProblema(expanded ? null : i)}
-                              className="font-head text-[11px] font-bold uppercase underline-offset-2 hover:underline"
+                              className="font-head inline-flex min-h-11 items-center text-[11px] font-bold uppercase underline-offset-2 hover:underline"
                               style={{ color: "var(--accent)" }}
                             >
                               {expanded ? "Ocultar candidatas" : `Ver candidatas (${candidatas.length})`}

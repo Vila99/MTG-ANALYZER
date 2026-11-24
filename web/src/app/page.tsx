@@ -171,12 +171,12 @@ export default function Landing() {
         />
 
         <header
-          className="relative mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 border-b px-6 py-5"
+          className="relative mx-auto flex max-w-[1200px] items-center justify-between gap-4 border-b px-6 py-4 sm:py-5"
           style={{ borderColor: "var(--border)" }}
         >
-          <div className="flex items-center gap-3.5">
+          <div className="flex min-w-0 items-center gap-3.5">
             <span className="font-head text-sm font-extrabold uppercase tracking-[0.08em]">MTG Deck Analyzer</span>
-            <span className="flex items-center gap-1.5 text-base" aria-hidden="true">
+            <span className="hidden items-center gap-1.5 text-base sm:flex" aria-hidden="true">
               {["W", "U", "B", "R", "G"].map((color) => (
                 <ManaIcon key={color} color={color} />
               ))}
@@ -184,21 +184,30 @@ export default function Landing() {
           </div>
           <nav
             aria-label="Principal"
-            className="font-head flex flex-wrap items-center gap-6 text-xs font-bold uppercase tracking-[0.06em]"
+            className="font-head flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-bold uppercase tracking-[0.06em]"
           >
-            <a href="#como-funciona" className="hover:underline" style={{ color: "var(--ink-secondary)" }}>
+            <a
+              href="#como-funciona"
+              className="hidden min-h-11 items-center hover:underline sm:inline-flex"
+              style={{ color: "var(--ink-secondary)" }}
+            >
               Cómo funciona
             </a>
-            <a href={REPO_HREF} className="hover:underline" style={{ color: "var(--ink-secondary)" }}>
+            <a
+              href={REPO_HREF}
+              className="hidden min-h-11 items-center hover:underline sm:inline-flex"
+              style={{ color: "var(--ink-secondary)" }}
+            >
               GitHub
             </a>
-            <Link href={ANALYZE_HREF} className="fx-btn fx-primary h-10 px-4 text-xs">
-              Analizar mi deck
+            <Link href={ANALYZE_HREF} className="fx-btn fx-primary h-11 px-4 text-xs">
+              <span className="sm:hidden">Analizar</span>
+              <span className="hidden sm:inline">Analizar mi deck</span>
             </Link>
           </nav>
         </header>
 
-        <div className="relative mx-auto flex max-w-[1200px] flex-wrap items-center gap-16 px-6 pt-20 pb-24 sm:pt-[88px] sm:pb-[104px]">
+        <div className="relative mx-auto flex max-w-[1200px] flex-wrap items-center gap-12 px-6 pt-12 pb-16 sm:gap-16 sm:pt-[88px] sm:pb-[104px]">
           <div className="flex min-w-0 flex-[1_1_460px] flex-col gap-7">
             <Eyebrow>Commander · EDH · Analizado con Claude</Eyebrow>
             <h1 className="font-head text-[clamp(2.5rem,5vw,4.25rem)] leading-[1.02] font-extrabold tracking-[-0.02em] text-white">
@@ -209,7 +218,7 @@ export default function Landing() {
               Después, Claude detecta la estrategia, señala los problemas y propone cartas reales para
               arreglarlos, todas validadas contra Scryfall.
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Link href={ANALYZE_HREF} className="fx-btn fx-primary h-[52px] px-[26px] text-sm">
                 Analizar mi deck
               </Link>
@@ -225,7 +234,7 @@ export default function Landing() {
           {/* Vista previa del resultado (datos del ejemplo real) */}
           <div className="flex min-w-0 flex-[1_1_440px] justify-center">
             <div
-              className="w-full max-w-[520px] -rotate-[1.2deg] overflow-hidden rounded"
+              className="w-full max-w-[520px] overflow-hidden rounded sm:-rotate-[1.2deg]"
               style={{
                 background: "#16181b",
                 boxShadow:
@@ -322,7 +331,7 @@ export default function Landing() {
 
       {/* ============ PRINCIPIO ============ */}
       <section className="border-t" style={{ borderColor: "var(--border)" }}>
-        <div className="mx-auto flex max-w-[1200px] flex-col gap-12 px-6 py-24">
+        <div className="mx-auto flex max-w-[1200px] flex-col gap-12 px-6 py-16 sm:py-24">
           <div className="flex max-w-[44rem] flex-col gap-4">
             <Eyebrow>El principio</Eyebrow>
             <SectionTitle>El código calcula. Claude interpreta.</SectionTitle>
@@ -374,7 +383,7 @@ export default function Landing() {
 
       {/* ============ CÓMO FUNCIONA ============ */}
       <section id="como-funciona" className="scroll-mt-4 border-t" style={{ borderColor: "var(--border)" }}>
-        <div className="mx-auto flex max-w-[1200px] flex-col gap-12 px-6 py-24">
+        <div className="mx-auto flex max-w-[1200px] flex-col gap-12 px-6 py-16 sm:py-24">
           <div className="flex flex-wrap items-end justify-between gap-6">
             <div className="flex max-w-[40rem] flex-col gap-4">
               <Eyebrow>Cómo funciona</Eyebrow>
@@ -410,7 +419,7 @@ export default function Landing() {
 
       {/* ============ FUNCIONALIDADES ============ */}
       <section className="border-t" style={{ borderColor: "var(--border)", background: "var(--surface-muted)" }}>
-        <div className="mx-auto flex max-w-[1200px] flex-col gap-12 px-6 py-24">
+        <div className="mx-auto flex max-w-[1200px] flex-col gap-12 px-6 py-16 sm:py-24">
           <div className="flex max-w-[40rem] flex-col gap-4">
             <Eyebrow>Qué te da</Eyebrow>
             <SectionTitle>Todo lo que miras antes de una partida, en una pantalla.</SectionTitle>
@@ -435,7 +444,7 @@ export default function Landing() {
 
       {/* ============ CTA FINAL ============ */}
       <section className="border-t" style={{ borderColor: "var(--border)" }}>
-        <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-10 px-6 py-[104px]">
+        <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-10 px-6 py-16 sm:py-[104px]">
           <div className="flex min-w-0 flex-[1_1_520px] flex-col gap-[18px]">
             <h2 className="font-head text-[clamp(2rem,4vw,3.25rem)] leading-[1.05] font-extrabold tracking-[-0.015em] text-white">
               ¿Qué le falta a tu deck?
@@ -445,7 +454,7 @@ export default function Landing() {
               podrían arreglarlos.
             </p>
           </div>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
             <Link href={ANALYZE_HREF} className="fx-btn fx-primary h-14 px-[30px] text-[15px]">
               Analizar mi deck
             </Link>
