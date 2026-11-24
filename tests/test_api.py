@@ -24,7 +24,8 @@ def make_db(path: Path) -> None:
             color_identity TEXT,
             produced_mana TEXT,
             legalities TEXT,
-            image_uri TEXT
+            image_uri TEXT,
+            image_uri_back TEXT
         );
         """
     )
@@ -74,7 +75,9 @@ def make_db(path: Path) -> None:
     ]
     for r in rows:
         conn.execute(
-            "INSERT INTO cards VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+            "INSERT INTO cards (oracle_id, name, name_normalized, mana_cost, cmc, type_line, "
+            "oracle_text, colors, color_identity, produced_mana, legalities, image_uri) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
             (
                 r[0],
                 r[1],
@@ -90,6 +93,25 @@ def make_db(path: Path) -> None:
                 r[11],
             ),
         )
+    # Carta de doble cara (transform): tiene imagen del reverso para girarla.
+    conn.execute(
+        "INSERT INTO cards VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        (
+            "4",
+            "Delver of Secrets // Insectile Aberration",
+            "delver of secrets // insectile aberration",
+            "{U}",
+            1.0,
+            "Creature — Human Wizard // Creature — Human Insect",
+            "front // back",
+            json.dumps(["U"]),
+            json.dumps(["U"]),
+            json.dumps([]),
+            json.dumps({"commander": "legal"}),
+            "https://cards.scryfall.io/normal/front/delver.jpg",
+            "https://cards.scryfall.io/normal/back/delver.jpg",
+        ),
+    )
     conn.commit()
     conn.close()
 
@@ -503,3 +525,22 @@ def test_startup_download_can_be_disabled(missing_db, monkeypatch):
     )
     assert api_module.start_cards_db_download_if_missing() is False
     assert api_module._cards_db_status() == "missing"
+
+
+def test_analyze_returns_back_images_only_for_double_faced_cards(client: TestClient):
+    response = client.post(
+        "/analyze",
+        json={
+            "deck_text": "Commander:\n1 Atraxa, Praetors' Voice\n\nDeck:\n1 Sol Ring\n"
+            "1 Delver of Secrets // Insectile Aberration\n"
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["card_back_images"] == {
+        "Delver of Secrets // Insectile Aberration": "https://cards.scryfall.io/normal/back/delver.jpg"
+    }
+    assert body["card_images"]["Delver of Secrets // Insectile Aberration"] == (
+        "https://cards.scryfall.io/normal/front/delver.jpg"
+    )

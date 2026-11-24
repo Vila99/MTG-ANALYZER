@@ -160,10 +160,13 @@ def _resolve_commanders_and_cards(
     return cards_module.resolve_deck(conn, parsed)
 
 
-def _collect_card_images(conn, commanders, deck_cards, analysis: dict | None) -> dict[str, str]:
+def _collect_card_images(
+    conn, commanders, deck_cards, analysis: dict | None
+) -> tuple[dict[str, str], dict[str, str]]:
     """Nombres de carta que pueden salir en la respuesta (deck + sugerencias
     de Claude) -> URL de imagen de Scryfall, para la vista previa al pasar
-    el cursor en la web."""
+    el cursor en la web. Devuelve también las imágenes del reverso de las
+    cartas de doble cara, para poder girarlas en el zoom."""
     names: set[str] = {c.name for c in commanders} | {c.name for c in deck_cards}
     if analysis:
         for problema in analysis.get("problemas", []):
@@ -171,11 +174,14 @@ def _collect_card_images(conn, commanders, deck_cards, analysis: dict | None) ->
                 names.add(candidata["carta"])
 
     images: dict[str, str] = {}
+    back_images: dict[str, str] = {}
     for name in names:
         card = cards_module.get_card_by_name(conn, name)
         if card is not None and card.image_uri:
             images[name] = card.image_uri
-    return images
+            if card.image_uri_back:
+                back_images[name] = card.image_uri_back
+    return images, back_images
 
 
 @app.post("/analyze")
@@ -223,7 +229,9 @@ def analyze(request: AnalyzeRequest) -> dict:
             )
             combos_detectados = analysis_run.payload.get("bracket_suelo", {}).get("combos", [])
             validated_analysis = {**validated_analysis, "combos_detectados": combos_detectados}
-        card_images = _collect_card_images(conn, commanders, deck_cards, validated_analysis)
+        card_images, card_back_images = _collect_card_images(
+            conn, commanders, deck_cards, validated_analysis
+        )
         deck_cost = prices_module.compute_deck_cost(conn, deck_cards)
     finally:
         conn.close()
@@ -236,6 +244,7 @@ def analyze(request: AnalyzeRequest) -> dict:
     if validated_analysis is not None:
         summary["analisis"] = validated_analysis
     summary["card_images"] = card_images
+    summary["card_back_images"] = card_back_images
     return summary
 
 

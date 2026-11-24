@@ -198,3 +198,19 @@ def test_resolve_deck_reports_missing_cards():
     assert commanders == []
     assert [c.name for c in deck_cards] == ["Sol Ring"]
     assert missing == ["Phantom Commander", "Phantom Card"]
+
+
+def test_card_without_back_image_column_defaults_to_empty_string():
+    conn = make_test_db_with_images()  # esquema anterior a image_uri_back
+    card = get_card_by_name(conn, "Sol Ring")
+    assert card is not None
+    assert card.image_uri_back == ""
+
+
+def test_card_with_back_image_column_reads_it():
+    conn = make_test_db_with_images()
+    conn.execute("ALTER TABLE cards ADD COLUMN image_uri_back TEXT")
+    conn.execute("UPDATE cards SET image_uri_back = 'https://cards.scryfall.io/normal/back/x.jpg'")
+    card = get_card_by_name(conn, "Sol Ring")
+    assert card is not None
+    assert card.image_uri_back == "https://cards.scryfall.io/normal/back/x.jpg"

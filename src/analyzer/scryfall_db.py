@@ -43,7 +43,8 @@ CREATE TABLE IF NOT EXISTS cards (
     color_identity TEXT,
     produced_mana TEXT,
     legalities TEXT,
-    image_uri TEXT
+    image_uri TEXT,
+    image_uri_back TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_cards_name_normalized ON cards(name_normalized);
 """
@@ -87,6 +88,15 @@ def _card_row(card: dict) -> tuple | None:
     )
     image_uris = card.get("image_uris") or (faces[0].get("image_uris", {}) if faces else {})
     image_uri = image_uris.get("normal") or image_uris.get("large") or ""
+    # Reverso solo para las cartas que tienen de verdad dos imágenes
+    # (transform, modal_dfc...): esas no traen 'image_uris' a nivel de carta,
+    # sino una por cara. Las partidas/aventuras comparten una sola imagen.
+    back_uris = (
+        faces[1].get("image_uris", {})
+        if faces and len(faces) > 1 and not card.get("image_uris")
+        else {}
+    )
+    image_uri_back = back_uris.get("normal") or back_uris.get("large") or ""
 
     return (
         card["oracle_id"],
@@ -101,6 +111,7 @@ def _card_row(card: dict) -> tuple | None:
         json.dumps(card.get("produced_mana") or []),
         json.dumps(card.get("legalities", {})),
         image_uri,
+        image_uri_back,
     )
 
 
@@ -109,6 +120,8 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
     columns = {row[1] for row in conn.execute("PRAGMA table_info(cards)")}
     if "image_uri" not in columns:
         conn.execute("ALTER TABLE cards ADD COLUMN image_uri TEXT")
+    if "image_uri_back" not in columns:
+        conn.execute("ALTER TABLE cards ADD COLUMN image_uri_back TEXT")
 
 
 def load_into_sqlite(cards_data: list[dict], db_path: Path = DB_PATH) -> int:
@@ -122,8 +135,8 @@ def load_into_sqlite(cards_data: list[dict], db_path: Path = DB_PATH) -> int:
             INSERT INTO cards (
                 oracle_id, name, name_normalized, mana_cost, cmc,
                 type_line, oracle_text, colors, color_identity,
-                produced_mana, legalities, image_uri
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                produced_mana, legalities, image_uri, image_uri_back
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(oracle_id) DO UPDATE SET
                 name=excluded.name,
                 name_normalized=excluded.name_normalized,
@@ -135,7 +148,8 @@ def load_into_sqlite(cards_data: list[dict], db_path: Path = DB_PATH) -> int:
                 color_identity=excluded.color_identity,
                 produced_mana=excluded.produced_mana,
                 legalities=excluded.legalities,
-                image_uri=excluded.image_uri
+                image_uri=excluded.image_uri,
+                image_uri_back=excluded.image_uri_back
             """,
             rows,
         )

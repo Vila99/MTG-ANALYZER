@@ -24,6 +24,9 @@ class Card:
     produced_mana: list[str]
     legalities: dict[str, str]
     image_uri: str = ""
+    # Imagen de la cara trasera, solo en cartas de doble cara con dos
+    # imágenes (transform, modal_dfc...); vacía en el resto.
+    image_uri_back: str = ""
 
     @property
     def is_land(self) -> bool:
@@ -58,6 +61,7 @@ def row_to_card(row: sqlite3.Row) -> Card:
         # Compatibilidad con bases de datos generadas antes de añadir esta
         # columna: sin ella, no hay imagen hasta recargar con load_scryfall.py.
         image_uri=(row["image_uri"] or "") if "image_uri" in keys else "",
+        image_uri_back=(row["image_uri_back"] or "") if "image_uri_back" in keys else "",
     )
 
 

@@ -217,7 +217,7 @@ function FloatingCardPreview({
 
   return (
     <div
-      className="pointer-events-none fixed z-50 overflow-hidden rounded-sm border"
+      className="mtg-card pointer-events-none fixed z-50 overflow-hidden border"
       style={{ left, top, width, borderColor: "var(--border)", boxShadow: "0 14px 32px rgba(0,0,0,0.4)" }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- imagen externa de Scryfall */}
@@ -249,7 +249,7 @@ function CandidateThumbnail({
       className="flex flex-col gap-1 text-left transition-transform enabled:hover:scale-[1.04] disabled:cursor-default"
     >
       <div
-        className="overflow-hidden rounded-sm border"
+        className="mtg-card overflow-hidden border"
         style={{ aspectRatio: "5/7", borderColor: "var(--border)", background: "var(--surface-muted)" }}
       >
         {imageUrl ? (
@@ -310,7 +310,7 @@ function CandidateDetailModal({
             src={imageUrl}
             alt={candidata.carta}
             onClick={(e) => e.stopPropagation()}
-            className="cursor-default rounded-md"
+            className="mtg-card cursor-default"
             style={{ width: 300, aspectRatio: "5/7", objectFit: "cover", boxShadow: "0 24px 60px rgba(0,0,0,0.6)" }}
           />
         )}
@@ -379,7 +379,7 @@ function RoleCardGallery({
             className="flex flex-col gap-1 text-left transition-transform hover:scale-[1.04] disabled:cursor-default disabled:hover:scale-100"
           >
             <div
-              className="overflow-hidden rounded-sm border"
+              className="mtg-card overflow-hidden border"
               style={{ aspectRatio: "5/7", borderColor: "var(--border)", background: "var(--surface-muted)" }}
             >
               {cardImages[name] ? (
@@ -398,17 +398,22 @@ function RoleCardGallery({
 }
 
 /** Vista ampliada de una carta al hacer clic en su miniatura, con una
- * pequeña animación de entrada en vez de aparecer de golpe. */
+ * pequeña animación de entrada en vez de aparecer de golpe. Si la carta es
+ * de doble cara (`backImageUrl`), un botón "Girar" la voltea en 3D. */
 function CardZoomModal({
   name,
   imageUrl,
+  backImageUrl,
   onClose,
 }: {
   name: string;
   imageUrl: string;
+  backImageUrl?: string;
   onClose: () => void;
 }) {
   const [visible, setVisible] = useState(false);
+  const [flipped, setFlipped] = useState(false);
+  const [frontName, backName] = name.includes(" // ") ? name.split(" // ") : [name, name];
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => setVisible(true));
@@ -428,21 +433,55 @@ function CardZoomModal({
       style={{ background: "rgba(0,0,0,0.75)", opacity: visible ? 1 : 0, transition: "opacity 150ms ease" }}
       onClick={onClose}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element -- imagen externa de Scryfall */}
-      <img
-        src={imageUrl}
-        alt={name}
-        onClick={(e) => e.stopPropagation()}
-        className="max-h-full rounded-md"
-        style={{
-          width: 360,
-          aspectRatio: "5/7",
-          objectFit: "cover",
-          boxShadow: "0 24px 60px rgba(0,0,0,0.6)",
-          transform: visible ? "scale(1)" : "scale(0.85)",
-          transition: "transform 150ms ease",
-        }}
-      />
+      <div
+        className="flex max-h-full flex-col items-center gap-4"
+        style={{ transform: visible ? "scale(1)" : "scale(0.85)", transition: "transform 150ms ease" }}
+      >
+        <div
+          className="card-flip cursor-default"
+          style={{ width: "min(360px, 100%)", aspectRatio: "5/7", maxHeight: "calc(100vh - 140px)" }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="card-flip-inner h-full w-full" data-flipped={flipped}>
+            {/* eslint-disable-next-line @next/next/no-img-element -- imagen externa de Scryfall */}
+            <img
+              src={imageUrl}
+              alt={backImageUrl ? frontName : name}
+              className="card-flip-face mtg-card h-full w-full"
+              style={{ objectFit: "cover", boxShadow: "0 24px 60px rgba(0,0,0,0.6)" }}
+            />
+            {backImageUrl && (
+              // eslint-disable-next-line @next/next/no-img-element -- imagen externa de Scryfall
+              <img
+                src={backImageUrl}
+                alt={backName}
+                className="card-flip-face card-flip-back mtg-card h-full w-full"
+                style={{ objectFit: "cover", boxShadow: "0 24px 60px rgba(0,0,0,0.6)" }}
+              />
+            )}
+          </div>
+        </div>
+        {backImageUrl && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setFlipped((current) => !current);
+            }}
+            aria-pressed={flipped}
+            className="font-head flex h-11 items-center gap-2 rounded-sm border px-4 text-xs font-extrabold uppercase tracking-wide"
+            style={{ borderColor: "rgba(255,255,255,0.4)", background: "rgba(0,0,0,0.55)", color: "#ffffff" }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M21 12a9 9 0 0 1-15.5 6.2" />
+              <path d="M3 12a9 9 0 0 1 15.5-6.2" />
+              <path d="M18 2v4h-4" />
+              <path d="M6 22v-4h4" />
+            </svg>
+            {flipped ? `Ver ${frontName}` : `Girar a ${backName}`}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -499,7 +538,7 @@ function ComboDetailModal({
               className="flex w-[110px] flex-col gap-1 text-left transition-transform enabled:hover:scale-[1.04] disabled:cursor-default"
             >
               <div
-                className="overflow-hidden rounded-sm border"
+                className="mtg-card overflow-hidden border"
                 style={{ aspectRatio: "5/7", borderColor: "var(--border)", background: "var(--surface-muted)" }}
               >
                 {cardImages[name] ? (
@@ -713,7 +752,12 @@ export function ResultsView({
       <ColorThemeBackground colors={result.identidad_color} />
       <FloatingCardPreview target={hoverTarget} cardImages={cardImages} />
       {zoomedCard && cardImages[zoomedCard] && (
-        <CardZoomModal name={zoomedCard} imageUrl={cardImages[zoomedCard]} onClose={() => setZoomedCard(null)} />
+        <CardZoomModal
+          name={zoomedCard}
+          imageUrl={cardImages[zoomedCard]}
+          backImageUrl={result.card_back_images?.[zoomedCard]}
+          onClose={() => setZoomedCard(null)}
+        />
       )}
       {openCombo !== null && analisis?.combos_detectados?.[openCombo] && (
         <ComboDetailModal
@@ -767,7 +811,7 @@ export function ResultsView({
                 {result.comandantes.map((name) => (
                   <div
                     key={name}
-                    className="w-full overflow-hidden rounded-xl border"
+                    className="mtg-card w-full overflow-hidden border"
                     style={{ borderColor: "var(--border)" }}
                   >
                     {cardImages[name] ? (

@@ -64,6 +64,9 @@ export interface AnalyzeResponse {
   coste_aproximado: { total_eur: number; cartas_sin_precio: string[] };
   analisis?: Analisis;
   card_images: Record<string, string>;
+  /** Reverso de las cartas de doble cara (para girarlas en el zoom).
+   * Ausente en análisis guardados antes de añadirlo. */
+  card_back_images?: Record<string, string>;
   cartas_por_rol: Record<string, string[]>;
 }
 
