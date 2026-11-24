@@ -102,11 +102,16 @@ def test_run_analysis_builds_payload_calls_claude_and_validates():
         "estrategia_detectada": "control",
         "arquetipo": "artifacts",
         "puntos_fuertes": [],
-        "problemas": [],
-        "cortes_sugeridos": [{"carta": "Sol Ring", "motivo": "innecesario"}],
-        "anadidos_sugeridos": [
-            {"carta": "Arcane Signet", "rol": "ramp", "reemplaza_a": None, "motivo": "ramp eficiente"},
-            {"carta": "Not A Real Card", "rol": "ramp", "reemplaza_a": None, "motivo": "no existe"},
+        "problemas": [
+            {
+                "categoria": "Ramp",
+                "severidad": "media",
+                "explicacion": "poco ramp",
+                "candidatas_sugeridas": [
+                    {"carta": "Arcane Signet", "rol": "ramp", "motivo": "ramp eficiente"},
+                    {"carta": "Not A Real Card", "rol": "ramp", "motivo": "no existe"},
+                ],
+            }
         ],
     }
     client = MagicMock()
@@ -118,7 +123,7 @@ def test_run_analysis_builds_payload_calls_claude_and_validates():
         commanders=[commander],
         deck_cards=[sol_ring],
         card_roles={"Sol Ring": ["ramp"]},
-        params={"budget": 3},
+        params={"budget_mode": "ajustado"},
     )
 
     assert run.payload["comandantes"][0]["nombre"] == "Commander"
@@ -126,10 +131,9 @@ def test_run_analysis_builds_payload_calls_claude_and_validates():
     assert run.payload["bracket_suelo"]["floor"] == 1  # Sol Ring no dispara ninguna señal dura
     assert run.raw_analysis == raw_analysis
     # "Not A Real Card" no existe en la BD de prueba: se descarta en la validación.
-    assert run.validated_analysis["anadidos_sugeridos"] == [
-        {"carta": "Arcane Signet", "rol": "ramp", "reemplaza_a": None, "motivo": "ramp eficiente"}
+    assert run.validated_analysis["problemas"][0]["candidatas_sugeridas"] == [
+        {"carta": "Arcane Signet", "rol": "ramp", "motivo": "ramp eficiente"}
     ]
-    assert run.validated_analysis["cortes_sugeridos"] == raw_analysis["cortes_sugeridos"]
 
 
 def _fake_keywords_tool_use_message(keywords: list[str]):
@@ -167,8 +171,6 @@ def test_run_analysis_builds_candidate_pool_from_commander_keywords_when_not_giv
         "arquetipo": "artifacts",
         "puntos_fuertes": [],
         "problemas": [],
-        "cortes_sugeridos": [],
-        "anadidos_sugeridos": [],
     }
 
     def fake_create(*, tools, **kwargs):
@@ -201,8 +203,6 @@ def test_run_analysis_does_not_rebuild_pool_when_candidate_pool_given_explicitly
         "arquetipo": "artifacts",
         "puntos_fuertes": [],
         "problemas": [],
-        "cortes_sugeridos": [],
-        "anadidos_sugeridos": [],
     }
     client = MagicMock()
     client.messages.create.return_value = _fake_analysis_tool_use_message(raw_analysis)

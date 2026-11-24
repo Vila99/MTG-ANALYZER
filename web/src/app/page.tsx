@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { InfoTooltip } from "./components/InfoTooltip";
 import { ManaIcon } from "./components/ManaIcon";
 import { ResultsView } from "./components/ResultsView";
 import {
@@ -10,7 +11,7 @@ import {
   saveRecentAnalysis,
   type RecentEntry,
 } from "./lib/recentAnalyses";
-import { AnalyzeRequest, AnalyzeResponse } from "./types";
+import { AnalyzeRequest, AnalyzeResponse, SimulateRequest, SimulationResult } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -28,32 +29,6 @@ function fieldStyle() {
   } as const;
 }
 
-function InfoTooltip({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="group relative inline-flex">
-      <button type="button" aria-label="Más información" className="flex items-center" style={{ color: "var(--ink-muted)" }}>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-          <rect x="11" y="10.5" width="2" height="7" rx="0.5" fill="currentColor" />
-          <circle cx="12" cy="7.2" r="1.3" fill="currentColor" />
-        </svg>
-      </button>
-      <span
-        role="tooltip"
-        className="pointer-events-none invisible absolute bottom-full left-1/2 z-50 mb-2 w-64 -translate-x-1/2 rounded-sm border p-3 text-xs leading-relaxed opacity-0 transition-opacity group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100"
-        style={{
-          borderColor: "var(--border)",
-          background: "var(--surface)",
-          color: "var(--foreground)",
-          boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
-        }}
-      >
-        {children}
-      </span>
-    </span>
-  );
-}
-
 function RecentAnalysesModal({
   recent,
   onSelect,
@@ -61,7 +36,7 @@ function RecentAnalysesModal({
   onClose,
 }: {
   recent: RecentEntry[];
-  onSelect: (result: AnalyzeResponse) => void;
+  onSelect: (entry: RecentEntry) => void;
   onRemove: (id: string) => void;
   onClose: () => void;
 }) {
@@ -109,7 +84,7 @@ function RecentAnalysesModal({
                 <button
                   type="button"
                   onClick={() => {
-                    onSelect(entry.result);
+                    onSelect(entry);
                     onClose();
                   }}
                   className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-3 text-left"
@@ -140,20 +115,16 @@ function RecentAnalysesModal({
 }
 
 export default function Home() {
-  const commanderId = useId();
   const moxfieldUrlId = useId();
-  const deckTextId = useId();
   const descriptionId = useId();
   const budgetId = useId();
   const styleId = useId();
   const avoidId = useId();
   const aiId = useId();
 
-  const [commander, setCommander] = useState("");
   const [moxfieldUrl, setMoxfieldUrl] = useState("");
-  const [deckText, setDeckText] = useState("");
   const [description, setDescription] = useState("");
-  const [budget, setBudget] = useState("");
+  const [budgetMode, setBudgetMode] = useState<"ajustado" | "libre">("libre");
   const [style, setStyle] = useState<AnalyzeRequest["style"]>("casual");
   const [allowCombos, setAllowCombos] = useState(false);
   const [avoid, setAvoid] = useState("");
@@ -165,6 +136,9 @@ export default function Home() {
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [recent, setRecent] = useState<RecentEntry[]>([]);
   const [showRecentModal, setShowRecentModal] = useState(false);
+  const [simulation, setSimulation] = useState<SimulationResult | null>(null);
+  const [simulationLoading, setSimulationLoading] = useState(false);
+  const [simulationError, setSimulationError] = useState<string | null>(null);
 
   const stepIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -197,11 +171,9 @@ export default function Home() {
     setError(null);
 
     const body: AnalyzeRequest = {
-      deck_text: deckText || undefined,
       moxfield_url: moxfieldUrl.trim() || undefined,
-      commander: commander.trim() || undefined,
       description: description.trim() || undefined,
-      budget: budget ? Number(budget) : undefined,
+      budget_mode: budgetMode,
       style,
       allow_combos: allowCombos,
       avoid: avoid
@@ -225,7 +197,9 @@ export default function Home() {
 
       const data: AnalyzeResponse = await response.json();
       setResult(data);
-      setRecent(saveRecentAnalysis(data));
+      setRecent(saveRecentAnalysis(data, { moxfieldUrl: moxfieldUrl.trim() }));
+      setSimulation(null);
+      setSimulationError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error desconocido al analizar el deck.");
       setResult(null);
@@ -234,9 +208,41 @@ export default function Home() {
     }
   }
 
+  async function handleRunSimulation() {
+    setSimulationLoading(true);
+    setSimulationError(null);
+
+    const body: SimulateRequest = {
+      moxfield_url: moxfieldUrl.trim() || undefined,
+      n_sims: 10000,
+    };
+
+    try {
+      const response = await fetch(`${API_URL}/simulate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.detail ?? `Error ${response.status} al simular el deck.`);
+      }
+
+      const data: SimulationResult = await response.json();
+      setSimulation(data);
+    } catch (err) {
+      setSimulationError(err instanceof Error ? err.message : "Error desconocido al simular el deck.");
+    } finally {
+      setSimulationLoading(false);
+    }
+  }
+
   function handleReset() {
     setResult(null);
     setError(null);
+    setSimulation(null);
+    setSimulationError(null);
   }
 
   return (
@@ -256,18 +262,18 @@ export default function Home() {
             </svg>
           </button>
         ) : (
-          <div className="flex items-center gap-2.5">
-            {/* eslint-disable-next-line @next/next/no-img-element -- icono estatico en public/, sin optimizar */}
-            <img src="/mana-colorless.svg" alt="" aria-hidden="true" className="h-5 w-5" />
+          <>
             <h1 className="font-head text-sm font-extrabold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
               MTG Deck Analyzer
             </h1>
-            <span className="flex items-center gap-1 text-base" aria-hidden="true">
+            <span className="flex items-center gap-1.5 text-base" aria-hidden="true">
+              {/* eslint-disable-next-line @next/next/no-img-element -- icono estatico en public/, sin optimizar */}
+              <img src="/mana-colorless.svg" alt="" aria-hidden="true" className="h-5 w-5" />
               {["W", "U", "B", "R", "G"].map((color) => (
                 <ManaIcon key={color} color={color} />
               ))}
             </span>
-          </div>
+          </>
         )}
       </header>
 
@@ -287,6 +293,7 @@ export default function Home() {
                 id={moxfieldUrlId}
                 name="moxfield_url"
                 type="text"
+                required
                 placeholder="https://www.moxfield.com/decks/..."
                 value={moxfieldUrl}
                 onChange={(e) => setMoxfieldUrl(e.target.value)}
@@ -294,52 +301,8 @@ export default function Home() {
                 style={fieldStyle()}
               />
               <p className="text-xs" style={{ color: "var(--ink-muted)" }}>
-                Si pegas la URL de un deck público de Moxfield, no hace falta rellenar nada más abajo.
+                Pega la URL de un deck público de Moxfield.
               </p>
-            </div>
-
-            <div className="flex items-center gap-3" aria-hidden="true">
-              <div className="h-px flex-1" style={{ background: "var(--border)" }} />
-              <span className="font-head text-xs font-extrabold uppercase" style={{ color: "var(--ink-muted)" }}>
-                o
-              </span>
-              <div className="h-px flex-1" style={{ background: "var(--border)" }} />
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label htmlFor={commanderId} className="font-head text-xs font-bold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
-                Comandante
-              </label>
-              <input
-                id={commanderId}
-                name="commander"
-                type="text"
-                placeholder="p. ej. Sythis, Harvest's Hand"
-                value={commander}
-                onChange={(e) => setCommander(e.target.value)}
-                className="h-11 rounded-sm border px-3.5 text-[15px]"
-                style={fieldStyle()}
-              />
-              <p className="text-xs" style={{ color: "var(--ink-muted)" }}>
-                Déjalo vacío si ya está marcado en la lista con *CMDR* o bajo una sección &quot;Commander:&quot;.
-              </p>
-            </div>
-
-            <div className="flex min-h-0 flex-1 flex-col gap-1">
-              <label htmlFor={deckTextId} className="font-head text-xs font-bold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
-                Lista del deck
-              </label>
-              <textarea
-                id={deckTextId}
-                name="deck_text"
-                required={!moxfieldUrl.trim()}
-                rows={13}
-                placeholder={"Commander:\n1 Atraxa, Praetors' Voice\n\nDeck:\n1 Sol Ring\n..."}
-                value={deckText}
-                onChange={(e) => setDeckText(e.target.value)}
-                className="flex-1 resize-y rounded-sm border p-3.5 font-mono text-[13.5px]"
-                style={fieldStyle()}
-              />
             </div>
 
             <div className="flex flex-col gap-1">
@@ -373,21 +336,30 @@ export default function Home() {
 
             <div className="grid grid-cols-1 gap-3">
               <div className="flex flex-col gap-1">
-                <label htmlFor={budgetId} className="text-xs font-bold" style={{ color: "var(--foreground)" }}>
-                  Presupuesto €
+                <label htmlFor={budgetId} className="flex items-center gap-1.5 text-xs font-bold" style={{ color: "var(--foreground)" }}>
+                  Presupuesto
+                  <InfoTooltip>
+                    <p>
+                      <strong>Ajustado:</strong> entre varias cartas igual de válidas para un mismo problema,
+                      prioriza las más baratas. No es un tope fijo en €.
+                    </p>
+                    <p className="mt-2">
+                      <strong>Libre:</strong> sin esa preferencia — recomienda la que mejor encaje, sea barata
+                      o cara.
+                    </p>
+                  </InfoTooltip>
                 </label>
-                <input
+                <select
                   id={budgetId}
-                  name="budget"
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  inputMode="decimal"
-                  value={budget}
-                  onChange={(e) => setBudget(e.target.value)}
+                  name="budget_mode"
+                  value={budgetMode}
+                  onChange={(e) => setBudgetMode(e.target.value as "ajustado" | "libre")}
                   className="h-9 rounded-sm border px-2.5"
                   style={fieldStyle()}
-                />
+                >
+                  <option value="libre">Libre</option>
+                  <option value="ajustado">Ajustado</option>
+                </select>
               </div>
             </div>
 
@@ -481,7 +453,12 @@ export default function Home() {
         {showRecentModal && (
           <RecentAnalysesModal
             recent={recent}
-            onSelect={(selected) => setResult(selected)}
+            onSelect={(entry) => {
+              setResult(entry.result);
+              setMoxfieldUrl(entry.request?.moxfieldUrl ?? "");
+              setSimulation(null);
+              setSimulationError(null);
+            }}
             onRemove={(id) => setRecent(removeRecentAnalysis(id))}
             onClose={() => setShowRecentModal(false)}
           />
@@ -514,7 +491,15 @@ export default function Home() {
         </div>
       )}
 
-      {result && <ResultsView result={result} />}
+      {result && (
+        <ResultsView
+          result={result}
+          simulation={simulation}
+          simulationLoading={simulationLoading}
+          simulationError={simulationError}
+          onRunSimulation={handleRunSimulation}
+        />
+      )}
     </main>
   );
 }

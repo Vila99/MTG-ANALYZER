@@ -156,7 +156,7 @@ def test_build_analysis_payload_groups_duplicates_and_includes_roles():
     card_roles = {"Sol Ring": ["ramp"], "Forest": ["land"]}
 
     payload = build_analysis_payload(
-        [commander], deck_cards, card_roles, params={"budget": 3}
+        [commander], deck_cards, card_roles, params={"budget_mode": "ajustado"}
     )
 
     assert payload["comandantes"] == [
@@ -171,7 +171,7 @@ def test_build_analysis_payload_groups_duplicates_and_includes_roles():
     assert cartas_by_name["Forest"]["cantidad"] == 3
     assert cartas_by_name["Forest"]["roles"] == ["land"]
     assert cartas_by_name["Sol Ring"]["roles"] == ["ramp"]
-    assert payload["parametros_usuario"] == {"budget": 3}
+    assert payload["parametros_usuario"] == {"budget_mode": "ajustado"}
     assert payload["pool_candidatas"] == []
 
 
@@ -211,6 +211,16 @@ def test_analysis_tool_schema_requires_bracket_and_is_strict():
     assert _ANALYSIS_TOOL["input_schema"]["additionalProperties"] is False
 
 
+def test_analysis_tool_schema_requires_at_least_one_candidate_per_problema():
+    # Bug real: sin minItems, Claude devolvía candidatas_sugeridas vacio en
+    # todos los problemas y no se mostraba ninguna recomendacion en la web.
+    from analyzer.llm import _ANALYSIS_TOOL
+
+    problema_schema = _ANALYSIS_TOOL["input_schema"]["properties"]["problemas"]["items"]
+    assert "candidatas_sugeridas" in problema_schema["required"]
+    assert problema_schema["properties"]["candidatas_sugeridas"]["minItems"] == 1
+
+
 def _fake_analysis_tool_use_message(analysis: dict):
     block = MagicMock()
     block.type = "tool_use"
@@ -227,8 +237,6 @@ def test_analyze_deck_returns_tool_input():
         "arquetipo": "planeswalkers",
         "puntos_fuertes": ["buena ventaja de cartas"],
         "problemas": [],
-        "cortes_sugeridos": [],
-        "anadidos_sugeridos": [],
     }
     client = MagicMock()
     client.messages.create.return_value = _fake_analysis_tool_use_message(fake_analysis)

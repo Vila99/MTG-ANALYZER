@@ -1,0 +1,123 @@
+Deck Jeskai de ETB/LTB y copias de tokens. El comandante ataca y crea una copia atacante de una criatura no token propia, y esa copia dispara su entrada al campo (amplificada por varios duplicadores de disparos). La energía es un recurso residual que paga el mantenimiento de las copias: Satya aporta 2 por ataque y las criaturas con ETB de energía rellenan el depósito. Para protegerlo, el deck lleva capas de protección (hechizos, equipo evasivo, prevención de daño) porque el comandante tiene que atacar. Ganar viene de un ETB que hace daño o drena en masa con la mesa duplicada, o del combo con Port Razer.
+
+Puntos fuertes
+
+Plan claro y coherente con la descripción: generador (comandante que copia al atacar) + muchos amplificadores de ETB (duplicadores de disparos y de tokens) + criaturas con ETB de valor para copiar.
+Gran densidad de criaturas con energía de entrada y gastadores de energía de bajo coste, así que Satya casi siempre tiene energía para mantener su copia sin que el deck dependa de acumularla.
+Muy buena protección del comandante en varias capas: hechizos de protección en la pila, evasión y ward con equipo, prevención de daño en combate y remoción de combate. Ataca con más seguridad.
+Buena interacción puntual y barata (exilio de criaturas, contrahechizos que además dan energía, ETB de remoción) más wipes asimétricos o flexibles; el deck no se queda sin respuestas.
+Curva baja (media ~3) y buen ramp barato; Satya sale pronto y el deck puede desplegar varias piezas por turno.
+Varias condiciones de victoria que escalan con el plan: daño por ETB y por energía, y un combo de dos cartas con el comandante como plan alternativo.
+Problemas detectados
+
+alta
+Ventaja de cartas insuficiente
+Hay muy pocos motores de robo neto: Sphinx of the Revelation, Starwinder, Solemn Simulacrum, Rush of Inspiration y poco más. Tune the Narrative, Esper Sentinel y Jolted Awake (ciclar) no cuentan como ventaja real. El marco pide 12+ piezas y aquí hay unas 4-5. El plan se basa en mantener criaturas con ETB en mano, así que sin robo se queda sin combustible tras un wipe o un par de removals. Además, en una mesa de 3 rivales Esper Sentinel rinde poco.
+
+media
+Exceso de tierras / mazo diluido
+Con 40 tierras (algunas MDFC/utilidad), unos 8 aceleradores no tierra y Solemn, con cmc medio de 3,03 y mucho ramp barato, el mazo tiende a inundarse. La baja curva justificaría 36-37 tierras y cambiar 2-3 huecos por robo o piezas de valor. Las tierras de utilidad ayudan (Foundry-style, MDFC, ciclar Triome), pero hay varias que solo fijan colores sin hacer nada más (Adarkar Wastes hace daño y tiene un modo incoloro poco útil).
+
+media
+Forma del deck: muchos amplificadores, pocos generadores de ETB baratos
+Hay muchos duplicadores (Panharmonicon, Elesh Norn, Starfield Vocalist, Windcrag Siege, Mondrak, Exalted Sunborn, Ojer Taq). Como Satya ya es el generador de copias, esos amplificadores solo rinden si hay suficientes criaturas con ETB potente y barato que copiar o duplicar. Faltan más generadores ligeros de ETB/LTB (cuerpos de 2-3 de maná con valor) y 'copiadores' adicionales. Algunos duplicadores de tokens (Mondrak, Exalted Sunborn, Ojer Taq) dependen de tokens que el deck no genera tanto fuera de la copia de Satya, que se sacrifica al final del turno.
+
+media
+Combo infinito con Port Razer y criterio social
+Satya + Port Razer es un infinito de combate y energía. El código lo marca como 'tardío' pero es una aproximación: con Sol Ring y rocas, Port Razer en el turno 4 y Satya en el 5 sería plausible, lo que en bracket 3 sería demasiado pronto. Va contra la idea que describe el jugador (valor con ETB/energía) y es una carta que puede dejar mal sabor en mesas bracket 3. Conviene decidir de forma consciente si se quiere mantener, o hablarlo en rule zero. Se analiza como una carta más: es una alternativa de victoria legítima.
+
+baja
+Cartas de bajo impacto
+Aether Theorist (scry 1 con 3 de energía, cuerpo débil), Unstable Amulet (daño solo al lanzar desde fuera de la mano y un impulse que cuesta 2 energía, algo que choca con el plan de tener 'un poco' de energía) y Rootborn Defenses (populate sin una base fiable de tokens de criatura) rinden por debajo de lo esperado. Dolmen Gate y Reconnaissance son nicho pero encajan con la intención explícita de proteger al comandante en ataque, así que se mantienen.
+
+baja
+Plan de victoria disperso
+Hay condiciones de victoria (Terror of the Peaks, Impact Tremors, Aether Revolt, Port Razer combo), pero ninguna es especialmente fiable por sí sola y gran parte depende de que el comandante sobreviva. Sin Satya el deck gana más lento. La mesa típica de turno 7-8 suele ganar con ETB de daño duplicado, aunque conviene más robo y consistencia para llegar a ello.
+
+Cambios sugeridos
+
+Coste estimado de lo incluido: 5.94 € de 50.00 € de presupuesto.
+
+
+Corta
+Esper Sentinel
+Esper Sentinel
+
+→
+
+Añade
+Minion Reflector
+Minion Reflector
+
+Amplificador / copia ETB
+0.49 €
+Cada criatura no token que entra puede dejar una copia con prisa pagando 2, repitiendo su ETB; es un segundo motor de copias que no depende de que Satya ataque ni de tener energía.
+
+opción:
+1
+2
+
+Corta
+Aether Theorist
+Aether Theorist
+
+→
+
+Añade
+Mulldrifter
+Mulldrifter
+
+Ventaja de cartas con ETB
+0.47 €
+Roba 2 al entrar (con copia o duplicador roba 4). Con evoke (2U) también aporta valor por LTB. Es robo explosivo, lo que pide el marco para cartas de 4+, y ofrece un buen objetivo para copiar.
+
+opción:
+1
+2
+
+Corta
+Rootborn Defenses
+Rootborn Defenses
+
+→
+
+Añade
+Anim Pakal, Thousandth Moon
+Anim Pakal, Thousandth Moon
+
+Generador de tokens
+4.35 €
+Al atacar crea Gnomos tapados y atacando (cada uno dispara Impact Tremors/Terror of the Peaks; Mondrak, Exalted Sunborn y Ojer Taq los multiplican). Da una fuente de tokens que justifica los duplicadores de tokens que ya hay.
+
+
+Corta
+Unstable Amulet
+Unstable Amulet
+
+→
+
+Añade
+Jeskai Monument
+Jeskai Monument
+
+Fijación / ETB y tokens
+0.05 €
+ETB que busca una tierra básica (permite recortar tierras sin perder fijación) y más tarde se sacrifica para dos Pájaros voladores, que con duplicadores de tokens se convierten en más.
+
+opción:
+1
+2
+
+Corta
+Adarkar Wastes
+Adarkar Wastes
+
+→
+
+Añade
+Foundry of the Consuls
+Foundry of the Consuls
+
+Tierra utilitaria / generador de tokens
+0.14 €
+Es una tierra que, cuando el juego se alarga, da dos Thopters voladores (que con Mondrak/Exalted Sunborn son cuatro). Evita que la tierra sea una carta muerta en la fase de inundación.

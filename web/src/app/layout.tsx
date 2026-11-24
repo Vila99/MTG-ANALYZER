@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Montserrat, Roboto } from "next/font/google";
+import { Footer } from "./components/Footer";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -31,7 +32,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {/* eslint-disable-next-line @next/next/no-css-tags -- hoja de estilos de un paquete de iconos vendorizado en public/, no un modulo importable */}
         <link rel="stylesheet" href="/mana-master/css/mana.css" />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <div className="flex-1">{children}</div>
+        <Footer />
+      </body>
     </html>
   );
 }

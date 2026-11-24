@@ -1,9 +1,10 @@
 """Valida las sugerencias de Claude contra la base de datos de cartas.
 
-Toda carta que sugiera Claude (corte o añadido) se valida antes de
-mostrarla al usuario: que exista en Scryfall, que sea legal en el formato,
-que encaje en la identidad de color del comandante y, para los añadidos,
-que no esté ya en el deck (salvo tierras básicas, que no son singleton).
+Toda carta candidata que sugiera Claude (``candidatas_sugeridas`` dentro de
+cada ``problema``) se valida antes de mostrarla al usuario: que exista en
+Scryfall, que sea legal en el formato, que encaje en la identidad de color
+del comandante y que no esté ya en el deck (salvo tierras básicas, que no
+son singleton).
 """
 
 from __future__ import annotations
@@ -20,13 +21,6 @@ _BASIC_LAND_NAMES = {"plains", "island", "swamp", "mountain", "forest", "wastes"
 class ValidationResult:
     valido: bool
     motivo_rechazo: str | None = None
-
-
-def validate_cut(suggested_name: str, deck_card_names: set[str]) -> ValidationResult:
-    """Un corte sugerido solo es válido si la carta está de verdad en el deck."""
-    if suggested_name not in deck_card_names:
-        return ValidationResult(False, "la carta no está en el deck")
-    return ValidationResult(True)
 
 
 def validate_addition(
@@ -55,29 +49,26 @@ def validate_analysis(
     commanders: list[Card],
     deck_cards: list[Card],
 ) -> dict:
-    """Devuelve una copia del análisis de Claude con ``cortes_sugeridos`` y
-    ``anadidos_sugeridos`` filtrados a solo las sugerencias que pasan la
-    validación."""
+    """Devuelve una copia del análisis de Claude con las
+    ``candidatas_sugeridas`` de cada ``problema`` filtradas a solo las que
+    pasan la validación."""
     commander_identity: set[str] = set()
     for commander in commanders:
         commander_identity |= set(commander.color_identity)
     deck_card_names = {card.name for card in deck_cards}
 
-    validated_cuts = [
-        cut
-        for cut in analysis.get("cortes_sugeridos", [])
-        if validate_cut(cut["carta"], deck_card_names).valido
-    ]
-    validated_additions = [
-        addition
-        for addition in analysis.get("anadidos_sugeridos", [])
-        if validate_addition(
-            conn, addition["carta"], commander_identity, deck_card_names
-        ).valido
+    validated_problemas = [
+        {
+            **problema,
+            "candidatas_sugeridas": [
+                candidata
+                for candidata in problema.get("candidatas_sugeridas", [])
+                if validate_addition(
+                    conn, candidata["carta"], commander_identity, deck_card_names
+                ).valido
+            ],
+        }
+        for problema in analysis.get("problemas", [])
     ]
 
-    return {
-        **analysis,
-        "cortes_sugeridos": validated_cuts,
-        "anadidos_sugeridos": validated_additions,
-    }
+    return {**analysis, "problemas": validated_problemas}

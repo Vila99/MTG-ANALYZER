@@ -77,8 +77,6 @@ def test_run_eval_writes_one_record_per_deck(tmp_path, monkeypatch):
         "arquetipo": "artifacts",
         "puntos_fuertes": [],
         "problemas": [],
-        "cortes_sugeridos": [],
-        "anadidos_sugeridos": [],
     }
     fake_client = MagicMock()
     fake_client.messages.create.return_value = _fake_analysis_tool_use_message(fake_analysis)

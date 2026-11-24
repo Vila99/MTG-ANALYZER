@@ -1,110 +1,102 @@
-from analyzer.budget import apply_budget_to_analysis, select_within_budget
+from analyzer.budget import annotate_prices
 
 
-def make_addition(carta, categoria_problema=None, **kwargs):
-    return {
-        "carta": carta,
-        "rol": "ramp",
-        "reemplaza_a": None,
-        "categoria_problema": categoria_problema,
-        "motivo": "motivo",
-        **kwargs,
-    }
+def make_candidata(carta, **kwargs):
+    return {"carta": carta, "rol": "ramp", "motivo": "motivo", **kwargs}
 
 
-def test_select_within_budget_prioritizes_alta_severity_first():
-    additions = [
-        make_addition("Barata Media", categoria_problema="Ramp"),
-        make_addition("Cara Alta", categoria_problema="Ventaja de mesa"),
-    ]
-    prices = {"Barata Media": 2.0, "Cara Alta": 50.0}
-    severity = {"Ramp": "media", "Ventaja de mesa": "alta"}
-
-    selection = select_within_budget(additions, prices, severity, budget=50.0, overage=0.0)
-
-    by_name = {a["carta"]: a for a in selection.additions}
-    assert by_name["Cara Alta"]["incluido"] is True
-    assert by_name["Barata Media"]["incluido"] is False  # ya no cabe tras incluir la alta
-    assert selection.coste_estimado == 50.0
+def make_analysis(problemas):
+    return {"problemas": problemas}
 
 
-def test_select_within_budget_excludes_once_overage_exceeded():
-    additions = [make_addition("A"), make_addition("B"), make_addition("C")]
-    prices = {"A": 10.0, "B": 10.0, "C": 10.0}
-
-    selection = select_within_budget(additions, prices, {}, budget=15.0, overage=5.0)
-
-    included = {a["carta"] for a in selection.additions if a["incluido"]}
-    assert included == {"A", "B"}  # 20 <= 15+5; la tercera (30) ya no cabe
-    assert selection.supera_presupuesto is True
-    assert selection.diferencia == 5.0
-
-
-def test_select_within_budget_always_includes_unknown_price_items():
-    additions = [make_addition("Sin precio")]
-    selection = select_within_budget(additions, {}, {}, budget=0.0, overage=0.0)
-
-    assert selection.additions[0]["incluido"] is True
-    assert selection.additions[0]["precio_eur"] is None
-    assert selection.coste_estimado == 0.0
-
-
-def test_select_within_budget_prefers_cheaper_option_within_same_severity():
-    additions = [
-        make_addition("Cara", categoria_problema="Ramp"),
-        make_addition("Barata", categoria_problema="Ramp"),
-    ]
-    prices = {"Cara": 20.0, "Barata": 5.0}
-    severity = {"Ramp": "media"}
-
-    selection = select_within_budget(additions, prices, severity, budget=5.0, overage=0.0)
-
-    by_name = {a["carta"]: a for a in selection.additions}
-    assert by_name["Barata"]["incluido"] is True
-    assert by_name["Cara"]["incluido"] is False
-
-
-def test_apply_budget_to_analysis_attaches_prices_without_budget(monkeypatch):
-    # Bug real: los precios no se veian en el informe porque antes solo se
-    # consultaban cuando habia presupuesto puesto. El precio es informacion
-    # util por si sola, se ponga o no un presupuesto.
+def test_annotate_prices_attaches_price_regardless_of_mode(monkeypatch):
     import analyzer.budget as budget_module
 
     monkeypatch.setattr(
         budget_module.prices_module, "fetch_prices", lambda conn, names: {name: 1.5 for name in names}
     )
-    analysis = {"anadidos_sugeridos": [make_addition("X")], "problemas": []}
+    analysis = make_analysis(
+        [{"categoria": "Ramp", "severidad": "media", "explicacion": "...", "candidatas_sugeridas": [make_candidata("X")]}]
+    )
 
-    result = apply_budget_to_analysis(conn=None, analysis=analysis, budget=None)
+    result = annotate_prices(conn=None, analysis=analysis, budget_mode=None)
 
-    assert result["anadidos_sugeridos"][0]["precio_eur"] == 1.5
-    assert "incluido" not in result["anadidos_sugeridos"][0]  # sin presupuesto no se filtra, solo se informa
-    assert "presupuesto" not in result
-
-
-def test_apply_budget_to_analysis_returns_unchanged_without_additions():
-    analysis = {"anadidos_sugeridos": [], "problemas": []}
-    assert apply_budget_to_analysis(conn=None, analysis=analysis, budget=None) == analysis
+    assert result["problemas"][0]["candidatas_sugeridas"][0]["precio_eur"] == 1.5
 
 
-def test_apply_budget_to_analysis_enriches_additions(monkeypatch):
+def test_annotate_prices_returns_unchanged_without_problemas():
+    analysis = {"problemas": []}
+    assert annotate_prices(conn=None, analysis=analysis, budget_mode=None) == analysis
+
+
+def test_annotate_prices_does_not_reorder_in_libre_mode(monkeypatch):
     import analyzer.budget as budget_module
 
     monkeypatch.setattr(
-        budget_module.prices_module, "fetch_prices", lambda conn, names: {name: 3.0 for name in names}
+        budget_module.prices_module,
+        "fetch_prices",
+        lambda conn, names: {"Cara": 50.0, "Barata": 2.0}.copy(),
     )
-    analysis = {
-        "anadidos_sugeridos": [make_addition("X", categoria_problema="Ramp")],
-        "problemas": [{"categoria": "Ramp", "severidad": "alta", "explicacion": "..."}],
-    }
+    analysis = make_analysis(
+        [
+            {
+                "categoria": "Ramp",
+                "severidad": "media",
+                "explicacion": "...",
+                "candidatas_sugeridas": [make_candidata("Cara"), make_candidata("Barata")],
+            }
+        ]
+    )
 
-    result = budget_module.apply_budget_to_analysis(conn=None, analysis=analysis, budget=10.0)
+    result = annotate_prices(conn=None, analysis=analysis, budget_mode="libre")
 
-    assert result["anadidos_sugeridos"][0]["precio_eur"] == 3.0
-    assert result["anadidos_sugeridos"][0]["incluido"] is True
-    assert result["presupuesto"] == {
-        "presupuesto": 10.0,
-        "coste_estimado": 3.0,
-        "supera_presupuesto": False,
-        "diferencia": -7.0,
-    }
+    cartas = [c["carta"] for c in result["problemas"][0]["candidatas_sugeridas"]]
+    assert cartas == ["Cara", "Barata"]
+
+
+def test_annotate_prices_sorts_cheapest_first_in_ajustado_mode(monkeypatch):
+    import analyzer.budget as budget_module
+
+    monkeypatch.setattr(
+        budget_module.prices_module,
+        "fetch_prices",
+        lambda conn, names: {"Cara": 50.0, "Barata": 2.0}.copy(),
+    )
+    analysis = make_analysis(
+        [
+            {
+                "categoria": "Ramp",
+                "severidad": "media",
+                "explicacion": "...",
+                "candidatas_sugeridas": [make_candidata("Cara"), make_candidata("Barata")],
+            }
+        ]
+    )
+
+    result = annotate_prices(conn=None, analysis=analysis, budget_mode="ajustado")
+
+    cartas = [c["carta"] for c in result["problemas"][0]["candidatas_sugeridas"]]
+    assert cartas == ["Barata", "Cara"]
+
+
+def test_annotate_prices_puts_unknown_price_last_in_ajustado_mode(monkeypatch):
+    import analyzer.budget as budget_module
+
+    monkeypatch.setattr(
+        budget_module.prices_module, "fetch_prices", lambda conn, names: {"Barata": 2.0}
+    )
+    analysis = make_analysis(
+        [
+            {
+                "categoria": "Ramp",
+                "severidad": "media",
+                "explicacion": "...",
+                "candidatas_sugeridas": [make_candidata("Sin precio"), make_candidata("Barata")],
+            }
+        ]
+    )
+
+    result = annotate_prices(conn=None, analysis=analysis, budget_mode="ajustado")
+
+    cartas = [c["carta"] for c in result["problemas"][0]["candidatas_sugeridas"]]
+    assert cartas == ["Barata", "Sin precio"]

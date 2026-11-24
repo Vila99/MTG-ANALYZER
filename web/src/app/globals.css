@@ -107,3 +107,13 @@ button:not(:disabled) {
     transform: translateX(340%);
   }
 }
+
+/* El glifo de los iconos de mana (fuente "Mana" vendida en mana.css) no
+ * queda centrado de verdad dentro de su fondo circular: el centrado por
+ * line-height del propio mana.css deja mas hueco arriba que abajo. Se
+ * corrige aqui en vez de tocar el CSS vendido, para no afectar a otros
+ * iconos de esa libreria que no usamos. */
+.ms-cost::before {
+  display: inline-block;
+  transform: translateY(-0.08em);
+}

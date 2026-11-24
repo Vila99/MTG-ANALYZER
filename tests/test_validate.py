@@ -2,7 +2,7 @@ import json
 import sqlite3
 
 from analyzer.cards import Card
-from analyzer.validate import validate_addition, validate_analysis, validate_cut
+from analyzer.validate import validate_addition, validate_analysis
 
 
 def make_db() -> sqlite3.Connection:
@@ -67,17 +67,6 @@ def make_commander(color_identity: list[str]) -> Card:
     )
 
 
-def test_validate_cut_accepts_card_in_deck():
-    result = validate_cut("Sol Ring", {"Sol Ring", "Forest"})
-    assert result.valido
-
-
-def test_validate_cut_rejects_card_not_in_deck():
-    result = validate_cut("Phantom Card", {"Sol Ring"})
-    assert not result.valido
-    assert "no está en el deck" in result.motivo_rechazo
-
-
 def test_validate_addition_rejects_nonexistent_card():
     conn = make_db()
     result = validate_addition(conn, "Not A Real Card", {"W", "U"}, set())
@@ -118,7 +107,7 @@ def test_validate_addition_accepts_valid_card():
     assert result.valido
 
 
-def test_validate_analysis_filters_invalid_suggestions():
+def test_validate_analysis_filters_invalid_candidates_per_problema():
     conn = make_db()
     commanders = [make_commander(["W", "U"])]
     deck_cards = [
@@ -139,22 +128,24 @@ def test_validate_analysis_filters_invalid_suggestions():
         "estrategia_detectada": "control",
         "arquetipo": "superfriends",
         "puntos_fuertes": [],
-        "problemas": [],
-        "cortes_sugeridos": [
-            {"carta": "Sol Ring", "motivo": "ya tienes suficiente ramp"},
-            {"carta": "Phantom Card", "motivo": "no existe en el deck"},
-        ],
-        "anadidos_sugeridos": [
-            {"carta": "Arcane Signet", "rol": "ramp", "reemplaza_a": None, "motivo": "ramp eficiente"},
-            {"carta": "Lightning Bolt", "rol": "removal", "reemplaza_a": None, "motivo": "fuera de color"},
-            {"carta": "Channel", "rol": "ramp", "reemplaza_a": None, "motivo": "banida"},
+        "problemas": [
+            {
+                "categoria": "Ramp",
+                "severidad": "media",
+                "explicacion": "poco ramp",
+                "candidatas_sugeridas": [
+                    {"carta": "Arcane Signet", "rol": "ramp", "motivo": "ramp eficiente"},
+                    {"carta": "Lightning Bolt", "rol": "removal", "motivo": "fuera de color"},
+                    {"carta": "Channel", "rol": "ramp", "motivo": "banida"},
+                    {"carta": "Sol Ring", "rol": "ramp", "motivo": "ya está en el deck"},
+                ],
+            }
         ],
     }
 
     result = validate_analysis(conn, analysis, commanders, deck_cards)
 
-    assert result["cortes_sugeridos"] == [{"carta": "Sol Ring", "motivo": "ya tienes suficiente ramp"}]
-    assert result["anadidos_sugeridos"] == [
-        {"carta": "Arcane Signet", "rol": "ramp", "reemplaza_a": None, "motivo": "ramp eficiente"}
+    assert result["problemas"][0]["candidatas_sugeridas"] == [
+        {"carta": "Arcane Signet", "rol": "ramp", "motivo": "ramp eficiente"}
     ]
     assert result["estrategia_detectada"] == "control"

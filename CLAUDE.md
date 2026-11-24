@@ -99,7 +99,8 @@ Roles de carta: `land`, `ramp`, `draw`, `removal`, `wipe`, `protection`, `tutor`
 
 Parámetros de usuario:
 - `bracket` / nivel de poder (1–5)
-- `budget` (precio máximo por carta o total)
+- `budget_mode` (`ajustado` prioriza candidatas más baratas, `libre` no
+  aplica esa preferencia; no es un importe fijo, solo un criterio de orden)
 - `style` (casual, focused, cEDH)
 - `allow_combos` (sí/no)
 - `avoid` (cartas o mecánicas a evitar)
@@ -107,10 +108,11 @@ Parámetros de usuario:
 ## Contrato con Claude
 
 El análisis se pide con **tool use** para forzar este esquema de salida.
-`anadidos_sugeridos` va sin tilde (no `añadidos_sugeridos`): los nombres de
-propiedad de un tool schema de la API solo admiten `^[a-zA-Z0-9_.-]{1,64}$`,
-y la `ñ` lo rompe con un 400 (`BadRequestError`, descubierto probando en
-real). El texto de las sugerencias, en español, no tiene esa restricción.
+Los nombres de propiedad de un tool schema de la API solo admiten
+`^[a-zA-Z0-9_.-]{1,64}$`: una `ñ` en el nombre de un campo (no en su
+contenido) rompe la petición con un 400 (`BadRequestError`, descubierto
+probando en real) — por eso campos como `candidatas_sugeridas` van sin
+tilde. El texto de las sugerencias, en español, no tiene esa restricción.
 
 ```json
 {
@@ -118,16 +120,22 @@ real). El texto de las sugerencias, en español, no tiene esa restricción.
   "arquetipo": "string",
   "puntos_fuertes": ["string"],
   "problemas": [
-    { "categoria": "string", "severidad": "alta|media|baja", "explicacion": "string" }
-  ],
-  "cortes_sugeridos": [
-    { "carta": "string", "motivo": "string" }
-  ],
-  "anadidos_sugeridos": [
-    { "carta": "string", "rol": "string", "reemplaza_a": "string|null", "motivo": "string" }
+    {
+      "categoria": "string",
+      "severidad": "alta|media|baja",
+      "explicacion": "string",
+      "candidatas_sugeridas": [
+        { "carta": "string", "rol": "string", "motivo": "string" }
+      ]
+    }
   ]
 }
 ```
+
+`candidatas_sugeridas` son hasta 10 cartas por problema que lo atacan;
+Claude no decide qué cortar del mazo ni empareja una candidata 1:1 con una
+carta a quitar, solo propone opciones y el jugador elige cuáles le
+encajan con su plan (ver `prompts/system_analysis.md`).
 
 Entrada que recibe Claude (JSON): comandante(s) con su texto oracle, métricas calculadas, lista de cartas con su rol y su texto, parámetros del usuario y, opcionalmente, un **pool de candidatas** (por ejemplo, de una búsqueda de Scryfall como `id<=bg otag:ramp`) para que elija entre cartas reales.
 
@@ -159,7 +167,7 @@ python scripts/load_scryfall.py
 
 # Analizar un deck
 analyze data/sample_decks/ejemplo.txt
-analyze data/sample_decks/ejemplo.txt --budget 10 --json
+analyze data/sample_decks/ejemplo.txt --budget-mode ajustado --json
 
 # Tests
 pytest

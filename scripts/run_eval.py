@@ -61,7 +61,7 @@ def main(argv: list[str] | None = None) -> int:
         "--deck", type=Path, action="append", help="Ruta a un deck concreto (se puede repetir); por defecto, todos los de data/sample_decks/"
     )
     parser.add_argument("--db", type=Path, default=cards_module.DEFAULT_DB_PATH)
-    parser.add_argument("--budget", type=float)
+    parser.add_argument("--budget-mode", choices=["ajustado", "libre"], default=None)
     parser.add_argument("--style", choices=["casual", "focused", "cedh"], default="casual")
     parser.add_argument("--allow-combos", action="store_true")
     parser.add_argument("--avoid", action="append", default=[])
@@ -75,7 +75,7 @@ def main(argv: list[str] | None = None) -> int:
 
     client = llm.get_client()
     params = {
-        "budget": args.budget,
+        "budget_mode": args.budget_mode,
         "style": args.style,
         "allow_combos": args.allow_combos,
         "avoid": args.avoid,

@@ -1,0 +1,111 @@
+Estrategia
+
+Deck Jeskai de ETB/LTB y copias de criaturas. Satya ataca y crea una copia de otra criatura no token, y esa copia dispara sus entradas y salidas del campo. Duplicadores de ETB y de tokens multiplican cada disparo. La energía que da el comandante paga el mantenimiento de las copias, en lugar de ser un fin en sí misma. Las victorias llegan por daño de ping en cada entrada, evasión y ataque de la mesa, o por el combo de combates infinitos con Port Razer.
+
+Puntos fuertes
+
+Muchos amplificadores de ETB y de tokens (duplicadores de disparos, duplicadores y triplicadores de tokens). Encajan con un comandante generador: cada copia que crea Satya rinde dos o tres veces.
+La energía sobra sin esfuerzo y tiene sumideros baratos. Satya da 2 por ataque y muchas criaturas ETB aportan más, así que casi siempre se puede pagar el coste de mantener las copias sin construir el deck alrededor de la energía.
+Varias cartas copian al propio comandante (Gogo, Irma, Aurora Shifter) o clonan criaturas en combate. Eso da disparos de ataque extra y hace que el deck funcione aunque Satya no esté en mesa.
+Payoffs de entrada que escalan con la mesa: daño por cada criatura que entra, daño igual al poder de la criatura que entra y daño por cada ganancia de energía. Cada token o copia se convierte en daño al rival.
+Capas de protección del atacante: ward y evasión con equipo, daño de combate prevenido, indestructibilidad masiva, quitar del combate y untap, y Teferi's Protection. Cubren el plan de proteger al comandante en el ataque.
+Interacción variada y eficiente (exilios baratos, contrahechizos que además dan energía, Skyclave, wipes). Hay un reset asimétrico si la mesa se descontrola, y una base de maná con muchas fuentes de los tres colores.
+Combo de dos cartas con Port Razer como cierre de partida. Es una condición de victoria clara que no depende de ganar por daño de combate normal.
+Problemas detectados
+
+media
+Ventaja de cartas neta insuficiente
+Robo neto real: Solemn Simulacrum, Starwinder (si conecta), Sphinx of the Revelation (cuesta energía), Anticausal Vestige, Jolted Awake (reanimación) y Esper Sentinel (condicional; X=1 es fácil de pagar). Tune the Narrative, el ciclado del Triome y Rush of Inspiration solo se reemplazan a sí mismos o reciben descarte, así que no cuentan como ventaja neta. Quedan muy por debajo de las 12 piezas del marco, y el deck depende de las manos naturales para encontrar amplificadores y payoffs. El tema ETB permite robo sinérgico: criaturas con ETB que roban, duplicadas por Panharmonicon/Elesh Norn/Vocalist, o investigar con tokens duplicados.
+
+media
+Protección barata e instantánea del comandante
+Satya tiene haste y es el objetivo del plan, pero casi toda la protección cubre el combate (Dolmen Gate, Reconnaissance, Rootborn Defenses, Akroma's Will) o es cara (Teferi's Protection). Contra removal dirigido o exilio solo hay Winged Boots/Regalia (el ward exige equipar antes) y los contrahechizos. Faltan respuestas baratas e instantáneas que hagan fallar un removal sobre la criatura (parpadeo en respuesta, que además dispara ETB).
+
+baja
+Paquete de energía con piezas de bajo impacto
+El jugador quiere energía como subproducto, y ya hay más de 15 fuentes. Algunas piezas aportan poco más allá de la energía: Aether Theorist (scry 1 por 1 energía, cuerpo flojo) y Unstable Amulet (solo hace daño al lanzar desde fuera de la mano y su habilidad cuesta EE). Son hueco desaprovechado en un deck que ya tiene energía de sobra.
+
+baja
+Base de maná sobrecargada y con tierras lentas
+Hay 40 tierras (incluyendo las caras de modal-land) más unas 9 piezas de ramp, con un cmc medio de 3,03. Es mucho maná para esta curva, y Turbulent Steppe y Turbulent Springs entran tapped casi siempre en las primeras rondas. Se pueden recortar 2 slots para meter piezas de acción sin riesgo de fallar tierras: las fuentes de color están bien (W30/U29/R26 frente a 35/20/22 pips).
+
+baja
+Combo infinito de dos cartas en la lista
+Satya + Port Razer da combates y tokens infinitos (combo verificado, velocidad tardía). Es una condición de victoria legítima y fija el suelo en bracket 3. No hay tutores, así que el combo sale sobre todo por robo natural. Conviene avisar a la mesa de que existe. Si se busca estilo focused sin combos que cierren de golpe, bastaría con sacar Port Razer.
+
+Cambios sugeridos
+
+
+Corta
+Unstable Amulet
+Unstable Amulet
+
+→
+
+Añade
+Mulldrifter
+Mulldrifter
+
+Robo ETB sinérgico (amplificable por duplicadores)
+0.47 €
+Roba 2 al entrar, y con Panharmonicon, Elesh Norn o Starfield Vocalist roba 4. Una copia de Satya también roba. Es una criatura ETB barata, y el flicker con Flickering Hound la reutiliza.
+
+opción:
+1
+2
+3
+
+Corta
+Aether Theorist
+Aether Theorist
+
+→
+
+Añade
+Hard Evidence
+Hard Evidence
+
+Robo barato con token
+0.10 €
+Crea un token criatura (dispara Impact Tremors, Terror of the Peaks y Guide of Souls) y una Clue por 2 maná, y los duplicadores de tokens lo doblan o triplican. Es más barato y encaja mejor que un cuerpo de energía mediocre.
+
+opción:
+1
+2
+3
+
+Corta
+Turbulent Steppe
+Turbulent Steppe
+
+→
+
+Añade
+Shaun, Father of Synths
+Shaun, Father of Synths
+
+Generador de copias de legendarias
+0.17 €
+Al atacar copia una criatura legendaria que ataque. El deck tiene varias (Satya, Elesh Norn, Mondrak, Ojer Taq, Aragorn, Gogo, Irma). Duplica el plan de copias de ataque por otra vía distinta de la energía.
+
+opción:
+1
+2
+
+Corta
+Turbulent Springs
+Turbulent Springs
+
+→
+
+Añade
+Restoration Angel
+Restoration Angel
+
+Flicker instantáneo y protección
+0.35 €
+Con flash saca del campo a una criatura no Angel en respuesta a removal y repite su ETB, además de ser un cuerpo con evasión. Protege a Satya o a una pieza de valor de forma instantánea.
+
+opción:
+1
+2

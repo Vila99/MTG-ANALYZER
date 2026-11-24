@@ -43,15 +43,13 @@ def test_render_analysis_includes_all_sections():
         "arquetipo": "planeswalkers",
         "puntos_fuertes": ["buena ventaja de cartas"],
         "problemas": [
-            {"categoria": "removal", "severidad": "alta", "explicacion": "muy poco removal"}
-        ],
-        "cortes_sugeridos": [{"carta": "Carta Mala", "motivo": "no aporta nada"}],
-        "anadidos_sugeridos": [
             {
-                "carta": "Carta Buena",
-                "rol": "removal",
-                "reemplaza_a": "Carta Mala",
-                "motivo": "mejora la interacción",
+                "categoria": "removal",
+                "severidad": "alta",
+                "explicacion": "muy poco removal",
+                "candidatas_sugeridas": [
+                    {"carta": "Carta Buena", "rol": "removal", "motivo": "mejora la interacción"}
+                ],
             }
         ],
     }
@@ -62,8 +60,7 @@ def test_render_analysis_includes_all_sections():
     assert "planeswalkers" in text
     assert "buena ventaja de cartas" in text
     assert "[alta] removal: muy poco removal" in text
-    assert "Carta Mala: no aporta nada" in text
-    assert "Carta Buena [removal] (reemplaza a Carta Mala): mejora la interacción" in text
+    assert "Carta Buena [removal]: mejora la interacción" in text
 
 
 def test_render_analysis_handles_empty_sections():
@@ -72,8 +69,6 @@ def test_render_analysis_handles_empty_sections():
         "arquetipo": "voltron",
         "puntos_fuertes": [],
         "problemas": [],
-        "cortes_sugeridos": [],
-        "anadidos_sugeridos": [],
     }
     text = render_analysis(analysis)
     assert "aggro" in text

@@ -6,8 +6,6 @@ def make_record(
     timestamp="2026-01-01T00:00:00+00:00",
     estrategia="control",
     arquetipo="enchantments",
-    cortes=None,
-    añadidos=None,
     problemas=None,
 ):
     return {
@@ -18,8 +16,6 @@ def make_record(
             "arquetipo": arquetipo,
             "puntos_fuertes": [],
             "problemas": problemas or [],
-            "cortes_sugeridos": cortes or [],
-            "anadidos_sugeridos": añadidos or [],
         },
     }
 
@@ -43,22 +39,32 @@ def test_compare_detects_strategy_and_archetype_changes():
     assert "Arquetipo: 'voltron' -> 'enchantments'" in text
 
 
-def test_compare_detects_added_and_removed_cuts_and_additions():
+def test_compare_detects_added_and_removed_candidates():
     old = make_record(
-        cortes=[{"carta": "Carta Vieja", "motivo": "x"}],
-        añadidos=[{"carta": "Add Vieja", "rol": "ramp", "reemplaza_a": None, "motivo": "x"}],
+        problemas=[
+            {
+                "categoria": "Ramp",
+                "severidad": "media",
+                "explicacion": "x",
+                "candidatas_sugeridas": [{"carta": "Carta Vieja", "rol": "ramp", "motivo": "x"}],
+            }
+        ]
     )
     new = make_record(
-        cortes=[{"carta": "Carta Nueva", "motivo": "y"}],
-        añadidos=[{"carta": "Add Nueva", "rol": "draw", "reemplaza_a": None, "motivo": "y"}],
+        problemas=[
+            {
+                "categoria": "Ramp",
+                "severidad": "media",
+                "explicacion": "x",
+                "candidatas_sugeridas": [{"carta": "Carta Nueva", "rol": "ramp", "motivo": "y"}],
+            }
+        ]
     )
 
     text = compare(old, new)
 
-    assert "Cortes nuevos: ['Carta Nueva']" in text
-    assert "Cortes que ya no se sugieren: ['Carta Vieja']" in text
-    assert "Añadidos nuevos: ['Add Nueva']" in text
-    assert "Añadidos que ya no se sugieren: ['Add Vieja']" in text
+    assert "Candidatas nuevas: ['Carta Nueva']" in text
+    assert "Candidatas que ya no se sugieren: ['Carta Vieja']" in text
 
 
 def test_compare_detects_problem_category_changes():

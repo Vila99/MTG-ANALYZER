@@ -246,7 +246,7 @@ def test_analyze_ai_without_api_key_returns_400(client: TestClient, monkeypatch)
     assert "ANTHROPIC_API_KEY" in response.json()["detail"]
 
 
-def test_analyze_with_budget_enriches_additions_with_real_prices(client: TestClient, monkeypatch):
+def test_analyze_with_budget_mode_ajustado_sorts_candidates_by_price(client: TestClient, monkeypatch):
     from analyzer.pipeline import AnalysisRun
 
     monkeypatch.setattr("analyzer.llm.load_dotenv", lambda *a, **k: None)
@@ -256,15 +256,15 @@ def test_analyze_with_budget_enriches_additions_with_real_prices(client: TestCli
         "estrategia_detectada": "control",
         "arquetipo": "artifacts",
         "puntos_fuertes": [],
-        "problemas": [{"categoria": "Ramp", "severidad": "alta", "explicacion": "poco ramp"}],
-        "cortes_sugeridos": [],
-        "anadidos_sugeridos": [
+        "problemas": [
             {
-                "carta": "Sol Ring",
-                "rol": "ramp",
-                "reemplaza_a": None,
-                "categoria_problema": "Ramp",
-                "motivo": "ramp eficiente",
+                "categoria": "Ramp",
+                "severidad": "alta",
+                "explicacion": "poco ramp",
+                "candidatas_sugeridas": [
+                    {"carta": "Arcane Signet", "rol": "ramp", "motivo": "ramp cara"},
+                    {"carta": "Sol Ring", "rol": "ramp", "motivo": "ramp eficiente"},
+                ],
             }
         ],
         "bracket": {
@@ -280,23 +280,19 @@ def test_analyze_with_budget_enriches_additions_with_real_prices(client: TestCli
     }
     fake_run = AnalysisRun(payload={}, raw_analysis=validated_analysis, validated_analysis=validated_analysis)
     monkeypatch.setattr("analyzer.pipeline.run_analysis", lambda *a, **k: fake_run)
-    monkeypatch.setattr("analyzer.prices.fetch_prices", lambda conn, names: {"Sol Ring": 0.85})
+    monkeypatch.setattr(
+        "analyzer.prices.fetch_prices", lambda conn, names: {"Sol Ring": 0.85, "Arcane Signet": 3.0}
+    )
 
     response = client.post(
         "/analyze",
-        json={"deck_text": "Deck:\n1 Sol Ring\n2 Forest\n", "ai": True, "budget": 10},
+        json={"deck_text": "Deck:\n1 Sol Ring\n2 Forest\n", "ai": True, "budget_mode": "ajustado"},
     )
 
     assert response.status_code == 200
-    addition = response.json()["analisis"]["anadidos_sugeridos"][0]
-    assert addition["precio_eur"] == 0.85
-    assert addition["incluido"] is True
-    assert response.json()["analisis"]["presupuesto"] == {
-        "presupuesto": 10.0,
-        "coste_estimado": 0.85,
-        "supera_presupuesto": False,
-        "diferencia": -9.15,
-    }
+    candidatas = response.json()["analisis"]["problemas"][0]["candidatas_sugeridas"]
+    assert [c["carta"] for c in candidatas] == ["Sol Ring", "Arcane Signet"]
+    assert candidatas[0]["precio_eur"] == 0.85
 
 
 def test_analyze_exposes_combos_detectados_from_the_payload(client: TestClient, monkeypatch):
@@ -310,8 +306,6 @@ def test_analyze_exposes_combos_detectados_from_the_payload(client: TestClient, 
         "arquetipo": "artifacts",
         "puntos_fuertes": [],
         "problemas": [],
-        "cortes_sugeridos": [],
-        "anadidos_sugeridos": [],
         "bracket": {
             "deducido": 4,
             "confianza": "alta",
@@ -344,9 +338,10 @@ def test_analyze_exposes_combos_detectados_from_the_payload(client: TestClient, 
     assert response.json()["analisis"]["combos_detectados"] == [combo]
 
 
-def test_analyze_shows_prices_even_without_budget(client: TestClient, monkeypatch):
-    # Bug real: los precios no aparecian en el informe si no se marcaba un
-    # presupuesto, porque antes solo se consultaban en ese caso.
+def test_analyze_shows_prices_even_without_budget_mode(client: TestClient, monkeypatch):
+    # Bug real (versión previa del esquema): los precios no aparecian en el
+    # informe si no se marcaba un presupuesto, porque antes solo se
+    # consultaban en ese caso. El precio es informacion util por si sola.
     from analyzer.pipeline import AnalysisRun
 
     monkeypatch.setattr("analyzer.llm.load_dotenv", lambda *a, **k: None)
@@ -356,15 +351,14 @@ def test_analyze_shows_prices_even_without_budget(client: TestClient, monkeypatc
         "estrategia_detectada": "control",
         "arquetipo": "artifacts",
         "puntos_fuertes": [],
-        "problemas": [],
-        "cortes_sugeridos": [],
-        "anadidos_sugeridos": [
+        "problemas": [
             {
-                "carta": "Sol Ring",
-                "rol": "ramp",
-                "reemplaza_a": None,
-                "categoria_problema": None,
-                "motivo": "ramp eficiente",
+                "categoria": "Ramp",
+                "severidad": "media",
+                "explicacion": "poco ramp",
+                "candidatas_sugeridas": [
+                    {"carta": "Sol Ring", "rol": "ramp", "motivo": "ramp eficiente"}
+                ],
             }
         ],
         "bracket": {
@@ -388,13 +382,66 @@ def test_analyze_shows_prices_even_without_budget(client: TestClient, monkeypatc
     )
 
     assert response.status_code == 200
-    addition = response.json()["analisis"]["anadidos_sugeridos"][0]
-    assert addition["precio_eur"] == 0.85
-    assert "presupuesto" not in response.json()["analisis"]
+    candidata = response.json()["analisis"]["problemas"][0]["candidatas_sugeridas"][0]
+    assert candidata["precio_eur"] == 0.85
 
 
 def test_analyze_without_db_returns_503(tmp_path, monkeypatch):
     monkeypatch.setattr(api_module.cards_module, "DEFAULT_DB_PATH", tmp_path / "missing.db")
     client = TestClient(api_module.app)
     response = client.post("/analyze", json={"deck_text": "Deck:\n1 Sol Ring\n"})
+    assert response.status_code == 503
+
+
+def test_simulate_happy_path_returns_expected_shape(client: TestClient):
+    response = client.post(
+        "/simulate",
+        json={
+            "deck_text": "Commander:\n1 Atraxa, Praetors' Voice\n\nDeck:\n1 Sol Ring\n37 Forest\n",
+            "n_sims": 100,
+        },
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["simulaciones"] == 100
+    assert "turno_comandante_lanzable" in body
+    assert "media" in body["turno_comandante_lanzable"]
+    assert "por_turno" in body["turno_comandante_lanzable"]
+    assert "prob_mana_screw_turno_3" in body
+    assert "primera_rampa" in body
+    assert "curva_mana_media" in body
+    assert "prob_mulligan" in body
+    assert body["no_encontradas"] == []
+
+
+def test_simulate_without_commander_returns_400(client: TestClient):
+    response = client.post(
+        "/simulate", json={"deck_text": "Deck:\n1 Sol Ring\n37 Forest\n", "n_sims": 100}
+    )
+    assert response.status_code == 400
+
+
+def test_simulate_without_deck_text_or_moxfield_url_returns_400(client: TestClient):
+    response = client.post("/simulate", json={"n_sims": 100})
+    assert response.status_code == 400
+
+
+def test_simulate_rejects_n_sims_out_of_bounds(client: TestClient):
+    response = client.post(
+        "/simulate",
+        json={
+            "deck_text": "Commander:\n1 Atraxa, Praetors' Voice\n\nDeck:\n1 Sol Ring\n37 Forest\n",
+            "n_sims": 1,
+        },
+    )
+    assert response.status_code == 422
+
+
+def test_simulate_without_db_returns_503(tmp_path, monkeypatch):
+    monkeypatch.setattr(api_module.cards_module, "DEFAULT_DB_PATH", tmp_path / "missing.db")
+    client = TestClient(api_module.app)
+    response = client.post(
+        "/simulate",
+        json={"deck_text": "Commander:\n1 Atraxa\n\nDeck:\n1 Sol Ring\n", "n_sims": 100},
+    )
     assert response.status_code == 503

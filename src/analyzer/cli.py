@@ -31,7 +31,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--moxfield-url", help="URL (o id) de un deck público de Moxfield, en vez de deck_file"
     )
-    parser.add_argument("--budget", type=float, help="Precio máximo por carta o total")
+    parser.add_argument(
+        "--budget-mode",
+        choices=["ajustado", "libre"],
+        default=None,
+        help="'ajustado' prioriza candidatas más baratas, 'libre' no (con --ai)",
+    )
     parser.add_argument("--json", action="store_true", help="Salida en JSON en vez de texto")
     parser.add_argument(
         "--db", type=Path, default=cards_module.DEFAULT_DB_PATH, help="Ruta a data/cards.db"
@@ -106,7 +111,7 @@ def main(argv: list[str] | None = None) -> int:
             from analyzer import pipeline
 
             params = {
-                "budget": args.budget,
+                "budget_mode": args.budget_mode,
                 "style": args.style,
                 "allow_combos": args.allow_combos,
                 "avoid": args.avoid,
@@ -118,7 +123,7 @@ def main(argv: list[str] | None = None) -> int:
 
         analysis = analysis_run.validated_analysis if analysis_run else None
         if analysis is not None:
-            analysis = budget_module.apply_budget_to_analysis(conn, analysis, args.budget)
+            analysis = budget_module.annotate_prices(conn, analysis, args.budget_mode)
             combos_detectados = analysis_run.payload.get("bracket_suelo", {}).get("combos", [])
             analysis = {**analysis, "combos_detectados": combos_detectados}
         deck_cost = prices_module.compute_deck_cost(conn, deck_cards)

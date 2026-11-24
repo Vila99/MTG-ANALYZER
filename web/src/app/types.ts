@@ -1,32 +1,18 @@
 export type RubricStatus = "bajo" | "ok" | "alto";
 
+export interface CandidataSugerida {
+  carta: string;
+  rol: string;
+  motivo: string;
+  // Siempre presente tras pasar por analyzer.budget.annotate_prices.
+  precio_eur?: number | null;
+}
+
 export interface Problema {
   categoria: string;
   severidad: "alta" | "media" | "baja";
   explicacion: string;
-}
-
-export interface CorteSugerido {
-  carta: string;
-  motivo: string;
-}
-
-export interface AñadidoSugerido {
-  carta: string;
-  rol: string;
-  reemplaza_a: string | null;
-  categoria_problema: string | null;
-  motivo: string;
-  // Presentes solo si se dio `budget` en la petición (ver analyzer.budget).
-  precio_eur?: number | null;
-  incluido?: boolean;
-}
-
-export interface PresupuestoResumen {
-  presupuesto: number;
-  coste_estimado: number;
-  supera_presupuesto: boolean;
-  diferencia: number;
+  candidatas_sugeridas: CandidataSugerida[];
 }
 
 export interface SenalDura {
@@ -57,10 +43,7 @@ export interface Analisis {
   arquetipo: string;
   puntos_fuertes: string[];
   problemas: Problema[];
-  cortes_sugeridos: CorteSugerido[];
-  anadidos_sugeridos: AñadidoSugerido[];
   bracket: BracketAnalisis;
-  presupuesto?: PresupuestoResumen | null;
   combos_detectados?: ComboDetectado[];
 }
 
@@ -84,12 +67,37 @@ export interface AnalyzeResponse {
   cartas_por_rol: Record<string, string[]>;
 }
 
+export interface SimulationResult {
+  simulaciones: number;
+  turno_comandante_lanzable: {
+    media: number | null;
+    por_turno: Record<string, number>;
+    nunca_pct: number;
+  };
+  prob_mana_screw_turno_3: number;
+  primera_rampa: {
+    media: number | null;
+    por_turno: Record<string, number>;
+  };
+  curva_mana_media: Record<string, number>;
+  prob_mulligan: number;
+  colores_disponibles_turno_4?: Record<string, number>;
+  no_encontradas: string[];
+}
+
+export interface SimulateRequest {
+  deck_text?: string;
+  moxfield_url?: string;
+  commander?: string;
+  n_sims: number;
+}
+
 export interface AnalyzeRequest {
   deck_text?: string;
   moxfield_url?: string;
   commander?: string;
   description?: string;
-  budget?: number;
+  budget_mode?: "ajustado" | "libre";
   style: "casual" | "focused" | "cedh";
   allow_combos: boolean;
   avoid: string[];

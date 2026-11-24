@@ -178,20 +178,11 @@ def render_analysis(analysis: dict) -> str:
             lines.append(
                 f"  [{problema['severidad']}] {problema['categoria']}: {problema['explicacion']}"
             )
-
-    cortes = analysis.get("cortes_sugeridos") or []
-    if cortes:
-        lines.append("")
-        lines.append("Cortes sugeridos:")
-        for cut in cortes:
-            lines.append(f"  - {cut['carta']}: {cut['motivo']}")
-
-    añadidos = analysis.get("anadidos_sugeridos") or []
-    if añadidos:
-        lines.append("")
-        lines.append("Añadidos sugeridos:")
-        for addition in añadidos:
-            reemplazo = f" (reemplaza a {addition['reemplaza_a']})" if addition.get("reemplaza_a") else ""
-            lines.append(f"  - {addition['carta']} [{addition['rol']}]{reemplazo}: {addition['motivo']}")
+            for candidata in problema.get("candidatas_sugeridas", []):
+                precio = candidata.get("precio_eur")
+                precio_txt = f" ({precio:.2f} €)" if isinstance(precio, (int, float)) else ""
+                lines.append(
+                    f"    - {candidata['carta']} [{candidata['rol']}]{precio_txt}: {candidata['motivo']}"
+                )
 
     return "\n".join(lines)

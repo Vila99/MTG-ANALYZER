@@ -168,48 +168,30 @@ _ANALYSIS_TOOL = {
                         "categoria": {"type": "string"},
                         "severidad": {"type": "string", "enum": ["alta", "media", "baja"]},
                         "explicacion": {"type": "string"},
-                    },
-                    "required": ["categoria", "severidad", "explicacion"],
-                    "additionalProperties": False,
-                },
-            },
-            "cortes_sugeridos": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "carta": {"type": "string"},
-                        "motivo": {"type": "string"},
-                    },
-                    "required": ["carta", "motivo"],
-                    "additionalProperties": False,
-                },
-            },
-            "anadidos_sugeridos": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "carta": {"type": "string"},
-                        "rol": {"type": "string"},
-                        "reemplaza_a": {
-                            "anyOf": [{"type": "string"}, {"type": "null"}],
+                        "candidatas_sugeridas": {
+                            "type": "array",
+                            "minItems": 1,
                             "description": (
-                                "Nombre de la carta a la que reemplaza, o null si no "
-                                "reemplaza ninguna en concreto."
+                                "Cartas candidatas que atacan este problema concreto "
+                                "(mínimo 1). Cuando el problema lo permita, da varias "
+                                "opciones (unas pocas, hasta 10) para que el jugador "
+                                "elija según su propio criterio — pero no fuerces un "
+                                "número si no hay más candidatas razonables. No decides "
+                                "qué cortar del mazo: solo propones opciones."
                             ),
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "carta": {"type": "string"},
+                                    "rol": {"type": "string"},
+                                    "motivo": {"type": "string"},
+                                },
+                                "required": ["carta", "rol", "motivo"],
+                                "additionalProperties": False,
+                            },
                         },
-                        "categoria_problema": {
-                            "anyOf": [{"type": "string"}, {"type": "null"}],
-                            "description": (
-                                "La `categoria` exacta (tal cual aparece en `problemas`) del "
-                                "problema que este añadido soluciona, o null si no soluciona "
-                                "ninguno en concreto (p. ej. es una mejora de sinergia)."
-                            ),
-                        },
-                        "motivo": {"type": "string"},
                     },
-                    "required": ["carta", "rol", "reemplaza_a", "categoria_problema", "motivo"],
+                    "required": ["categoria", "severidad", "explicacion", "candidatas_sugeridas"],
                     "additionalProperties": False,
                 },
             },
@@ -267,8 +249,6 @@ _ANALYSIS_TOOL = {
             "arquetipo",
             "puntos_fuertes",
             "problemas",
-            "cortes_sugeridos",
-            "anadidos_sugeridos",
             "bracket",
         ],
         "additionalProperties": False,

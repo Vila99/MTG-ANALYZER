@@ -33,19 +33,20 @@ def compare(old: dict, new: dict) -> str:
     if old_analysis.get("arquetipo") != new_analysis.get("arquetipo"):
         diffs.append(f"Arquetipo: '{old_analysis.get('arquetipo')}' -> '{new_analysis.get('arquetipo')}'")
 
-    old_cuts = _names(old_analysis.get("cortes_sugeridos", []), "carta")
-    new_cuts = _names(new_analysis.get("cortes_sugeridos", []), "carta")
-    if new_cuts - old_cuts:
-        diffs.append(f"Cortes nuevos: {sorted(new_cuts - old_cuts)}")
-    if old_cuts - new_cuts:
-        diffs.append(f"Cortes que ya no se sugieren: {sorted(old_cuts - new_cuts)}")
-
-    old_additions = _names(old_analysis.get("anadidos_sugeridos", []), "carta")
-    new_additions = _names(new_analysis.get("anadidos_sugeridos", []), "carta")
-    if new_additions - old_additions:
-        diffs.append(f"Añadidos nuevos: {sorted(new_additions - old_additions)}")
-    if old_additions - new_additions:
-        diffs.append(f"Añadidos que ya no se sugieren: {sorted(old_additions - new_additions)}")
+    old_candidates = {
+        candidata["carta"]
+        for problema in old_analysis.get("problemas", [])
+        for candidata in problema.get("candidatas_sugeridas", [])
+    }
+    new_candidates = {
+        candidata["carta"]
+        for problema in new_analysis.get("problemas", [])
+        for candidata in problema.get("candidatas_sugeridas", [])
+    }
+    if new_candidates - old_candidates:
+        diffs.append(f"Candidatas nuevas: {sorted(new_candidates - old_candidates)}")
+    if old_candidates - new_candidates:
+        diffs.append(f"Candidatas que ya no se sugieren: {sorted(old_candidates - new_candidates)}")
 
     old_problem_categories = _names(old_analysis.get("problemas", []), "categoria")
     new_problem_categories = _names(new_analysis.get("problemas", []), "categoria")

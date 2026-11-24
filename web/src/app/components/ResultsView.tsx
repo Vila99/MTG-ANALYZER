@@ -1,13 +1,8 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
-import {
-  AñadidoSugerido,
-  AnalyzeResponse,
-  COLOR_LABELS,
-  CorteSugerido,
-  ROLE_LABELS,
-} from "../types";
+import { Fragment, useEffect, useState, type ReactNode } from "react";
+import { AnalyzeResponse, CandidataSugerida, COLOR_LABELS, ROLE_LABELS, SimulationResult } from "../types";
+import { InfoTooltip } from "./InfoTooltip";
 import { ManaIcon } from "./ManaIcon";
 import { BarDatum, SingleSeriesBarChart } from "./SingleSeriesBarChart";
 
@@ -112,16 +107,20 @@ function StatTile({
   label,
   value,
   warning,
+  tooltip,
 }: {
-  label: string;
+  label: ReactNode;
   value: string | number;
   /** Aviso rojo bajo el valor; `detail` hace de tooltip nativo al pasar el ratón. */
   warning?: { label: string; detail: string };
+  /** Icono de información junto a la etiqueta, con la explicación del parámetro al hover. */
+  tooltip?: ReactNode;
 }) {
   return (
     <div className="rounded-sm border p-4" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
-      <p className="font-head text-xs font-extrabold uppercase tracking-wide" style={{ color: "var(--ink-muted)" }}>
+      <p className="flex items-center gap-1.5 font-head text-xs font-extrabold uppercase tracking-wide" style={{ color: "var(--ink-muted)" }}>
         {label}
+        {tooltip && <InfoTooltip>{tooltip}</InfoTooltip>}
       </p>
       <p className="text-2xl font-bold font-mono" style={{ color: "var(--foreground)" }}>
         {value}
@@ -227,174 +226,117 @@ function FloatingCardPreview({
   );
 }
 
-interface SwapGroup {
-  cut?: CorteSugerido;
-  additions: AñadidoSugerido[];
-}
-
-/** Agrupa todas las alternativas de añadido que sustituyen a un mismo corte
- * (por `reemplaza_a`), para mostrar "Corta X -> Añade Y / Z / W" en vez de
- * forzar una única alternativa por corte. */
-function pairCutsAndAdditions(cuts: CorteSugerido[], additions: AñadidoSugerido[]): SwapGroup[] {
-  const byReemplazaA = new Map<string, AñadidoSugerido[]>();
-  const standalone: AñadidoSugerido[] = [];
-
-  for (const addition of additions) {
-    if (addition.reemplaza_a && cuts.some((cut) => cut.carta === addition.reemplaza_a)) {
-      const list = byReemplazaA.get(addition.reemplaza_a) ?? [];
-      list.push(addition);
-      byReemplazaA.set(addition.reemplaza_a, list);
-    } else {
-      standalone.push(addition);
-    }
-  }
-
-  const groups: SwapGroup[] = cuts.map((cut) => ({
-    cut,
-    additions: byReemplazaA.get(cut.carta) ?? [],
-  }));
-  for (const addition of standalone) {
-    groups.push({ additions: [addition] });
-  }
-  return groups;
-}
-
-/** Miniatura clicable (zoom) de una carta dentro de un cambio sugerido, con
- * su etiqueta (Corta/Añade) encima para identificarla de un vistazo sin
- * tener que pasar el ratón por el nombre. */
-function SwapThumbnail({
-  name,
-  label,
-  labelColor,
+/** Miniatura clicable (zoom) de una carta candidata dentro de un problema. */
+/** Miniatura de una candidata dentro de la galería de "ver candidatas": el
+ * doble de tamaño que las de "cartas por rol" (mitad de columnas en la
+ * misma rejilla), ya que aquí solo se muestran unas pocas por problema en
+ * vez de todo el mazo. Sin texto de motivo/rol/precio — eso vive en el
+ * modal de detalle al hacer clic. */
+function CandidateThumbnail({
+  candidata,
   imageUrl,
-  onZoom,
-  dimmed,
+  onClick,
 }: {
-  name: string;
-  label: string;
-  labelColor: string;
+  candidata: CandidataSugerida;
   imageUrl: string | undefined;
-  onZoom: (name: string) => void;
-  dimmed?: boolean;
+  onClick: () => void;
 }) {
   return (
     <button
       type="button"
-      onClick={() => imageUrl && onZoom(name)}
+      onClick={onClick}
       disabled={!imageUrl}
-      className="flex w-[84px] flex-shrink-0 flex-col items-center gap-1 text-center transition-transform enabled:hover:scale-[1.05] disabled:cursor-default"
-      style={{ opacity: dimmed ? 0.5 : 1 }}
+      className="flex flex-col gap-1 text-left transition-transform enabled:hover:scale-[1.04] disabled:cursor-default"
     >
-      <div className="font-head text-[10px] font-extrabold uppercase" style={{ color: labelColor }}>
-        {label}
-      </div>
       <div
-        className="w-full overflow-hidden rounded-sm border"
+        className="overflow-hidden rounded-sm border"
         style={{ aspectRatio: "5/7", borderColor: "var(--border)", background: "var(--surface-muted)" }}
       >
         {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element -- imagen externa de Scryfall
-          <img src={imageUrl} alt={name} className="h-full w-full object-cover" />
+          <img src={imageUrl} alt={candidata.carta} className="h-full w-full object-cover" />
         ) : null}
       </div>
-      <p className="w-full truncate text-[11px]" style={{ color: "var(--foreground)" }} title={name}>
-        {name}
+      <p className="truncate text-center text-[11px]" style={{ color: "var(--ink-secondary)" }} title={candidata.carta}>
+        {candidata.carta}
       </p>
     </button>
   );
 }
 
-function SwapGroupCard({
-  group,
+/** Detalle de una candidata: mismo formato que el modal de combos (zoom de
+ * la carta + explicación), pero en un solo clic desde la galería en vez de
+ * un modal anidado. */
+function CandidateDetailModal({
+  candidata,
+  imageUrl,
   cardImages,
+  onClose,
   onHover,
-  onZoom,
 }: {
-  group: SwapGroup;
+  candidata: CandidataSugerida;
+  imageUrl: string | undefined;
   cardImages: Record<string, string>;
+  onClose: () => void;
   onHover: HoverHandler;
-  onZoom: (name: string) => void;
 }) {
-  const [optionIndex, setOptionIndex] = useState(0);
-  const selected = group.additions[optionIndex];
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setVisible(true));
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
 
   return (
-    <div className="flex flex-wrap items-center gap-3 p-4" style={{ background: "var(--surface)" }}>
-      {group.cut && (
-        <SwapThumbnail
-          name={group.cut.carta}
-          label="Corta"
-          labelColor="var(--status-critical)"
-          imageUrl={cardImages[group.cut.carta]}
-          onZoom={onZoom}
-        />
-      )}
-      {group.cut && selected && (
-        <span className="hidden self-center text-lg sm:block" style={{ color: "var(--ink-muted)" }}>
-          →
-        </span>
-      )}
-
-      {selected && (
-        <SwapThumbnail
-          name={selected.carta}
-          label="Añade"
-          labelColor="var(--status-good)"
-          imageUrl={cardImages[selected.carta]}
-          onZoom={onZoom}
-          dimmed={selected.incluido === false}
-        />
-      )}
-
-      {selected && (
-        <div className="flex min-w-[220px] flex-1 flex-col gap-1">
-          <div className="flex flex-wrap items-baseline gap-2">
+    <div
+      className="fixed inset-0 z-[70] flex cursor-pointer items-center justify-center p-6"
+      style={{ background: "rgba(0,0,0,0.75)", opacity: visible ? 1 : 0, transition: "opacity 150ms ease" }}
+      onClick={onClose}
+    >
+      <div
+        className="flex max-h-full w-full max-w-sm flex-col items-center gap-4 overflow-y-auto"
+        style={{ transform: visible ? "scale(1)" : "scale(0.92)", transition: "transform 150ms ease" }}
+      >
+        {imageUrl && (
+          // eslint-disable-next-line @next/next/no-img-element -- imagen externa de Scryfall
+          <img
+            src={imageUrl}
+            alt={candidata.carta}
+            onClick={(e) => e.stopPropagation()}
+            className="cursor-default rounded-md"
+            style={{ width: 300, aspectRatio: "5/7", objectFit: "cover", boxShadow: "0 24px 60px rgba(0,0,0,0.6)" }}
+          />
+        )}
+        <div
+          className="w-full cursor-default rounded-sm border p-4"
+          style={{ borderColor: "var(--border)", background: "var(--background)" }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="mb-1.5 flex flex-wrap items-baseline gap-2">
+            <strong className="text-sm" style={{ color: "var(--foreground)" }}>
+              {candidata.carta}
+            </strong>
             <span className="text-[11px]" style={{ color: "var(--ink-muted)" }}>
-              {selected.rol}
+              {candidata.rol}
             </span>
-            {typeof selected.precio_eur === "number" && (
+            {typeof candidata.precio_eur === "number" && (
               <span className="font-mono text-[11px] font-bold" style={{ color: "var(--ink-secondary)" }}>
-                {selected.precio_eur.toFixed(2)} €
-              </span>
-            )}
-            {selected.incluido === false && (
-              <span className="font-head text-[10px] font-bold uppercase" style={{ color: "var(--status-warning)" }}>
-                Fuera de presupuesto
+                {candidata.precio_eur.toFixed(2)} €
               </span>
             )}
           </div>
           <p className="text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
-            <HighlightedText text={selected.motivo} cardImages={cardImages} onHover={onHover} />
+            <HighlightedText text={candidata.motivo} cardImages={cardImages} onHover={onHover} />
           </p>
-          {group.additions.length > 1 && (
-            <div className="mt-1 flex items-center gap-1.5">
-              <span className="text-[10px]" style={{ color: "var(--ink-muted)" }}>
-                opción:
-              </span>
-              {group.additions.map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setOptionIndex(i)}
-                  className="font-head flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold"
-                  style={{
-                    background: i === optionIndex ? "var(--accent)" : "var(--surface-muted)",
-                    color: i === optionIndex ? "var(--accent-ink)" : "var(--ink-muted)",
-                  }}
-                >
-                  {i + 1}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
-      )}
-
-      {!selected && group.cut && (
-        <p className="min-w-[220px] flex-1 text-sm leading-relaxed" style={{ color: "var(--foreground)" }}>
-          <HighlightedText text={group.cut.motivo} cardImages={cardImages} onHover={onHover} />
-        </p>
-      )}
+      </div>
     </div>
   );
 }
@@ -597,11 +539,149 @@ function ComboDetailModal({
   );
 }
 
-export function ResultsView({ result }: { result: AnalyzeResponse }) {
+function recordToBarData(record: Record<string, number>, scale: number = 1): BarDatum[] {
+  return Object.entries(record)
+    .sort((a, b) => Number(a[0]) - Number(b[0]))
+    .map(([turn, value]) => ({ label: `T${turn}`, value: Math.round(value * scale * 100) / 100 }));
+}
+
+/** Estadísticas del goldfish Monte Carlo (ver analyzer.goldfish): siempre
+ * bajo una política de juego simple y fija, nunca una partida real — el
+ * aviso de arriba del modal deja eso claro para no venderlo como un
+ * playtest de verdad. */
+function SimulationModal({ simulation, onClose }: { simulation: SimulationResult; onClose: () => void }) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  const colores = simulation.colores_disponibles_turno_4
+    ? Object.entries(simulation.colores_disponibles_turno_4)
+    : [];
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex cursor-pointer items-center justify-center p-6"
+      style={{ background: "rgba(0,0,0,0.75)" }}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-6xl overflow-y-auto overflow-x-hidden rounded-sm border"
+        style={{ borderColor: "var(--border)", background: "var(--background)", maxHeight: "90vh" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b p-4" style={{ borderColor: "var(--border)" }}>
+          <h2 className="font-head text-sm font-extrabold uppercase tracking-wide" style={{ color: "var(--accent)" }}>
+            Estadísticas de simulación
+          </h2>
+          <button type="button" onClick={onClose} className="font-head text-xs font-bold" style={{ color: "var(--ink-muted)" }}>
+            Cerrar ✕
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-4 p-4">
+          <p className="text-xs leading-relaxed" style={{ color: "var(--ink-muted)" }}>
+            {simulation.simulaciones.toLocaleString("es-ES")} partidas bajo una política de juego simple y fija
+            (sin rivales, sin estrategia real): juega tierra y la carta más barata que pueda pagar, priorizando
+            rampa. No es un playtest de verdad, es una señal de consistencia de maná y curva.
+          </p>
+
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            <StatTile
+              label="Turno medio: comandante"
+              value={simulation.turno_comandante_lanzable.media ?? "—"}
+              tooltip="Turno en el que, de media, tienes suficiente maná y los colores del comandante ya en juego para poder lanzarlo, bajo la política de simulación simple."
+            />
+            <StatTile
+              label="Nunca lo lanzas"
+              value={`${Math.round(simulation.turno_comandante_lanzable.nunca_pct * 100)}%`}
+              tooltip="Porcentaje de partidas simuladas en las que nunca llegas a tener maná y colores suficientes para el comandante dentro de los turnos simulados."
+            />
+            <StatTile
+              label="Mana screw (T3)"
+              value={`${Math.round(simulation.prob_mana_screw_turno_3 * 100)}%`}
+              tooltip="Porcentaje de partidas con menos de 2 tierras en juego para el turno 3."
+            />
+            <StatTile
+              label="Turno medio: primera rampa"
+              value={simulation.primera_rampa.media ?? "—"}
+              tooltip="Turno medio en el que resuelves la primera carta de rampa (no tierra) de tu mazo."
+            />
+            <StatTile
+              label="Manos con mulligan"
+              value={`${Math.round(simulation.prob_mulligan * 100)}%`}
+              tooltip="Porcentaje de partidas en las que la mano inicial de 7 cartas tenía menos de 2 o más de 5 tierras y tuvo que repetirse."
+            />
+            {colores.map(([color, prob]) => (
+              <StatTile
+                key={color}
+                label={
+                  <span className="flex items-center gap-1.5">
+                    Mana
+                    <span className="text-sm">
+                      <ManaIcon color={color} />
+                    </span>
+                    en T4
+                  </span>
+                }
+                value={`${Math.round(prob * 100)}%`}
+                tooltip={`Porcentaje de partidas en las que tienes al menos una fuente de ${COLOR_LABELS[color] ?? color} en juego para el turno 4.`}
+              />
+            ))}
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <SingleSeriesBarChart
+              title="% de partidas con comandante lanzable, por turno"
+              data={recordToBarData(simulation.turno_comandante_lanzable.por_turno, 100)}
+              colorVar="var(--chart-mana)"
+              valueLabel="%"
+            />
+
+            <SingleSeriesBarChart
+              title="Maná medio disponible por turno"
+              data={recordToBarData(simulation.curva_mana_media)}
+              colorVar="var(--chart-mana)"
+              valueLabel="maná"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function ResultsView({
+  result,
+  simulation,
+  simulationLoading,
+  simulationError,
+  onRunSimulation,
+}: {
+  result: AnalyzeResponse;
+  simulation?: SimulationResult | null;
+  simulationLoading?: boolean;
+  simulationError?: string | null;
+  onRunSimulation?: () => void;
+}) {
   const [hoverTarget, setHoverTarget] = useState<HoverTarget | null>(null);
   const [expandedRole, setExpandedRole] = useState<string | null>(null);
   const [zoomedCard, setZoomedCard] = useState<string | null>(null);
   const [openCombo, setOpenCombo] = useState<number | null>(null);
+  const [expandedProblema, setExpandedProblema] = useState<number | null>(null);
+  const [openCandidate, setOpenCandidate] = useState<CandidataSugerida | null>(null);
+  const [showSimulationModal, setShowSimulationModal] = useState(false);
+
+  useEffect(() => {
+    // Abre el modal en cuanto llega una simulación nueva (tras pulsar el
+    // botón); no hay forma de "sincronizar con un sistema externo" más
+    // limpia aquí, el resultado solo existe como prop desde page.tsx.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (simulation) setShowSimulationModal(true);
+  }, [simulation]);
   const cardImages = result.card_images ?? {};
   const cartasPorRol = result.cartas_por_rol ?? {};
 
@@ -624,7 +704,6 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
   }
 
   const analisis = result.analisis;
-  const swaps = analisis ? pairCutsAndAdditions(analisis.cortes_sugeridos, analisis.anadidos_sugeridos) : [];
   const sortedProblemas = analisis
     ? [...analisis.problemas].sort((a, b) => (SEVERITY_ORDER[a.severidad] ?? 9) - (SEVERITY_ORDER[b.severidad] ?? 9))
     : [];
@@ -643,6 +722,18 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
           onClose={() => setOpenCombo(null)}
           onZoomCard={(name) => setZoomedCard(name)}
         />
+      )}
+      {openCandidate && (
+        <CandidateDetailModal
+          candidata={openCandidate}
+          imageUrl={cardImages[openCandidate.carta]}
+          cardImages={cardImages}
+          onClose={() => setOpenCandidate(null)}
+          onHover={handleHover}
+        />
+      )}
+      {showSimulationModal && simulation && (
+        <SimulationModal simulation={simulation} onClose={() => setShowSimulationModal(false)} />
       )}
 
       <section className="flex flex-col gap-5 border-b pb-6" style={{ borderColor: "var(--border)" }}>
@@ -671,31 +762,49 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
 
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
           {result.comandantes.length > 0 && (
-            <div className="flex flex-shrink-0 gap-2 lg:w-[220px]">
-              {result.comandantes.map((name) => (
-                <div
-                  key={name}
-                  className="w-full overflow-hidden rounded-sm border"
-                  style={{ borderColor: "var(--border)" }}
+            <div className="flex flex-shrink-0 flex-col gap-2 lg:w-[220px]">
+              <div className="flex gap-2">
+                {result.comandantes.map((name) => (
+                  <div
+                    key={name}
+                    className="w-full overflow-hidden rounded-xl border"
+                    style={{ borderColor: "var(--border)" }}
+                  >
+                    {cardImages[name] ? (
+                      // eslint-disable-next-line @next/next/no-img-element -- imagen externa de Scryfall
+                      <img
+                        src={cardImages[name]}
+                        alt={name}
+                        className="block w-full"
+                        style={{ aspectRatio: "5/7", objectFit: "cover" }}
+                      />
+                    ) : (
+                      <div
+                        className="flex items-center justify-center p-3 text-center text-xs"
+                        style={{ aspectRatio: "5/7", background: "var(--surface-muted)", color: "var(--ink-muted)" }}
+                      >
+                        Sin imagen
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {onRunSimulation && (
+                <button
+                  type="button"
+                  onClick={onRunSimulation}
+                  disabled={simulationLoading}
+                  className="font-head mt-4 h-11 text-sm font-extrabold uppercase tracking-wide disabled:opacity-60"
+                  style={{ background: "var(--accent)", color: "var(--accent-ink)" }}
                 >
-                  {cardImages[name] ? (
-                    // eslint-disable-next-line @next/next/no-img-element -- imagen externa de Scryfall
-                    <img
-                      src={cardImages[name]}
-                      alt={name}
-                      className="block w-full"
-                      style={{ aspectRatio: "5/7", objectFit: "cover" }}
-                    />
-                  ) : (
-                    <div
-                      className="flex items-center justify-center p-3 text-center text-xs"
-                      style={{ aspectRatio: "5/7", background: "var(--surface-muted)", color: "var(--ink-muted)" }}
-                    >
-                      Sin imagen
-                    </div>
-                  )}
-                </div>
-              ))}
+                  {simulationLoading ? "Simulando…" : "Probar simulación"}
+                </button>
+              )}
+              {simulationError && (
+                <p className="text-xs" style={{ color: "var(--status-critical)" }}>
+                  {simulationError}
+                </p>
+              )}
             </div>
           )}
 
@@ -952,54 +1061,55 @@ export function ResultsView({ result }: { result: AnalyzeResponse }) {
               <div>
                 <SectionLabel color="var(--status-critical)">Problemas detectados</SectionLabel>
                 <div className="flex flex-col gap-px overflow-hidden rounded-sm border" style={{ borderColor: "var(--border)", background: "var(--border)" }}>
-                  {sortedProblemas.map((problema, i) => (
-                    <div key={i} className="p-4" style={{ background: "var(--surface)" }}>
-                      <div className="mb-1.5 flex items-center gap-2">
-                        <span
-                          className="font-head flex-shrink-0 border px-1.5 py-0.5 text-[11px] font-extrabold uppercase"
-                          style={{ color: SEVERITY_COLOR_VAR[problema.severidad], borderColor: SEVERITY_COLOR_VAR[problema.severidad] }}
-                        >
-                          {problema.severidad}
-                        </span>
-                        <strong className="text-sm" style={{ color: "var(--foreground)" }}>
-                          {problema.categoria}
-                        </strong>
+                  {sortedProblemas.map((problema, i) => {
+                    const candidatas = problema.candidatas_sugeridas ?? [];
+                    const expanded = expandedProblema === i;
+                    return (
+                      <div key={i} className="p-4" style={{ background: "var(--surface)" }}>
+                        <div className="mb-1.5 flex items-center gap-2">
+                          <span
+                            className="font-head flex-shrink-0 border px-1.5 py-0.5 text-[11px] font-extrabold uppercase"
+                            style={{ color: SEVERITY_COLOR_VAR[problema.severidad], borderColor: SEVERITY_COLOR_VAR[problema.severidad] }}
+                          >
+                            {problema.severidad}
+                          </span>
+                          <strong className="text-sm" style={{ color: "var(--foreground)" }}>
+                            {problema.categoria}
+                          </strong>
+                        </div>
+                        <p className="text-[15px] leading-7" style={{ color: "var(--foreground)" }}>
+                          <HighlightedText text={problema.explicacion} cardImages={cardImages} onHover={handleHover} />
+                        </p>
+                        {candidatas.length > 0 && (
+                          <div className="mt-2">
+                            <button
+                              type="button"
+                              onClick={() => setExpandedProblema(expanded ? null : i)}
+                              className="font-head text-[11px] font-bold uppercase underline-offset-2 hover:underline"
+                              style={{ color: "var(--accent)" }}
+                            >
+                              {expanded ? "Ocultar candidatas" : `Ver candidatas (${candidatas.length})`}
+                            </button>
+                            {expanded && (
+                              <div
+                                className="mt-2 grid grid-cols-2 gap-3 rounded-sm border p-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5"
+                                style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+                              >
+                                {candidatas.map((candidata, j) => (
+                                  <CandidateThumbnail
+                                    key={j}
+                                    candidata={candidata}
+                                    imageUrl={cardImages[candidata.carta]}
+                                    onClick={() => setOpenCandidate(candidata)}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
-                      <p className="text-[15px] leading-7" style={{ color: "var(--foreground)" }}>
-                        <HighlightedText text={problema.explicacion} cardImages={cardImages} onHover={handleHover} />
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {swaps.length > 0 && (
-              <div>
-                <SectionLabel>Cambios sugeridos</SectionLabel>
-                {analisis.presupuesto && (
-                  <p
-                    className="mb-3 text-sm"
-                    style={{ color: analisis.presupuesto.supera_presupuesto ? "var(--status-warning)" : "var(--ink-secondary)" }}
-                  >
-                    Coste estimado de lo incluido:{" "}
-                    <strong>{analisis.presupuesto.coste_estimado.toFixed(2)} €</strong> de{" "}
-                    {analisis.presupuesto.presupuesto.toFixed(2)} € de presupuesto
-                    {analisis.presupuesto.supera_presupuesto &&
-                      ` — se pasa por ${analisis.presupuesto.diferencia.toFixed(2)} € para no dejar sin resolver los problemas más graves`}
-                    .
-                  </p>
-                )}
-                <div className="flex flex-col gap-px overflow-hidden rounded-sm border" style={{ borderColor: "var(--border)", background: "var(--border)" }}>
-                  {swaps.map((group, i) => (
-                    <SwapGroupCard
-                      key={i}
-                      group={group}
-                      cardImages={cardImages}
-                      onHover={handleHover}
-                      onZoom={(name) => setZoomedCard(name)}
-                    />
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}

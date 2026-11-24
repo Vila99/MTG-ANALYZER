@@ -9,6 +9,11 @@ export interface RecentEntry {
   commander: string;
   deckSize: number;
   result: AnalyzeResponse;
+  /** La URL de Moxfield con la que se pidió este análisis (no viene en
+   * `result`): hace falta para poder repetir la petición más adelante, p.
+   * ej. al pulsar "Probar simulación" sobre un análisis cargado desde aquí.
+   * Ausente en entradas guardadas antes de añadir esto. */
+  request?: { moxfieldUrl: string };
 }
 
 /** Rellena con valores por defecto los campos que se fueron añadiendo a
@@ -38,13 +43,17 @@ export function loadRecentAnalyses(): RecentEntry[] {
   }
 }
 
-export function saveRecentAnalysis(result: AnalyzeResponse): RecentEntry[] {
+export function saveRecentAnalysis(
+  result: AnalyzeResponse,
+  request: { moxfieldUrl: string }
+): RecentEntry[] {
   const entry: RecentEntry = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     timestamp: Date.now(),
     commander: result.comandantes.length > 0 ? result.comandantes.join(" + ") : "Sin comandante",
     deckSize: result.tamano_deck,
     result,
+    request,
   };
   const next = [entry, ...loadRecentAnalyses()].slice(0, MAX_ENTRIES);
   try {
