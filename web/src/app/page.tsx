@@ -11,6 +11,15 @@ import {
   saveRecentAnalysis,
   type RecentEntry,
 } from "./lib/recentAnalyses";
+import {
+  buildSampleExport,
+  downloadSample,
+  formatSampleDate,
+  loadSample,
+  loadSampleIndex,
+  type SampleAnalysis,
+  type SampleIndexEntry,
+} from "./lib/sampleAnalyses";
 import { AnalyzeRequest, AnalyzeResponse, SimulateRequest, SimulationResult } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -114,6 +123,113 @@ function RecentAnalysesModal({
   );
 }
 
+function SampleAnalysesModal({
+  onSelect,
+  onClose,
+}: {
+  onSelect: (entry: SampleIndexEntry) => void;
+  onClose: () => void;
+}) {
+  const [samples, setSamples] = useState<SampleIndexEntry[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadSampleIndex()
+      .then((entries) => {
+        if (!cancelled) setSamples(entries);
+      })
+      .catch((err) => {
+        if (!cancelled) setLoadError(err instanceof Error ? err.message : "No se pudieron cargar los ejemplos.");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex cursor-pointer items-start justify-center overflow-y-auto p-6 sm:items-center"
+      style={{ background: "rgba(0,0,0,0.75)" }}
+      onClick={onClose}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Análisis de ejemplo"
+        className="w-full max-w-xl cursor-default rounded-sm border"
+        style={{ borderColor: "var(--border)", background: "var(--background)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b p-4" style={{ borderColor: "var(--border)" }}>
+          <h2 className="font-head text-sm font-extrabold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
+            Análisis de ejemplo
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="font-head text-xs font-bold"
+            style={{ color: "var(--ink-muted)" }}
+          >
+            Cerrar ✕
+          </button>
+        </div>
+
+        {loadError ? (
+          <p className="p-4 text-sm" style={{ color: "var(--status-critical)" }}>
+            {loadError}
+          </p>
+        ) : samples === null ? (
+          <p className="p-4 text-sm" style={{ color: "var(--ink-muted)" }}>
+            Cargando ejemplos…
+          </p>
+        ) : samples.length === 0 ? (
+          <p className="p-4 text-sm" style={{ color: "var(--ink-muted)" }}>
+            Todavía no hay ningún análisis de ejemplo publicado.
+          </p>
+        ) : (
+          <div className="flex flex-col gap-px" style={{ background: "var(--border)" }}>
+            {samples.map((entry) => (
+              <button
+                key={entry.id}
+                type="button"
+                onClick={() => {
+                  onSelect(entry);
+                  onClose();
+                }}
+                className="flex flex-col gap-0.5 p-3 text-left"
+                style={{ background: "var(--surface)" }}
+              >
+                <span className="flex flex-wrap items-baseline gap-x-3">
+                  <span className="font-head text-sm font-bold" style={{ color: "var(--foreground)" }}>
+                    {entry.title}
+                  </span>
+                  <span className="text-xs" style={{ color: "var(--ink-muted)" }}>
+                    {entry.ai ? "Con análisis de Claude" : "Solo métricas"}
+                  </span>
+                </span>
+                {entry.description && (
+                  <span className="text-xs" style={{ color: "var(--ink-muted)" }}>
+                    {entry.description}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const moxfieldUrlId = useId();
   const descriptionId = useId();
@@ -136,6 +252,8 @@ export default function Home() {
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
   const [recent, setRecent] = useState<RecentEntry[]>([]);
   const [showRecentModal, setShowRecentModal] = useState(false);
+  const [showSamplesModal, setShowSamplesModal] = useState(false);
+  const [activeSample, setActiveSample] = useState<SampleAnalysis | null>(null);
   const [simulation, setSimulation] = useState<SimulationResult | null>(null);
   const [simulationLoading, setSimulationLoading] = useState(false);
   const [simulationError, setSimulationError] = useState<string | null>(null);
@@ -197,6 +315,7 @@ export default function Home() {
 
       const data: AnalyzeResponse = await response.json();
       setResult(data);
+      setActiveSample(null);
       setRecent(saveRecentAnalysis(data, { moxfieldUrl: moxfieldUrl.trim() }));
       setSimulation(null);
       setSimulationError(null);
@@ -209,6 +328,13 @@ export default function Home() {
   }
 
   async function handleRunSimulation() {
+    if (activeSample?.simulation) {
+      // Ejemplo: la simulación viene guardada; copia nueva para que
+      // ResultsView vuelva a abrir el modal aunque ya se hubiera mostrado.
+      setSimulation({ ...activeSample.simulation });
+      return;
+    }
+
     setSimulationLoading(true);
     setSimulationError(null);
 
@@ -238,7 +364,27 @@ export default function Home() {
     }
   }
 
+  async function handleSelectSample(entry: SampleIndexEntry) {
+    setError(null);
+    try {
+      const sample = await loadSample(entry);
+      setActiveSample(sample);
+      setResult(sample.result);
+      setMoxfieldUrl(sample.request.moxfieldUrl);
+      setSimulation(null);
+      setSimulationError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo cargar el ejemplo.");
+    }
+  }
+
+  function handleExportSample() {
+    if (!result) return;
+    downloadSample(buildSampleExport(result, simulation, moxfieldUrl.trim()));
+  }
+
   function handleReset() {
+    setActiveSample(null);
     setResult(null);
     setError(null);
     setSimulation(null);
@@ -447,6 +593,15 @@ export default function Home() {
           >
             Últimos decks analizados
           </button>
+
+          <button
+            type="button"
+            onClick={() => setShowSamplesModal(true)}
+            className="font-head h-11 rounded-sm border text-[10px] font-bold uppercase"
+            style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+          >
+            Ver análisis de ejemplo
+          </button>
           </div>
         </form>
 
@@ -454,6 +609,7 @@ export default function Home() {
           <RecentAnalysesModal
             recent={recent}
             onSelect={(entry) => {
+              setActiveSample(null);
               setResult(entry.result);
               setMoxfieldUrl(entry.request?.moxfieldUrl ?? "");
               setSimulation(null);
@@ -461,6 +617,13 @@ export default function Home() {
             }}
             onRemove={(id) => setRecent(removeRecentAnalysis(id))}
             onClose={() => setShowRecentModal(false)}
+          />
+        )}
+
+        {showSamplesModal && (
+          <SampleAnalysesModal
+            onSelect={handleSelectSample}
+            onClose={() => setShowSamplesModal(false)}
           />
         )}
         </>
@@ -492,12 +655,46 @@ export default function Home() {
       )}
 
       {result && (
+        <div
+          className="flex flex-wrap items-center justify-between gap-3 rounded-sm border px-4 py-2.5"
+          style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+        >
+          {activeSample ? (
+            <p className="text-sm" style={{ color: "var(--foreground)" }}>
+              <span className="font-head text-xs font-extrabold uppercase tracking-wide">Análisis de ejemplo</span>
+              <span style={{ color: "var(--ink-muted)" }}>
+                {" "}
+                · resultado real guardado
+                {formatSampleDate(activeSample.savedAt) && ` el ${formatSampleDate(activeSample.savedAt)}`}
+              </span>
+            </p>
+          ) : (
+            <>
+              <p className="text-xs" style={{ color: "var(--ink-muted)" }}>
+                Guarda este resultado como JSON para publicarlo como análisis de ejemplo.
+              </p>
+              <button
+                type="button"
+                onClick={handleExportSample}
+                className="font-head h-9 rounded-sm border px-3 text-[10px] font-bold uppercase"
+                style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+              >
+                Exportar como ejemplo
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {result && (
         <ResultsView
           result={result}
           simulation={simulation}
           simulationLoading={simulationLoading}
           simulationError={simulationError}
-          onRunSimulation={handleRunSimulation}
+          onRunSimulation={
+            activeSample && !activeSample.simulation && !moxfieldUrl.trim() ? undefined : handleRunSimulation
+          }
         />
       )}
     </main>

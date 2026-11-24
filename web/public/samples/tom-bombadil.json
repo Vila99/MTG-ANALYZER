@@ -1,0 +1,613 @@
+{
+  "version": 1,
+  "id": "tom-bombadil",
+  "title": "Tom Bombadil",
+  "description": "Sagas / encantamientos (enchantress) de valor, midrange casual de cinco colores",
+  "savedAt": "2026-11-24T08:45:45.430416Z",
+  "request": {
+    "moxfieldUrl": ""
+  },
+  "result": {
+    "comandantes": [
+      "Tom Bombadil"
+    ],
+    "identidad_color": [
+      "W",
+      "U",
+      "B",
+      "R",
+      "G"
+    ],
+    "tamano_deck": 100,
+    "tierras": 39,
+    "cmc_medio": 3.08,
+    "curva_mana": {
+      "1": 6,
+      "2": 23,
+      "3": 14,
+      "4": 5,
+      "5": 7,
+      "6": 2,
+      "7": 1,
+      "8": 1,
+      "9": 1
+    },
+    "pips": {
+      "W": 29,
+      "U": 10,
+      "B": 8,
+      "R": 12,
+      "G": 30
+    },
+    "fuentes_mana": {
+      "W": 22,
+      "U": 23,
+      "B": 22,
+      "R": 23,
+      "G": 26
+    },
+    "no_legales": [],
+    "no_encontradas": [],
+    "roles": {
+      "other": 27,
+      "land": 39,
+      "ramp": 14,
+      "protection": 4,
+      "draw": 10,
+      "removal": 8,
+      "tutor": 2
+    },
+    "rubric": {
+      "land": "alto",
+      "ramp": "alto",
+      "draw": "ok",
+      "removal": "ok",
+      "wipe": "bajo"
+    },
+    "nota_deck": 6.0,
+    "cartas_por_rol": {
+      "other": [
+        "Aminatou, Veil Piercer",
+        "Barbara Wright",
+        "Clash of the Eikons",
+        "Dáin, Lord of the Iron Hills",
+        "Estrid's Invocation",
+        "Fable of the Mirror-Breaker // Reflection of Kiki-Jiki",
+        "Garnet, Princess of Alexandria",
+        "Ghen, Arcanum Weaver",
+        "Herald of the Pantheon",
+        "Historian's Boon",
+        "In the Darkness Bind Them",
+        "Incite Hysteria",
+        "Jukai Naturalist",
+        "Michiko's Reign of Truth // Portrait of Michiko",
+        "Open the Vaults",
+        "Prismatic Omen",
+        "Revive the Shire",
+        "Roar of Endless Song",
+        "Starfield Mystic",
+        "Storyweave",
+        "Summon: Titan",
+        "The Birth of Meletis",
+        "There and Back Again",
+        "Three Blind Mice",
+        "Volt Charge",
+        "War of the Last Alliance",
+        "Wild Growth"
+      ],
+      "land": [
+        "Arcane Sanctum",
+        "Command Tower",
+        "Crumbling Necropolis",
+        "Evolving Wilds",
+        "Exotic Orchard",
+        "Forest",
+        "Frontier Bivouac",
+        "Island",
+        "Jungle Shrine",
+        "Karn's Bastion",
+        "Mines of Moria",
+        "Mountain",
+        "Mystic Monastery",
+        "Nomad Outpost",
+        "Opulent Palace",
+        "Path of Ancestry",
+        "Plains",
+        "Rivendell",
+        "Sandsteppe Citadel",
+        "Savage Lands",
+        "Seaside Citadel",
+        "Swamp",
+        "Thriving Grove",
+        "Thriving Heath",
+        "Thriving Isle",
+        "Thriving Moor",
+        "Urza's Saga"
+      ],
+      "ramp": [
+        "Azusa's Many Journeys // Likeness of the Seeker",
+        "Chromatic Lantern",
+        "Esper Origins // Summon: Esper Maduin",
+        "Evolving Wilds",
+        "Great Divide Guide",
+        "Jugan Defends the Temple // Remnant of the Rising Star",
+        "Many Partings",
+        "Mirari's Wake",
+        "Sanctum Weaver",
+        "Sol Ring",
+        "Terra, Magical Adept // Esper Terra",
+        "The Misty Mountains Cold",
+        "The Weatherseed Treaty",
+        "Thought Vessel"
+      ],
+      "protection": [
+        "Destiny Spinner",
+        "Kiora Bests the Sea God",
+        "Sterling Grove",
+        "Summon: Knights of Round"
+      ],
+      "draw": [
+        "Goldberry, River-Daughter",
+        "Narci, Fable Singer",
+        "O'aka, Traveling Merchant",
+        "Reprieve",
+        "Rydia, Summoner of Mist",
+        "Satyr Enchanter",
+        "Summon: Bahamut",
+        "Sythis, Harvest's Hand",
+        "The Legend of Yangchen // Avatar Yangchen",
+        "Tuvasa the Sunlit"
+      ],
+      "removal": [
+        "Reprieve",
+        "Satsuki, the Living Lore",
+        "Summon: Bahamut",
+        "Summon: Yojimbo",
+        "Swords to Plowshares",
+        "The Coming of Galactus",
+        "The Kami War // O-Kagachi Made Manifest",
+        "Whisper of the Dross"
+      ],
+      "tutor": [
+        "Sterling Grove",
+        "Urza's Saga"
+      ]
+    },
+    "coste_aproximado": {
+      "total_eur": 158.89,
+      "cartas_sin_precio": [
+        "Azusa's Many Journeys // Likeness of the Seeker",
+        "Esper Origins // Summon: Esper Maduin",
+        "Fable of the Mirror-Breaker // Reflection of Kiki-Jiki",
+        "Forest",
+        "Island",
+        "Jugan Defends the Temple // Remnant of the Rising Star",
+        "Michiko's Reign of Truth // Portrait of Michiko",
+        "Mountain",
+        "Narci, Fable Singer",
+        "Plains",
+        "Swamp",
+        "Terra, Magical Adept // Esper Terra",
+        "The Kami War // O-Kagachi Made Manifest",
+        "The Legend of Yangchen // Avatar Yangchen",
+        "Tuvasa the Sunlit"
+      ]
+    },
+    "analisis": {
+      "estrategia_detectada": "Mazo de Sagas en cinco colores. Acumula capítulos finales (con aceleradores de contadores de lore y lectura anticipada) para que Tom Bombadil ponga en juego gratis más Sagas desde la biblioteca. Como las Sagas son encantamientos, cada una dispara robo, descuentos y ganancia de vida. Gana con tokens grandes, drenaje por capítulo final y Sagas que dan amenazas de golpe.",
+      "arquetipo": "Sagas / encantamientos (enchantress) de valor, midrange casual de cinco colores",
+      "puntos_fuertes": [
+        "Densidad muy alta de Sagas (más de veinte, contando las que se transforman): el comandante casi siempre encuentra un objetivo y cada Saga aporta efectos distintos (ramp, removal, tokens, robo, drenaje).",
+        "Varios aceleradores de contadores de lore y de lectura anticipada, que hacen llegar antes al capítulo final y permiten encadenar un disparo del comandante cada turno.",
+        "Capa de robo sinérgico basada en lanzar encantamientos (cada Saga cuenta), con reductores de coste que abaratan la curva y alimentan ese robo.",
+        "Maná abundante y bien fijado para cinco colores (22-26 fuentes por color), con ramp de tierras y rocas que sobrevive bien a la interacción rival.",
+        "Varios finalizadores a mesa: tokens grandes, drenaje por Saga completada, daño directo proporcional al valor de maná de los permanentes y un ángel por cada capítulo final.",
+        "Interacción incrustada en las propias Sagas (exilio, destrucción, robar permanentes, tapar la mesa), que cubre removal sin gastar huecos de hechizos sueltos."
+      ],
+      "problemas": [
+        {
+          "categoria": "Protección y resiliencia a velocidad instantánea",
+          "severidad": "media",
+          "explicacion": "El plan depende de piezas frágiles: motores en criaturas (Satsuki, Barbara Wright, Narci, Sythis, Tuvasa, Goldberry) y Sagas a mitad de capítulos. El comandante solo se protege con cuatro o más contadores de lore entre tus Sagas, y casi todo el deck funciona a velocidad de sorcery. Fuera de Sterling Grove, Destiny Spinner y Reprieve no hay protección instantánea. En blanco y verde esa capa está disponible y casi no se usa. Un wipe o un removal bien puesto en el motor deja al deck sin respuesta.",
+          "candidatas_sugeridas": [
+            {
+              "carta": "Mutational Advantage",
+              "rol": "protección",
+              "motivo": "Da hexproof e indestructible a tus permanentes con contadores (las Sagas llevan contadores de lore, que cuentan) y además hace proliferate, así que avanza capítulos.",
+              "precio_eur": 9.27
+            },
+            {
+              "carta": "Heroic Intervention",
+              "rol": "protección",
+              "motivo": "Protege toda la mesa contra removal puntual o wipes por 2 maná, a velocidad instantánea.",
+              "precio_eur": 8.2
+            },
+            {
+              "carta": "Shields Up!",
+              "rol": "protección",
+              "motivo": "Barato, protege al comandante o a una criatura motor y deja un contador +1/+1.",
+              "precio_eur": 0.1
+            },
+            {
+              "carta": "Loran's Escape",
+              "rol": "protección",
+              "motivo": "Protección de 1 maná con scry, para salvar una pieza clave en respuesta.",
+              "precio_eur": 2.56
+            },
+            {
+              "carta": "Join Shields",
+              "rol": "protección",
+              "motivo": "Protege a todas las criaturas y las endereza, lo que sirve para defender y contraatacar con los tokens de las Sagas.",
+              "precio_eur": 0.1
+            },
+            {
+              "carta": "Gaea's Gift",
+              "rol": "protección",
+              "motivo": "Alternativa verde y barata para salvar una criatura en respuesta.",
+              "precio_eur": 1.2
+            }
+          ]
+        },
+        {
+          "categoria": "Interacción masiva y removal de bajo coste",
+          "severidad": "media",
+          "explicacion": "La interacción puntual es Swords to Plowshares, Reprieve y Whisper of the Dross. El resto viene en Sagas que suelen tardar uno o dos turnos en hacer efecto, y el mazo no tiene ningún wipe ni respuesta masiva. Como mazo de valor que acumula mesa, si un rival crece más rápido no tienes cómo frenarlo hasta que la Saga adecuada llegue al capítulo correcto. Hay 3 o 4 huecos de interacción instantánea y barata que añadir sin cambiar el plan.",
+          "candidatas_sugeridas": [
+            {
+              "carta": "Summon: Ixion",
+              "rol": "removal / Saga",
+              "motivo": "Saga de blanco que exilia una criatura rival ya en el capítulo I y da contadores +1/+1 y vida después. Es una Saga más para el comandante y quita una amenaza al instante.",
+              "precio_eur": 0.37
+            },
+            {
+              "carta": "Ajani Fells the Godsire",
+              "rol": "removal / Saga",
+              "motivo": "Exilia una criatura rival con poder 3 o más, crea un token y da doble daño. Cuenta como Saga barata y como removal.",
+              "precio_eur": 0.09
+            },
+            {
+              "carta": "Battle at the Helvault",
+              "rol": "removal / Saga",
+              "motivo": "Exilia un permanente de cada jugador (puedes elegir ninguno propio) y termina creando un Avacyn 8/8 indestructible como cierre.",
+              "precio_eur": 6.07
+            },
+            {
+              "carta": "Phyrexian Scriptures",
+              "rol": "wipe / Saga",
+              "motivo": "Wipe de criaturas no artefacto que deja en pie al comandante si lo conviertes en artefacto en el capítulo I. Reinicia la mesa sin perder tus Sagas, que son encantamientos.",
+              "precio_eur": 1.58
+            },
+            {
+              "carta": "Anguished Unmaking",
+              "rol": "removal instantáneo",
+              "motivo": "Removal comodín instantáneo (exilia cualquier permanente) para mesas donde la amenaza no es una criatura.",
+              "precio_eur": 1.41
+            },
+            {
+              "carta": "Beast Within",
+              "rol": "removal comodín",
+              "motivo": "Instantáneo de verde que sirve para cualquier permanente y también para responder a una amenaza grave.",
+              "precio_eur": 0.57
+            }
+          ]
+        },
+        {
+          "categoria": "Exceso de maná y tierras que entran giradas",
+          "severidad": "media",
+          "explicacion": "Hay 39 tierras (Urza's Saga incluida) más unas 13 piezas de ramp, rocas y Sagas de maná, con una curva media de solo 3,08 y 23 cartas de coste 2. Eso es más maná del necesario, sobre todo porque Tom pone Sagas gratis. Además, unas 14 tierras entran giradas (trilands, Thriving, Path of Ancestry), lo que ralentiza las primeras jugadas de un mazo de curva baja. Recortar 1 o 2 tierras (por ejemplo las que entran giradas) y usar esos huecos en robo o Sagas baratas mantiene el maná sin perder velocidad.",
+          "candidatas_sugeridas": [
+            {
+              "carta": "Summon: Anima",
+              "rol": "robo / Saga",
+              "motivo": "Roba 3 cartas en tres capítulos y termina con un edicto y drenaje de 3. Es otra Saga más para el comandante.",
+              "precio_eur": 0.08
+            },
+            {
+              "carta": "Heaven Sent",
+              "rol": "robo / Saga",
+              "motivo": "Saga barata que investiga dos veces y se puede relanzar, dando valor y sacrificios de pistas sin gastar mucho maná.",
+              "precio_eur": 0.22
+            },
+            {
+              "carta": "Oath of the Grey Host",
+              "rol": "Saga de valor",
+              "motivo": "Crea Tesoro, drena 3 y deja tres espíritus voladores; encaja con el plan de mesa ancha.",
+              "precio_eur": 0.07
+            },
+            {
+              "carta": "Summon: Good King Mog XII",
+              "rol": "Saga / amplificador de tokens",
+              "motivo": "Crea dos Moogles y copia tokens al lanzar hechizos no criatura, que en este mazo son muchos (Sagas incluidas).",
+              "precio_eur": 0.3
+            },
+            {
+              "carta": "Life of Toshiro Umezawa // Memory of Toshiro",
+              "rol": "Saga flexible",
+              "motivo": "Saga barata que se adapta a lo que falte (vida, removal pequeño o refuerzo) y se transforma en fuente de maná.",
+              "precio_eur": null
+            }
+          ]
+        },
+        {
+          "categoria": "Pocos amplificadores y payoffs de capítulo final aparte del comandante",
+          "severidad": "baja",
+          "explicacion": "El comandante actúa como generador de ventaja: pone Sagas en juego. Hay muchos generadores (las propias Sagas) y los amplificadores de lore (Satsuki, Storyweave, Clash of the Eikons, Barbara Wright) son pocos. Los payoffs específicos de capítulo final, además del comandante, se reducen a Narci, Historian's Boon y Garnet. Con el comandante ya disponible, conviene reforzar amplificadores en lugar de añadir más generadores. Esto es una mejora de pulido, no un fallo.",
+          "candidatas_sugeridas": [
+            {
+              "carta": "Doubling Season",
+              "rol": "amplificador",
+              "motivo": "Duplica los contadores de lore al entrar la Saga y cuando se añaden, así que llega al capítulo final casi de inmediato y dobla además los tokens que crean las Sagas.",
+              "precio_eur": 21.64
+            },
+            {
+              "carta": "Mutational Advantage",
+              "rol": "amplificador / protección",
+              "motivo": "Su proliferate suma contadores de lore a todas las Sagas a la vez y a la vez las protege.",
+              "precio_eur": 9.27
+            },
+            {
+              "carta": "Long List of the Ents",
+              "rol": "Saga / generador",
+              "motivo": "Saga de seis capítulos barata, que da contadores +1/+1 a criaturas y es un objetivo adicional para el comandante.",
+              "precio_eur": 0.1
+            },
+            {
+              "carta": "Vorinclex // The Grand Evolution",
+              "rol": "generador / Saga",
+              "motivo": "Criatura que busca dos Forest y puede transformarse en Saga con efectos potentes de contadores y fights; encaja con el tema aunque la cara frontal no sea una Saga.",
+              "precio_eur": null
+            }
+          ]
+        },
+        {
+          "categoria": "Combo infinito que puede incomodar a la mesa",
+          "severidad": "baja",
+          "explicacion": "Terra, Magical Adept // Esper Terra con Estrid's Invocation forma un bucle infinito de maná, ETB y disparos de muerte, aunque solo es viable a partir de mucho maná (6 para activar Terra). Para un estilo casual es un cierre fuera del tema del mazo, que gana por acumulación y capítulos finales. Si a tu mesa no le gusta ese tipo de combo, basta con cambiar una de las dos piezas, lo que además bajaría el suelo de bracket. Estrid's Invocation por sí sola es un clon de encantamiento correcto, así que la decisión es de gusto.",
+          "candidatas_sugeridas": [
+            {
+              "carta": "Summon: Ixion",
+              "rol": "Saga de removal",
+              "motivo": "Sustituye el hueco con una Saga sencilla que quita una amenaza y suma vida.",
+              "precio_eur": 0.37
+            },
+            {
+              "carta": "Ajani Fells the Godsire",
+              "rol": "Saga de removal / apoyo",
+              "motivo": "Mismo hueco de encantamiento, aporta exilio y un token, sin bucles infinitos.",
+              "precio_eur": 0.09
+            },
+            {
+              "carta": "Battle at the Helvault",
+              "rol": "Saga de removal / finalizador",
+              "motivo": "Da una forma de ganar clara (Avacyn 8/8) sin depender del combo.",
+              "precio_eur": 6.07
+            },
+            {
+              "carta": "Summon: Anima",
+              "rol": "Saga de robo / drenaje",
+              "motivo": "Mantiene el plan de valor con robo y un finalizador de drenaje.",
+              "precio_eur": 0.08
+            }
+          ]
+        }
+      ],
+      "bracket": {
+        "deducido": 3,
+        "confianza": "media",
+        "suelo": 3,
+        "estimacion_juego": 2,
+        "game_changers": [],
+        "senales_duras": [
+          {
+            "tipo": "combo",
+            "detalle": "Terra, Magical Adept // Esper Terra + Estrid's Invocation produce un bucle infinito (maná, ETB, muerte); velocidad 'tardío' → mínimo bracket 3."
+          }
+        ],
+        "razones": [
+          "No hay Game Changers, destrucción masiva de tierras ni turnos extra: el único empuje al bracket viene del combo tardío detectado en el pool verificado.",
+          "El juego real es de bracket 2 alto: gana por acumulación de Sagas, tokens y drenaje hacia el turno 7-8 o más tarde, con interacción en gran parte a velocidad de sorcery y casi sin tutores (solo Sterling Grove, Urza's Saga y War of the Last Alliance).",
+          "Ramp moderado: Sol Ring, Mirari's Wake y bastante ramp de tierras, pero sin rituales ni rocas baratas explosivas.",
+          "Es una infracción puntual en un mazo claramente casual: el suelo 3 se aplica, pero el mazo juega como un 2 alto."
+        ],
+        "que_lo_moveria": {
+          "bajar": [
+            "Cambiar Estrid's Invocation o Terra, Magical Adept // Esper Terra por otra Saga o encantamiento elimina la señal dura y deja el mazo en bracket 2 (alto)."
+          ],
+          "subir": [
+            "Añadir 1-3 Game Changers (por ejemplo tutores de encantamientos o robo como Rhystic Study) lo llevaría con claridad a bracket 3.",
+            "Sumar más tutores y maná rápido para encontrar Sagas concretas lo acercaría a bracket 3-4, pero no encaja con un enfoque casual."
+          ]
+        }
+      },
+      "combos_detectados": [
+        {
+          "cartas": [
+            "Terra, Magical Adept // Esper Terra",
+            "Estrid's Invocation"
+          ],
+          "produce": [
+            "Infinite creature LTB",
+            "Infinite creature ETB",
+            "Infinite colored mana",
+            "Infinite creature sacrifice triggers",
+            "Infinite death triggers"
+          ],
+          "descripcion": "Activate Terra by paying {4}{R}{G} and tapping it, exiling it and returning it to the battlefield as Esper Terra.\nEsper Terra enters with a lore counter on it, triggering its first chapter ability, creating a token copy of Estrid's Invocation with haste, which will enter as a copy of Esper Terra with haste and with one to four lore counters on it.\nPut the oldest Esper Terra into your graveyard due to the legend rule.\nThe Estrid's Invocation token's chapter abilities will trigger according to how many lore counters were placed on it.\nResolve the first Estrid's Invocation token trigger, creating a token copy of Estrid's Invocation with haste, which will enter as a copy of Esper Terra with haste and with one to four lore counters on it.\nRepeat from step 3.",
+          "velocidad": "tardío"
+        }
+      ]
+    },
+    "card_images": {
+      "Arcane Sanctum": "https://cards.scryfall.io/normal/front/2/3/23d77f67-11a3-49b1-9594-68461cd08b04.jpg?1793021244",
+      "Shields Up!": "https://cards.scryfall.io/normal/front/0/b/0b60c9af-8ea9-491d-a4a4-226a2143e7f3.jpg?1785981369",
+      "Azusa's Many Journeys // Likeness of the Seeker": "https://cards.scryfall.io/normal/front/e/8/e8a51d2a-1582-4bad-995c-e7fe9f810149.jpg?1783923861",
+      "Terra, Magical Adept // Esper Terra": "https://cards.scryfall.io/normal/front/f/b/fbd447aa-588d-4c4d-925e-a7d3bdf6a65c.jpg?1783906567",
+      "Karn's Bastion": "https://cards.scryfall.io/normal/front/2/2/22017ec2-3552-4865-af76-dba042b141f5.jpg?1783906011",
+      "Plains": "https://cards.scryfall.io/normal/front/0/9/09ac862f-0a51-44dd-b86f-9412b8218b13.jpg?1791578423",
+      "Loran's Escape": "https://cards.scryfall.io/normal/front/3/7/3765610d-a0c1-4de9-a81b-ffa3eb06454b.jpg?1783920128",
+      "Estrid's Invocation": "https://cards.scryfall.io/normal/front/8/9/8920e7e4-d89e-4ff9-8922-27fdc2f8ed6e.jpg?1783911217",
+      "Gaea's Gift": "https://cards.scryfall.io/normal/front/5/5/5503186a-46fe-4956-8ae3-5ab3343f8a93.jpg?1783920046",
+      "The Legend of Yangchen // Avatar Yangchen": "https://cards.scryfall.io/normal/front/a/6/a60e8f23-90b2-4bc6-bd54-a95055556389.jpg?1783905002",
+      "Path of Ancestry": "https://cards.scryfall.io/normal/front/4/a/4ac05a29-0722-4d8b-80e9-a46c38491c14.jpg?1793021342",
+      "Rivendell": "https://cards.scryfall.io/normal/front/b/a/bacd500c-1389-4314-a53e-0ad510d6fb79.jpg?1783916232",
+      "Jungle Shrine": "https://cards.scryfall.io/normal/front/0/b/0b1a84b6-4202-4413-80ed-4142c51e619a.jpg?1783904523",
+      "Starfield Mystic": "https://cards.scryfall.io/normal/front/e/8/e8f2fcb4-8d06-49ac-9c70-9c54d77c6d86.jpg?1783903798",
+      "Narci, Fable Singer": "https://cards.scryfall.io/normal/front/a/9/a98a2fa9-82d6-4cf7-adb4-65b187cd9cda.jpg?1783915490",
+      "Mystic Monastery": "https://cards.scryfall.io/normal/front/d/f/df73f8dd-5b01-4602-83f2-d336f75871d4.jpg?1793112026",
+      "Ajani Fells the Godsire": "https://cards.scryfall.io/normal/front/1/d/1d918133-d4e2-4674-a3cb-58edef1c6758.jpg?1783911304",
+      "Volt Charge": "https://cards.scryfall.io/normal/front/7/3/73d74045-cc9b-4b01-bc5f-0f2eb4b01580.jpg?1783918021",
+      "Swords to Plowshares": "https://cards.scryfall.io/normal/front/4/6/4645eebf-c9fc-4ee7-b646-61dc1205b4b0.jpg?1793111861",
+      "Mines of Moria": "https://cards.scryfall.io/normal/front/0/b/0be723d6-4ada-4c3f-b87b-8ab83a4bbb8f.jpg?1783916232",
+      "Phyrexian Scriptures": "https://cards.scryfall.io/normal/front/0/9/09bb74d7-dd61-4cce-b88c-ee4d656a97f4.jpg?1783917153",
+      "Beast Within": "https://cards.scryfall.io/normal/front/1/9/1929cf4b-0d18-4f7d-a631-621a378ff015.jpg?1793281367",
+      "The Weatherseed Treaty": "https://cards.scryfall.io/normal/front/e/2/e2a54461-1f75-4304-b6d7-635171419456.jpg?1783921290",
+      "Kiora Bests the Sea God": "https://cards.scryfall.io/normal/front/2/b/2b604451-4f6c-4cfa-8d3a-01f18d01d88f.jpg?1783931583",
+      "Doubling Season": "https://cards.scryfall.io/normal/front/f/2/f2c4f80e-84a0-463b-82c3-5c6503809351.jpg?1783909062",
+      "Historian's Boon": "https://cards.scryfall.io/normal/front/0/d/0da48d1e-0dec-461a-9a1d-477408b297e6.jpg?1783921470",
+      "Sythis, Harvest's Hand": "https://cards.scryfall.io/normal/front/8/9/89511ab5-8ea6-4f07-a80b-c1ec7e89924e.jpg?1783915411",
+      "Forest": "https://cards.scryfall.io/normal/front/2/e/2e781bfd-f8cb-4d20-b977-4359f3a21311.jpg?1791578317",
+      "Storyweave": "https://cards.scryfall.io/normal/front/5/0/50a77eed-aa03-43b7-b3c8-6aee4c96c648.jpg?1783923840",
+      "Exotic Orchard": "https://cards.scryfall.io/normal/front/0/a/0a4a51a3-fb8b-4611-8f94-fbcab547423c.jpg?1793021293",
+      "Summon: Anima": "https://cards.scryfall.io/normal/front/a/a/aa4f6703-21f8-4c29-ad5a-5afb54188ade.jpg?1783906610",
+      "Many Partings": "https://cards.scryfall.io/normal/front/2/9/29267b6b-e0d9-4514-8932-16bf8e6db3bb.jpg?1783904802",
+      "The Coming of Galactus": "https://cards.scryfall.io/normal/front/0/4/04a38b92-619e-4fe8-b0cb-6fa31f0824ff.jpg?1784182991",
+      "Thriving Heath": "https://cards.scryfall.io/normal/front/b/b/bb089097-1eed-4e72-a715-579ddd8307a0.jpg?1783903089",
+      "Jukai Naturalist": "https://cards.scryfall.io/normal/front/0/7/07ff517f-5c31-46e9-9efb-52bc9ec9298d.jpg?1783915415",
+      "Clash of the Eikons": "https://cards.scryfall.io/normal/front/7/5/75c18134-f517-4a68-8640-0426b3cd4f6c.jpg?1783906590",
+      "Wild Growth": "https://cards.scryfall.io/normal/front/4/7/47260e7c-29bf-46f1-a029-9da7bbb418b5.jpg?1783912983",
+      "Mirari's Wake": "https://cards.scryfall.io/normal/front/e/f/ef4fa4e8-39e8-47a6-b975-ff5d46e59edd.jpg?1783915415",
+      "Crumbling Necropolis": "https://cards.scryfall.io/normal/front/d/2/d28542af-936f-44e5-a4e3-119f23c9f0d6.jpg?1783903203",
+      "Evolving Wilds": "https://cards.scryfall.io/normal/front/6/e/6e01ec28-d815-47a8-ab0f-d383a4736ebe.jpg?1793021295",
+      "Garnet, Princess of Alexandria": "https://cards.scryfall.io/normal/front/b/8/b883df14-8d7b-4f6a-9a6a-2f71f5b6ddda.jpg?1783906571",
+      "Herald of the Pantheon": "https://cards.scryfall.io/normal/front/a/3/a360af3e-626d-46c9-99cf-6c85921f5d26.jpg?1783915425",
+      "Revive the Shire": "https://cards.scryfall.io/normal/front/4/6/46b7f493-1b57-4b07-8510-30703282f879.jpg?1783916261",
+      "Esper Origins // Summon: Esper Maduin": "https://cards.scryfall.io/normal/front/0/f/0f503360-216a-4629-89b2-d32072850aef.jpg?1783906592",
+      "The Kami War // O-Kagachi Made Manifest": "https://cards.scryfall.io/normal/front/3/6/36052532-5028-43a8-9fc4-56221ec867fd.jpg?1783923839",
+      "There and Back Again": "https://cards.scryfall.io/normal/front/9/3/939b0bd0-24ea-45de-a2d3-37bbf6a3e6f9.jpg?1783916275",
+      "Michiko's Reign of Truth // Portrait of Michiko": "https://cards.scryfall.io/normal/front/7/4/74f12c23-5c15-4ae6-8f4d-c5e6c1878817.jpg?1783923921",
+      "Seaside Citadel": "https://cards.scryfall.io/normal/front/3/a/3a2bb545-87c2-4c09-b56d-8f2a2bf9f9e5.jpg?1793281488",
+      "Savage Lands": "https://cards.scryfall.io/normal/front/4/2/428df1ff-e13e-48a3-bcc9-301bdc9470fb.jpg?1783903002",
+      "Three Blind Mice": "https://cards.scryfall.io/normal/front/0/d/0d2ba371-854c-4529-b72b-e4a1887e33ab.jpg?1783915125",
+      "Vorinclex // The Grand Evolution": "https://cards.scryfall.io/normal/front/e/2/e24b5289-d3b5-4b4d-bb37-69bf2c3b48bc.jpg?1783916965",
+      "Thriving Moor": "https://cards.scryfall.io/normal/front/5/d/5d5eea5f-b9e8-4a10-8e7f-c42493a728cd.jpg?1783903088",
+      "Join Shields": "https://cards.scryfall.io/normal/front/9/1/91898d8a-589d-43db-8dc4-0ec6a3bd6d49.jpg?1783934136",
+      "Incite Hysteria": "https://cards.scryfall.io/normal/front/a/3/a31f5060-df9e-4665-bf60-a8e33da55c84.jpg?1783943651",
+      "Sol Ring": "https://cards.scryfall.io/normal/front/f/c/fc817e07-c1f3-469f-9cf7-0945dea7400f.jpg?1793021181",
+      "In the Darkness Bind Them": "https://cards.scryfall.io/normal/front/f/7/f7f7413b-0a65-4338-90eb-4b4c5462c21c.jpg?1783916019",
+      "Life of Toshiro Umezawa // Memory of Toshiro": "https://cards.scryfall.io/normal/front/f/7/f7f4adf7-b871-417b-8904-7f024ca21486.jpg?1783923889",
+      "Mountain": "https://cards.scryfall.io/normal/front/8/5/85177bd7-6c50-48da-b692-ae5fe7bd357c.jpg?1791578439",
+      "War of the Last Alliance": "https://cards.scryfall.io/normal/front/6/0/60ddf2cd-5b33-4c8a-a610-8e6a15404dde.jpg?1783916322",
+      "The Birth of Meletis": "https://cards.scryfall.io/normal/front/d/8/d824f8bd-58f8-4796-80b5-5cd3033d35e8.jpg?1783931602",
+      "Swamp": "https://cards.scryfall.io/normal/front/b/2/b233b117-9369-45c1-80c5-cc857386b6be.jpg?1791578437",
+      "Sanctum Weaver": "https://cards.scryfall.io/normal/front/3/c/3c9ac089-6962-48fd-bf67-f041ece27fa9.jpg?1783915420",
+      "Barbara Wright": "https://cards.scryfall.io/normal/front/4/1/414bdd33-549d-4690-917c-ea48decffbbb.jpg?1783914681",
+      "Tom Bombadil": "https://cards.scryfall.io/normal/front/2/a/2ab04c49-76a1-4896-8dca-8cb4c615f489.jpg?1783916244",
+      "Frontier Bivouac": "https://cards.scryfall.io/normal/front/4/8/48810b27-0646-4ff9-9d4d-c6d09b2e0267.jpg?1783904530",
+      "Fable of the Mirror-Breaker // Reflection of Kiki-Jiki": "https://cards.scryfall.io/normal/front/2/4/24c0d87b-0049-4beb-b9cb-6f813b7aa7dc.jpg?1783923875",
+      "Summon: Yojimbo": "https://cards.scryfall.io/normal/front/c/d/cdbc2d28-ea35-47c6-af7e-07924e9d5794.jpg?1783906365",
+      "Great Divide Guide": "https://cards.scryfall.io/normal/front/c/c/cc3063ec-5ea6-46c1-8331-c740cbaf6c76.jpg?1783904942",
+      "Thought Vessel": "https://cards.scryfall.io/normal/front/d/f/df44b703-e025-480d-9c7b-55873407bdf4.jpg?1793111967",
+      "Jugan Defends the Temple // Remnant of the Rising Star": "https://cards.scryfall.io/normal/front/a/2/a22b5f27-f9e7-49e1-8e96-dc5d8e7fbe27.jpg?1783923851",
+      "Goldberry, River-Daughter": "https://cards.scryfall.io/normal/front/b/f/bf4f0a7c-620e-4ed8-8da3-fa6564e8a0cd.jpg?1783916317",
+      "Long List of the Ents": "https://cards.scryfall.io/normal/front/2/7/27347256-2ac4-4b12-b288-0a8d578a1ff2.jpg?1783916270",
+      "Roar of Endless Song": "https://cards.scryfall.io/normal/front/7/a/7a9c3531-61a8-43f5-82a2-5166e5f5a6b9.jpg?1783907300",
+      "Urza's Saga": "https://cards.scryfall.io/normal/front/c/1/c1e0f201-42cb-46a1-901a-65bb4fc18f6c.jpg?1783926791",
+      "Chromatic Lantern": "https://cards.scryfall.io/normal/front/9/b/9b29492a-8bdd-4806-8d1b-3058ed277cc1.jpg?1787743253",
+      "Island": "https://cards.scryfall.io/normal/front/1/3/1335d293-3dd2-4f13-bd2c-22181f4528ee.jpg?1791578424",
+      "Tuvasa the Sunlit": "https://cards.scryfall.io/normal/front/b/d/bdda07ac-2f9f-4c8e-b3f6-b54d0afd730c.jpg?1783934327",
+      "Satsuki, the Living Lore": "https://cards.scryfall.io/normal/front/0/1/0152575b-31b0-4142-9cc2-b87a81bd51a8.jpg?1783923830",
+      "Summon: Knights of Round": "https://cards.scryfall.io/normal/front/4/4/44d23652-077e-4c1f-b640-b284685db911.jpg?1783906644",
+      "Nomad Outpost": "https://cards.scryfall.io/normal/front/6/9/69cb108d-0ab0-46a4-b4f2-a86988b820d3.jpg?1793197601",
+      "Satyr Enchanter": "https://cards.scryfall.io/normal/front/d/f/df83d28d-bb0b-4f3d-a16f-8ee8bf452e10.jpg?1783915411",
+      "Whisper of the Dross": "https://cards.scryfall.io/normal/front/5/8/58d287e8-5297-415a-97d5-02002470c52b.jpg?1783918038",
+      "Summon: Ixion": "https://cards.scryfall.io/normal/front/a/c/acb35dcb-0bee-4deb-88bf-ffa1f110c67b.jpg?1783906365",
+      "Aminatou, Veil Piercer": "https://cards.scryfall.io/normal/front/9/f/9f868023-6035-403d-ba91-7a4840c6c392.jpg?1783909663",
+      "Thriving Grove": "https://cards.scryfall.io/normal/front/e/e/eef65ebc-12d6-4438-a908-2a0c28329124.jpg?1783903090",
+      "Mutational Advantage": "https://cards.scryfall.io/normal/front/4/a/4a778448-bcdd-4294-a947-fcadbffaac56.jpg?1783904270",
+      "O'aka, Traveling Merchant": "https://cards.scryfall.io/normal/front/9/d/9d860089-fb88-4736-b7f4-b605551bedc8.jpg?1783906362",
+      "Ghen, Arcanum Weaver": "https://cards.scryfall.io/normal/front/4/b/4b335496-05d2-40f5-a52c-10029f7fa008.jpg?1783928775",
+      "Open the Vaults": "https://cards.scryfall.io/normal/front/e/5/e5c5a822-0f5e-4b5f-b969-b27324e4543f.jpg?1783930213",
+      "Sandsteppe Citadel": "https://cards.scryfall.io/normal/front/e/7/e7482def-e87e-4a7f-9c18-7859483b2a66.jpg?1783904520",
+      "Oath of the Grey Host": "https://cards.scryfall.io/normal/front/6/a/6a780abd-f276-40d3-b2af-d2e47d858d3d.jpg?1783916295",
+      "Destiny Spinner": "https://cards.scryfall.io/normal/front/2/c/2cc3804b-3304-4add-81b4-0482bfed8074.jpg?1783915428",
+      "Battle at the Helvault": "https://cards.scryfall.io/normal/front/0/d/0de0eaeb-9b62-427d-9873-d84de1740ddc.jpg?1783915486",
+      "Opulent Palace": "https://cards.scryfall.io/normal/front/f/0/f0001153-dbcb-44e5-99be-2c186c9b10b0.jpg?1783904523",
+      "Sterling Grove": "https://cards.scryfall.io/normal/front/b/a/ba03e105-a76c-4769-a35a-d780448890ec.jpg?1783926777",
+      "Thriving Isle": "https://cards.scryfall.io/normal/front/5/8/58a3b5a5-eba0-4b4e-869a-5387ec7dd2b8.jpg?1783903089",
+      "Heaven Sent": "https://cards.scryfall.io/normal/front/5/e/5e14692f-f1c3-4d7f-8baf-3248621e36fb.jpg?1783914635",
+      "The Misty Mountains Cold": "https://cards.scryfall.io/normal/front/3/d/3d5f35ff-4146-4844-9da5-031461cc8c05.jpg?1784673451",
+      "Summon: Titan": "https://cards.scryfall.io/normal/front/5/c/5ce6ea96-7293-496d-b9c8-8ed6d6109a4d.jpg?1783906580",
+      "Rydia, Summoner of Mist": "https://cards.scryfall.io/normal/front/9/9/99450143-6ab5-463d-9e04-e8e6703a8b92.jpg?1783906564",
+      "Summon: Bahamut": "https://cards.scryfall.io/normal/front/9/5/95318d85-4a08-47ac-a43d-ea83c0bea81c.jpg?1783906656",
+      "Dáin, Lord of the Iron Hills": "https://cards.scryfall.io/normal/front/9/9/99d27749-d16c-45e9-accc-6a01351c17f9.jpg?1785496921",
+      "Command Tower": "https://cards.scryfall.io/normal/front/a/7/a73297d2-580c-4174-a427-265f6916d09f.jpg?1793021256",
+      "Summon: Good King Mog XII": "https://cards.scryfall.io/normal/front/c/1/c14098d6-28ae-492f-8ffc-7d115d83ce6a.jpg?1783906365",
+      "Prismatic Omen": "https://cards.scryfall.io/normal/front/e/7/e75594cc-de47-49f2-9a8b-ba76c576368e.jpg?1783942741",
+      "Reprieve": "https://cards.scryfall.io/normal/front/1/b/1bd3fa8a-6c50-4f7f-9ae3-0810eec5e3db.jpg?1783916330",
+      "Heroic Intervention": "https://cards.scryfall.io/normal/front/2/e/2ed6abbe-3ec0-48a9-94ad-e62660a63de0.jpg?1793281401",
+      "Anguished Unmaking": "https://cards.scryfall.io/normal/front/8/a/8a6357d2-f77c-4df7-90cd-6e416e6405cc.jpg?1793021105"
+    }
+  },
+  "simulation": {
+    "simulaciones": 10000,
+    "turno_comandante_lanzable": {
+      "media": 5.17,
+      "por_turno": {
+        "1": 0.0,
+        "2": 0.0,
+        "3": 0.0412,
+        "4": 0.4618,
+        "5": 0.7202,
+        "6": 0.8077,
+        "7": 0.8745,
+        "8": 0.912,
+        "9": 0.9373,
+        "10": 0.9579,
+        "11": 0.9683,
+        "12": 0.9776
+      },
+      "nunca_pct": 0.0224
+    },
+    "prob_mana_screw_turno_3": 0.0022,
+    "primera_rampa": {
+      "media": 3.48,
+      "por_turno": {
+        "1": 0.1298,
+        "2": 0.4372,
+        "3": 0.6639,
+        "4": 0.7166,
+        "5": 0.7767,
+        "6": 0.8165,
+        "7": 0.8463,
+        "8": 0.8716,
+        "9": 0.8911,
+        "10": 0.9094,
+        "11": 0.9246,
+        "12": 0.9368
+      }
+    },
+    "curva_mana_media": {
+      "1": 1.0,
+      "2": 2.13,
+      "3": 3.37,
+      "4": 4.53,
+      "5": 5.41,
+      "6": 6.14,
+      "7": 6.78,
+      "8": 7.37,
+      "9": 7.92,
+      "10": 8.46,
+      "11": 8.99,
+      "12": 9.52
+    },
+    "prob_mulligan": 0.1718,
+    "colores_disponibles_turno_4": {
+      "B": 0.9116,
+      "G": 0.9417,
+      "R": 0.9291,
+      "U": 0.9295,
+      "W": 0.9152
+    },
+    "no_encontradas": []
+  }
+}

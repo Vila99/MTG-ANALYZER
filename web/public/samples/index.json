@@ -1,0 +1,10 @@
+[
+  {
+    "id": "tom-bombadil",
+    "title": "Tom Bombadil",
+    "commander": "Tom Bombadil",
+    "description": "Sagas / encantamientos (enchantress) de valor, midrange casual de cinco colores",
+    "ai": true,
+    "file": "tom-bombadil.json"
+  }
+]

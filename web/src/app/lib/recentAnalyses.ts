@@ -21,7 +21,7 @@ export interface RecentEntry {
  * conserva el JSON tal cual se guardó, así que un análisis antiguo puede
  * no tener `identidad_color`, `nota_deck` o `coste_aproximado`. Sin esto,
  * cargar una entrada vieja rompe la vista de resultados. */
-function normalizeStoredResult(result: Partial<AnalyzeResponse>): AnalyzeResponse {
+export function normalizeStoredResult(result: Partial<AnalyzeResponse>): AnalyzeResponse {
   return {
     identidad_color: [],
     nota_deck: 0,

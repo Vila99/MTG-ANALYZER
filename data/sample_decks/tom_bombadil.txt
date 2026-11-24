@@ -1,0 +1,89 @@
+1 Aminatou, Veil Piercer
+1 Arcane Sanctum
+1 Azusa's Many Journeys
+1 Barbara Wright
+1 Chromatic Lantern
+1 Clash of the Eikons
+1 Command Tower
+1 Crumbling Necropolis
+1 Dáin, Lord of the Iron Hills
+1 Destiny Spinner
+1 Esper Origins
+1 Estrid's Invocation
+1 Evolving Wilds
+1 Exotic Orchard
+1 Fable of the Mirror-Breaker
+5 Forest
+1 Frontier Bivouac
+1 Garnet, Princess of Alexandria
+1 Ghen, Arcanum Weaver
+1 Goldberry, River-Daughter
+1 Great Divide Guide
+1 Herald of the Pantheon
+1 Historian's Boon
+1 In the Darkness Bind Them
+1 Incite Hysteria
+3 Island
+1 Jugan Defends the Temple
+1 Jukai Naturalist
+1 Jungle Shrine
+1 Karn's Bastion
+1 Kiora Bests the Sea God
+1 Many Partings
+1 Michiko's Reign of Truth
+1 Mines of Moria
+1 Mirari's Wake
+3 Mountain
+1 Mystic Monastery
+1 Narci, Fable Singer
+1 Nomad Outpost
+1 O'aka, Traveling Merchant
+1 Open the Vaults
+1 Opulent Palace
+1 Path of Ancestry
+3 Plains
+1 Prismatic Omen
+1 Reprieve
+1 Revive the Shire
+1 Rivendell
+1 Roar of Endless Song
+1 Rydia, Summoner of Mist
+1 Sanctum Weaver
+1 Sandsteppe Citadel
+1 Satsuki, the Living Lore
+1 Satyr Enchanter
+1 Savage Lands
+1 Seaside Citadel
+1 Sol Ring
+1 Starfield Mystic
+1 Sterling Grove
+1 Storyweave
+1 Summon: Bahamut
+1 Summon: Knights of Round
+1 Summon: Titan
+1 Summon: Yojimbo
+3 Swamp
+1 Swords to Plowshares
+1 Sythis, Harvest's Hand
+1 Terra, Magical Adept
+1 The Birth of Meletis
+1 The Coming of Galactus
+1 The Kami War
+1 The Legend of Yangchen
+1 The Misty Mountains Cold
+1 The Weatherseed Treaty
+1 There and Back Again
+1 Thought Vessel
+1 Three Blind Mice
+1 Thriving Grove
+1 Thriving Heath
+1 Thriving Isle
+1 Thriving Moor
+1 Tuvasa the Sunlit
+1 Urza's Saga
+1 Volt Charge
+1 War of the Last Alliance
+1 Whisper of the Dross
+1 Wild Growth
+
+1 Tom Bombadil
