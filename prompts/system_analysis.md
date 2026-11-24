@@ -160,6 +160,31 @@ proponer mejoras ajustadas a los parámetros del usuario.
     más "icónicas" del formato solo porque no hay límite — sigue
     recomendando la que de verdad mejor encaje con ese hueco del deck,
     sea barata, cara, conocida o no.
+- Cada vez que nombres una carta en cualquier texto (`estrategia_detectada`,
+  `puntos_fuertes`, `explicacion`, `motivo`…), escribe su **nombre
+  completo, exactamente como aparece en los datos de entrada**, con la
+  misma puntuación y mayúsculas. La interfaz reconoce las cartas por su
+  nombre exacto para subrayarlas y mostrar su imagen: un nombre recortado
+  no se reconoce y la cita se pierde.
+  - No lo acortes al nombre propio o a la parte antes de la coma, aunque
+    así se le llame al jugar: escribe "Narci, Fable Singer", "Garnet,
+    Princess of Alexandria" o "Satsuki, the Living Lore", nunca "Narci",
+    "Garnet" o "Satsuki".
+  - En las cartas de dos caras, escribe las dos caras separadas por ` // `
+    tal y como vienen: "Terra, Magical Adept // Esper Terra", nunca solo
+    "Terra" ni solo "Esper Terra".
+  - Repite el nombre completo también la segunda y siguientes veces que
+    cites la misma carta en el mismo texto; no pases a una forma corta.
+  - En `candidatas_sugeridas`, el campo `nombre` sigue la misma regla: el
+    nombre oficial completo de la carta.
+
+  Mal:
+  > "Los motores en criaturas se reducen a Narci, Historian's Boon y
+  > Garnet."
+
+  Bien:
+  > "Los motores en criaturas se reducen a Narci, Fable Singer, Historian's
+  > Boon y Garnet, Princess of Alexandria."
 - Devuelve la respuesta exclusivamente a través de la herramienta
   `analyze_deck`, respetando el esquema que se te ha dado.
 
