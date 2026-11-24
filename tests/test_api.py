@@ -109,7 +109,7 @@ def client(tmp_path, monkeypatch) -> TestClient:
 def test_health_reports_db_present(client: TestClient):
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "cards_db": True}
+    assert response.json() == {"status": "ok", "cards_db": True, "cards_db_status": "ready"}
 
 
 def test_analyze_happy_path(client: TestClient):
@@ -445,3 +445,61 @@ def test_simulate_without_db_returns_503(tmp_path, monkeypatch):
         json={"deck_text": "Commander:\n1 Atraxa\n\nDeck:\n1 Sol Ring\n", "n_sims": 100},
     )
     assert response.status_code == 503
+
+
+@pytest.fixture
+def missing_db(tmp_path, monkeypatch):
+    db_path = tmp_path / "missing.db"
+    monkeypatch.setattr(api_module.cards_module, "DEFAULT_DB_PATH", db_path)
+    monkeypatch.setitem(api_module._db_download, "status", "idle")
+    monkeypatch.setitem(api_module._db_download, "error", None)
+    return db_path
+
+
+def test_analyze_while_db_downloading_explains_it(missing_db, monkeypatch):
+    monkeypatch.setitem(api_module._db_download, "status", "downloading")
+    client = TestClient(api_module.app)
+
+    response = client.post("/analyze", json={"deck_text": "Deck:\n1 Sol Ring\n"})
+    assert response.status_code == 503
+    assert "Se está descargando" in response.json()["detail"]
+    assert client.get("/health").json()["cards_db_status"] == "downloading"
+
+
+def test_simulate_after_failed_download_reports_error(missing_db, monkeypatch):
+    monkeypatch.setitem(api_module._db_download, "status", "error")
+    monkeypatch.setitem(api_module._db_download, "error", "sin conexión")
+    client = TestClient(api_module.app)
+
+    response = client.post("/simulate", json={"deck_text": "Deck:\n1 Sol Ring\n"})
+    assert response.status_code == 503
+    assert "sin conexión" in response.json()["detail"]
+
+
+def test_startup_downloads_missing_db_in_background(missing_db, monkeypatch):
+    calls = []
+
+    def fake_build(db_path, log):
+        calls.append(db_path)
+        make_db(db_path)
+        return 1
+
+    monkeypatch.setattr(api_module.scryfall_db, "build_database", fake_build)
+    monkeypatch.delenv("AUTO_DOWNLOAD_CARDS_DB", raising=False)
+
+    with TestClient(api_module.app):  # el context manager ejecuta el lifespan
+        for thread in __import__("threading").enumerate():
+            if thread.name == "cards-db-download":
+                thread.join(timeout=5)
+
+    assert calls == [missing_db]
+    assert api_module._cards_db_status() == "ready"
+
+
+def test_startup_download_can_be_disabled(missing_db, monkeypatch):
+    monkeypatch.setenv("AUTO_DOWNLOAD_CARDS_DB", "0")
+    monkeypatch.setattr(
+        api_module.scryfall_db, "build_database", lambda *a, **k: pytest.fail("no debería descargar")
+    )
+    assert api_module.start_cards_db_download_if_missing() is False
+    assert api_module._cards_db_status() == "missing"

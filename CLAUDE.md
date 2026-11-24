@@ -57,13 +57,15 @@ mtg-deck-analyzer/
 ├── pyproject.toml
 ├── .env.example            # ANTHROPIC_API_KEY=
 ├── data/
-│   ├── cards.db            # generado por scripts/load_scryfall.py (no se versiona)
+│   ├── cards.db            # generado por scripts/load_scryfall.py, o solo la primera vez (no se versiona)
 │   └── sample_decks/       # decks de prueba en .txt
 ├── scripts/
-│   └── load_scryfall.py    # descarga el bulk data "oracle_cards" y lo carga en SQLite
+│   └── load_scryfall.py    # envoltorio de analyzer.scryfall_db (actualiza la BD a mano)
 ├── src/analyzer/
 │   ├── parser.py           # texto → [(cantidad, nombre)], detecta comandante
 │   ├── cards.py            # acceso a la BD de cartas
+│   ├── scryfall_db.py      # descarga el bulk data "oracle_cards" y crea/actualiza cards.db
+│                           # (el CLI la ofrece y la API la lanza en segundo plano si falta)
 │   ├── metrics.py          # curva, tierras, pips, legalidad, identidad de color
 │   ├── roles.py            # clasificación por rol (reglas + Claude Haiku + caché)
 │   ├── rubric.py           # criterios configurables por arquetipo

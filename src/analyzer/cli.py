@@ -14,7 +14,43 @@ from analyzer import prices as prices_module
 from analyzer import report
 from analyzer import roles as roles_module
 from analyzer import rubric
+from analyzer import scryfall_db
 from analyzer.parser import apply_commander_override, parse_decklist
+
+
+def _ensure_cards_db(db_path: Path, assume_yes: bool) -> bool:
+    """Ofrece crear ``cards.db`` si falta. Devuelve True si ya está lista.
+
+    Pregunta solo en una terminal interactiva; fuera de ella (scripts, CI)
+    no descarga nada salvo que se pase ``--download-db``. Todos los mensajes
+    van a stderr para no ensuciar la salida de ``--json``.
+    """
+    print(f"No se encontró la base de datos de cartas en {db_path}.", file=sys.stderr)
+
+    if not assume_yes:
+        if not sys.stdin.isatty():
+            print(
+                "Ejecuta `python scripts/load_scryfall.py` o repite con --download-db.",
+                file=sys.stderr,
+            )
+            return False
+        try:
+            answer = input("¿Descargarla ahora desde Scryfall? Son unos 40 MB; según tu conexión, de segundos a un minuto. [S/n] ")
+        except (EOFError, KeyboardInterrupt):
+            # En Windows, NUL se presenta como terminal aunque no haya nadie
+            # para contestar: sin respuesta se trata como un "no".
+            print(file=sys.stderr)
+            answer = "n"
+        if answer.strip().lower() not in ("", "s", "si", "sí", "y", "yes"):
+            print("Ejecuta `python scripts/load_scryfall.py` cuando quieras crearla.", file=sys.stderr)
+            return False
+
+    try:
+        scryfall_db.build_database(db_path, log=lambda msg: print(msg, file=sys.stderr))
+    except Exception as exc:  # red caída, Scryfall no responde, disco lleno...
+        print(f"No se pudo crear la base de datos: {exc}", file=sys.stderr)
+        return False
+    return True
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -61,6 +97,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--description", help="Tu idea para el deck, en tus palabras (con --ai, le da contexto a Claude)"
     )
+    parser.add_argument(
+        "--download-db",
+        action="store_true",
+        help="Si falta data/cards.db, descárgala de Scryfall sin preguntar",
+    )
     args = parser.parse_args(argv)
 
     if not args.moxfield_url and not args.deck_file:
@@ -71,9 +112,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"No se encontró el archivo del deck: {args.deck_file}", file=sys.stderr)
         return 1
 
-    if not args.db.exists():
-        print(f"No se encontró la base de datos de cartas en {args.db}.", file=sys.stderr)
-        print("Ejecuta `python scripts/load_scryfall.py` antes de analizar un deck.", file=sys.stderr)
+    if not args.db.exists() and not _ensure_cards_db(args.db, assume_yes=args.download_db):
         return 1
 
     client = None

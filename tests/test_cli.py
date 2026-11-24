@@ -196,3 +196,61 @@ def test_main_ai_without_api_key_fails_gracefully(db_path, deck_path, monkeypatc
 
     assert exit_code == 1
     assert "ANTHROPIC_API_KEY" in captured.err
+
+
+def test_main_download_db_flag_creates_missing_db(tmp_path, deck_path, monkeypatch, capsys):
+    from analyzer import cli as cli_module
+
+    db_file = tmp_path / "new.db"
+    monkeypatch.setattr(
+        cli_module.scryfall_db, "build_database", lambda path, log: make_db(path) or 1
+    )
+
+    exit_code = main([str(deck_path), "--db", str(db_file), "--download-db"])
+
+    assert exit_code == 0
+    assert db_file.exists()
+
+
+def test_main_missing_db_asks_and_respects_no(tmp_path, deck_path, monkeypatch, capsys):
+    from analyzer import cli as cli_module
+
+    monkeypatch.setattr(cli_module.sys.stdin, "isatty", lambda: True, raising=False)
+    monkeypatch.setattr("builtins.input", lambda prompt: "n")
+    monkeypatch.setattr(
+        cli_module.scryfall_db, "build_database", lambda *a, **k: pytest.fail("no debería descargar")
+    )
+
+    exit_code = main([str(deck_path), "--db", str(tmp_path / "missing.db")])
+
+    assert exit_code == 1
+    assert "load_scryfall.py" in capsys.readouterr().err
+
+
+def test_main_download_failure_returns_one(tmp_path, deck_path, monkeypatch, capsys):
+    from analyzer import cli as cli_module
+
+    def boom(path, log):
+        raise ConnectionError("sin red")
+
+    monkeypatch.setattr(cli_module.scryfall_db, "build_database", boom)
+
+    exit_code = main([str(deck_path), "--db", str(tmp_path / "missing.db"), "--download-db"])
+
+    assert exit_code == 1
+    assert "sin red" in capsys.readouterr().err
+
+
+def test_main_missing_db_without_answer_treats_as_no(tmp_path, deck_path, monkeypatch, capsys):
+    from analyzer import cli as cli_module
+
+    def no_input(prompt):
+        raise EOFError
+
+    monkeypatch.setattr(cli_module.sys.stdin, "isatty", lambda: True, raising=False)
+    monkeypatch.setattr("builtins.input", no_input)
+
+    exit_code = main([str(deck_path), "--db", str(tmp_path / "missing.db")])
+
+    assert exit_code == 1
+    assert "load_scryfall.py" in capsys.readouterr().err

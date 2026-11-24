@@ -43,9 +43,16 @@ pip install -e ".[dev]"
 
 cp .env.example .env           # añade tu ANTHROPIC_API_KEY
 
-# Descarga el bulk data de Scryfall y genera data/cards.db
+# Opcional: descarga el bulk data de Scryfall y genera data/cards.db
 python scripts/load_scryfall.py
 ```
+
+La base de datos de cartas (`data/cards.db`, unos 40 MB) no está en el repositorio. Se genera en tu equipo con las cartas actualizadas de Scryfall. Si no la creas a mano, se crea sola la primera vez:
+
+- **`analyze`** te pregunta si quieres descargarla. Con `--download-db` la descarga sin preguntar, útil en scripts.
+- **El backend** la descarga en segundo plano al arrancar. Mientras tanto, la web avisa de que se está preparando. Para desactivarlo, usa `AUTO_DOWNLOAD_CARDS_DB=0`.
+
+Vuelve a ejecutar `python scripts/load_scryfall.py` cuando quieras actualizar las cartas, por ejemplo tras una colección nueva o cambios de baneos. Las cachés de roles, precios y combos se conservan.
 
 La API key solo se lee de la variable de entorno `ANTHROPIC_API_KEY`. Sin ella funciona todo salvo el análisis con Claude (`--ai`) y el respaldo de Haiku para clasificar roles.
 
@@ -75,6 +82,7 @@ analyze data/sample_decks/jasnah.txt --ai --json
 | `--commander <nombre>` | Comandante, si no está marcado en la lista |
 | `--description "<texto>"` | Tu idea del deck, en tus palabras, como contexto para Claude |
 | `--json` | Salida en JSON en vez de texto |
+| `--download-db` | Si falta `data/cards.db`, la descarga de Scryfall sin preguntar |
 
 ## Interfaz web
 

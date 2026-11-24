@@ -5,11 +5,19 @@ Lanzar en desarrollo:
 
 El origen permitido para CORS se lee de ``FRONTEND_ORIGIN`` (por defecto,
 el servidor de desarrollo de Next.js en ``http://localhost:3000``).
+
+Si ``data/cards.db`` no existe al arrancar, se descarga de Scryfall en
+segundo plano (desactivable con ``AUTO_DOWNLOAD_CARDS_DB=0``); mientras
+tanto los endpoints de análisis responden 503 explicando que se está
+creando.
 """
 
 from __future__ import annotations
 
+import logging
 import os
+import threading
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,12 +31,79 @@ from analyzer import prices as prices_module
 from analyzer import report
 from analyzer import roles as roles_module
 from analyzer import rubric
+from analyzer import scryfall_db
 from analyzer.cards import Card
 from analyzer.parser import ParsedDeck, apply_commander_override, parse_decklist
 
 FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:3000")
 
-app = FastAPI(title="MTG Commander Deck Analyzer")
+logger = logging.getLogger(__name__)
+
+# Estado de la descarga automática de cards.db: "idle", "downloading" o "error".
+_db_download = {"status": "idle", "error": None}
+_db_download_lock = threading.Lock()
+
+
+def _download_cards_db() -> None:
+    try:
+        scryfall_db.build_database(cards_module.DEFAULT_DB_PATH, log=logger.info)
+    except Exception as exc:
+        logger.exception("No se pudo crear la base de datos de cartas")
+        with _db_download_lock:
+            _db_download.update(status="error", error=str(exc))
+    else:
+        with _db_download_lock:
+            _db_download.update(status="idle", error=None)
+
+
+def start_cards_db_download_if_missing() -> bool:
+    """Lanza la descarga de cards.db en un hilo si falta. True si la lanza."""
+    if cards_module.DEFAULT_DB_PATH.exists():
+        return False
+    if os.environ.get("AUTO_DOWNLOAD_CARDS_DB", "1").strip().lower() in ("0", "false", "no"):
+        return False
+    with _db_download_lock:
+        if _db_download["status"] == "downloading":
+            return False
+        _db_download.update(status="downloading", error=None)
+    logger.warning("No existe %s: descargándola de Scryfall en segundo plano...", cards_module.DEFAULT_DB_PATH)
+    threading.Thread(target=_download_cards_db, name="cards-db-download", daemon=True).start()
+    return True
+
+
+def _cards_db_status() -> str:
+    if cards_module.DEFAULT_DB_PATH.exists():
+        return "ready"
+    with _db_download_lock:
+        return "missing" if _db_download["status"] == "idle" else _db_download["status"]
+
+
+def _require_cards_db() -> None:
+    status = _cards_db_status()
+    if status == "ready":
+        return
+    if status == "downloading":
+        detail = (
+            "Se está descargando la base de datos de cartas de Scryfall (primer arranque). "
+            "Vuelve a intentarlo en unos segundos."
+        )
+    elif status == "error":
+        detail = (
+            f"No se pudo descargar la base de datos de cartas ({_db_download['error']}). "
+            "Ejecuta scripts/load_scryfall.py o reinicia el servidor."
+        )
+    else:
+        detail = "No se encontró la base de datos de cartas. Ejecuta scripts/load_scryfall.py."
+    raise HTTPException(status_code=503, detail=detail)
+
+
+@asynccontextmanager
+async def _lifespan(_app: FastAPI):
+    start_cards_db_download_if_missing()
+    yield
+
+
+app = FastAPI(title="MTG Commander Deck Analyzer", lifespan=_lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[FRONTEND_ORIGIN],
@@ -58,7 +133,8 @@ class SimulateRequest(BaseModel):
 
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok", "cards_db": cards_module.DEFAULT_DB_PATH.exists()}
+    status = _cards_db_status()
+    return {"status": "ok", "cards_db": status == "ready", "cards_db_status": status}
 
 
 def _parse_deck_input(deck_text: str | None, moxfield_url: str | None) -> ParsedDeck:
@@ -104,11 +180,7 @@ def _collect_card_images(conn, commanders, deck_cards, analysis: dict | None) ->
 
 @app.post("/analyze")
 def analyze(request: AnalyzeRequest) -> dict:
-    if not cards_module.DEFAULT_DB_PATH.exists():
-        raise HTTPException(
-            status_code=503,
-            detail="No se encontró la base de datos de cartas. Ejecuta scripts/load_scryfall.py.",
-        )
+    _require_cards_db()
 
     client = None
     if request.ai:
@@ -173,11 +245,7 @@ def simulate(request: SimulateRequest) -> dict:
     fija) — ver ``analyzer.goldfish``. No hace ninguna llamada a la API de
     Claude: solo necesita el deck ya resuelto y los roles ya clasificados
     (su caché en SQLite ya está caliente si el deck se analizó antes)."""
-    if not cards_module.DEFAULT_DB_PATH.exists():
-        raise HTTPException(
-            status_code=503,
-            detail="No se encontró la base de datos de cartas. Ejecuta scripts/load_scryfall.py.",
-        )
+    _require_cards_db()
 
     parsed = _parse_deck_input(request.deck_text, request.moxfield_url)
 
