@@ -1,702 +1,463 @@
-"use client";
-
-import { useEffect, useId, useRef, useState, type FormEvent } from "react";
-import { InfoTooltip } from "./components/InfoTooltip";
+import type { ReactNode } from "react";
+import Link from "next/link";
 import { ManaIcon } from "./components/ManaIcon";
-import { ResultsView } from "./components/ResultsView";
-import {
-  formatRelativeTime,
-  loadRecentAnalyses,
-  removeRecentAnalysis,
-  saveRecentAnalysis,
-  type RecentEntry,
-} from "./lib/recentAnalyses";
-import {
-  buildSampleExport,
-  downloadSample,
-  formatSampleDate,
-  loadSample,
-  loadSampleIndex,
-  type SampleAnalysis,
-  type SampleIndexEntry,
-} from "./lib/sampleAnalyses";
-import { AnalyzeRequest, AnalyzeResponse, SimulateRequest, SimulationResult } from "./types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+/** Landing pública. Siempre oscura: el atributo `data-page="landing"` hace
+ * que globals.css fuerce la paleta oscura en todo el documento (Footer del
+ * layout incluido) mientras esta página está montada. */
 
-const LOADING_MESSAGES = [
-  "Resolviendo cartas contra la base de datos de Scryfall…",
-  "Clasificando cada carta por su rol (reglas + Haiku)…",
-  "Analizando la estrategia con Claude (Sonnet)…",
+const ANALYZE_HREF = "/analizar";
+const SAMPLE_HREF = "/analizar/ejemplo/tom-bombadil";
+const REPO_HREF = "https://github.com/Vila99/MTG-ANALYZER";
+
+/** Datos reales del análisis de ejemplo guardado en public/samples/tom-bombadil.json. */
+const SAMPLE_PREVIEW = {
+  commander: "Tom Bombadil",
+  archetype: "Sagas / encantamientos de valor",
+  cardImage: "https://cards.scryfall.io/normal/front/2/a/2ab04c49-76a1-4896-8dca-8cb4c615f489.jpg?1783916244",
+  score: "6.0",
+  stats: [
+    { label: "Cartas", value: "100" },
+    { label: "Tierras", value: "39" },
+    { label: "CMC medio", value: "3.08" },
+    { label: "Coste", value: "158 €" },
+  ],
+  // curva_mana del ejemplo (CMC 1-7), en % del valor máximo (23 cartas a CMC 2)
+  curve: [6, 23, 14, 5, 7, 2, 1].map((count) => Math.round((count / 23) * 100)),
+};
+
+const PYTHON_ITEMS = [
+  "Curva de maná, CMC medio y número de tierras",
+  "Pips de cada color frente a fuentes de maná",
+  "Legalidad e identidad de color",
+  "Rol de cada carta: ramp, robo, removal, wipes…",
+  "Suelo de bracket, Game Changers y combos reales",
+  "Precio del deck y nota orientativa de 0 a 10",
 ];
 
-function fieldStyle() {
-  return {
-    borderColor: "var(--border)",
-    background: "var(--surface)",
-    color: "var(--foreground)",
-  } as const;
-}
+const CLAUDE_ITEMS = [
+  "Detecta la estrategia y el arquetipo del deck",
+  "Valora las sinergias y los puntos fuertes",
+  "Ordena los problemas por severidad",
+  "Propone hasta 10 candidatas reales por problema",
+  "Respeta tu estilo, tu presupuesto y lo que quieres evitar",
+  "Tú eliges qué entra: Claude no decide los cortes",
+];
 
-function RecentAnalysesModal({
-  recent,
-  onSelect,
-  onRemove,
-  onClose,
-}: {
-  recent: RecentEntry[];
-  onSelect: (entry: RecentEntry) => void;
-  onRemove: (id: string) => void;
-  onClose: () => void;
-}) {
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+const STEPS = [
+  { title: "Parser", text: "Lee el texto o la URL de Moxfield y detecta el comandante." },
+  { title: "Enriquecimiento", text: "Cruza cada carta con la base local de Scryfall." },
+  { title: "Métricas", text: "Curva, tierras, pips frente a fuentes, legalidad y bracket." },
+  { title: "Roles", text: "Reglas sobre el texto oracle, con Claude Haiku de respaldo." },
+  { title: "Análisis Claude", text: "Estrategia, puntos fuertes y problemas, en JSON estructurado.", highlight: true },
+  { title: "Validación", text: "Cada carta sugerida existe, es legal y encaja en tus colores." },
+];
 
+const ICON_PROPS = {
+  width: 24,
+  height: 24,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.8,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+  "aria-hidden": true,
+} as const;
+
+const FEATURES: { title: string; text: string; icon: ReactNode }[] = [
+  {
+    title: "Importa desde Moxfield",
+    text: "Pega la URL de un deck público o una lista en texto con el comandante marcado.",
+    icon: (
+      <svg {...ICON_PROPS}>
+        <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" />
+        <path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />
+      </svg>
+    ),
+  },
+  {
+    title: "Curva y maná",
+    text: "Curva, CMC medio y pips de cada color frente a las fuentes que de verdad los producen.",
+    icon: (
+      <svg {...ICON_PROPS}>
+        <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
+      </svg>
+    ),
+  },
+  {
+    title: "Roles y rubric",
+    text: "Cuenta ramp, robo, removal y wipes y los compara con los rangos de referencia de tu arquetipo.",
+    icon: (
+      <svg {...ICON_PROPS}>
+        <rect x="3" y="4" width="7" height="7" rx="1" />
+        <rect x="14" y="4" width="7" height="7" rx="1" />
+        <rect x="3" y="15" width="7" height="5" rx="1" />
+        <rect x="14" y="15" width="7" height="5" rx="1" />
+      </svg>
+    ),
+  },
+  {
+    title: "Bracket y combos",
+    text: "Game Changers, turnos extra y combos reales detectados con Commander Spellbook.",
+    icon: (
+      <svg {...ICON_PROPS}>
+        <path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z" />
+        <path d="M9 12l2 2 4-4" />
+      </svg>
+    ),
+  },
+  {
+    title: "Goldfish estadístico",
+    text: "10.000 partidas simuladas: en qué turno lanzas el comandante y cuántas manos se atascan.",
+    icon: (
+      <svg {...ICON_PROPS}>
+        <rect x="3" y="3" width="18" height="18" rx="2" />
+        <circle cx="8" cy="8" r="1.2" />
+        <circle cx="16" cy="16" r="1.2" />
+        <circle cx="12" cy="12" r="1.2" />
+      </svg>
+    ),
+  },
+  {
+    title: "Precios y presupuesto",
+    text: "Coste aproximado con Cardmarket y TCGplayer, y un modo ajustado que prioriza lo barato.",
+    icon: (
+      <svg {...ICON_PROPS}>
+        <path d="M17 6.5A6.5 6.5 0 1 0 17 17.5" />
+        <path d="M4 10h9M4 14h9" />
+      </svg>
+    ),
+  },
+];
+
+/** Fondo de los bloques que destacan lo que aporta Claude. */
+const CLAUDE_BLOCK_STYLE = {
+  background: "#0f2526",
+  boxShadow: "inset 0 0 0 1px color-mix(in srgb, var(--accent) 28%, transparent)",
+} as const;
+
+function Eyebrow({ children }: { children: ReactNode }) {
   return (
-    <div
-      className="fixed inset-0 z-[60] flex cursor-pointer items-start justify-center overflow-y-auto p-6 sm:items-center"
-      style={{ background: "rgba(0,0,0,0.75)" }}
-      onClick={onClose}
-    >
-      <div
-        className="w-full max-w-xl rounded-sm border"
-        style={{ borderColor: "var(--border)", background: "var(--background)" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between border-b p-4" style={{ borderColor: "var(--border)" }}>
-          <h2 className="font-head text-sm font-extrabold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
-            Últimos decks analizados
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="font-head text-xs font-bold"
-            style={{ color: "var(--ink-muted)" }}
-          >
-            Cerrar ✕
-          </button>
-        </div>
-
-        {recent.length === 0 ? (
-          <p className="p-4 text-sm" style={{ color: "var(--ink-muted)" }}>
-            Todavía no has analizado ningún deck.
-          </p>
-        ) : (
-          <div className="flex flex-col gap-px" style={{ background: "var(--border)" }}>
-            {recent.map((entry) => (
-              <div key={entry.id} className="flex items-center justify-between gap-3 p-3" style={{ background: "var(--surface)" }}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onSelect(entry);
-                    onClose();
-                  }}
-                  className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-3 text-left"
-                >
-                  <span className="font-head truncate text-sm font-bold" style={{ color: "var(--foreground)" }}>
-                    {entry.commander}
-                  </span>
-                  <span className="text-xs" style={{ color: "var(--ink-muted)" }}>
-                    {entry.deckSize} cartas · {formatRelativeTime(entry.timestamp)}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onRemove(entry.id)}
-                  aria-label={`Eliminar análisis de ${entry.commander} de la lista`}
-                  className="font-head flex-shrink-0 text-xs font-bold"
-                  style={{ color: "var(--ink-muted)" }}
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+    <p className="font-head text-xs font-bold uppercase tracking-[0.14em]" style={{ color: "var(--accent)" }}>
+      {children}
+    </p>
   );
 }
 
-function SampleAnalysesModal({
-  onSelect,
-  onClose,
-}: {
-  onSelect: (entry: SampleIndexEntry) => void;
-  onClose: () => void;
-}) {
-  const [samples, setSamples] = useState<SampleIndexEntry[] | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    loadSampleIndex()
-      .then((entries) => {
-        if (!cancelled) setSamples(entries);
-      })
-      .catch((err) => {
-        if (!cancelled) setLoadError(err instanceof Error ? err.message : "No se pudieron cargar los ejemplos.");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
-
+function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <div
-      className="fixed inset-0 z-[60] flex cursor-pointer items-start justify-center overflow-y-auto p-6 sm:items-center"
-      style={{ background: "rgba(0,0,0,0.75)" }}
-      onClick={onClose}
+    <h2
+      className="font-head text-[clamp(2rem,3.6vw,3rem)] font-extrabold leading-[1.08] tracking-[-0.015em]"
+      style={{ color: "var(--foreground)" }}
     >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Análisis de ejemplo"
-        className="w-full max-w-xl cursor-default rounded-sm border"
-        style={{ borderColor: "var(--border)", background: "var(--background)" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between border-b p-4" style={{ borderColor: "var(--border)" }}>
-          <h2 className="font-head text-sm font-extrabold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
-            Análisis de ejemplo
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="font-head text-xs font-bold"
-            style={{ color: "var(--ink-muted)" }}
-          >
-            Cerrar ✕
-          </button>
-        </div>
-
-        {loadError ? (
-          <p className="p-4 text-sm" style={{ color: "var(--status-critical)" }}>
-            {loadError}
-          </p>
-        ) : samples === null ? (
-          <p className="p-4 text-sm" style={{ color: "var(--ink-muted)" }}>
-            Cargando ejemplos…
-          </p>
-        ) : samples.length === 0 ? (
-          <p className="p-4 text-sm" style={{ color: "var(--ink-muted)" }}>
-            Todavía no hay ningún análisis de ejemplo publicado.
-          </p>
-        ) : (
-          <div className="flex flex-col gap-px" style={{ background: "var(--border)" }}>
-            {samples.map((entry) => (
-              <button
-                key={entry.id}
-                type="button"
-                onClick={() => {
-                  onSelect(entry);
-                  onClose();
-                }}
-                className="flex flex-col gap-0.5 p-3 text-left"
-                style={{ background: "var(--surface)" }}
-              >
-                <span className="flex flex-wrap items-baseline gap-x-3">
-                  <span className="font-head text-sm font-bold" style={{ color: "var(--foreground)" }}>
-                    {entry.title}
-                  </span>
-                  <span className="text-xs" style={{ color: "var(--ink-muted)" }}>
-                    {entry.ai ? "Con análisis de Claude" : "Solo métricas"}
-                  </span>
-                </span>
-                {entry.description && (
-                  <span className="text-xs" style={{ color: "var(--ink-muted)" }}>
-                    {entry.description}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+      {children}
+    </h2>
   );
 }
 
-export default function Home() {
-  const moxfieldUrlId = useId();
-  const descriptionId = useId();
-  const budgetId = useId();
-  const styleId = useId();
-  const avoidId = useId();
-  const aiId = useId();
-
-  const [moxfieldUrl, setMoxfieldUrl] = useState("");
-  const [description, setDescription] = useState("");
-  const [budgetMode, setBudgetMode] = useState<"ajustado" | "libre">("libre");
-  const [style, setStyle] = useState<AnalyzeRequest["style"]>("casual");
-  const [allowCombos, setAllowCombos] = useState(false);
-  const [avoid, setAvoid] = useState("");
-  const [ai, setAi] = useState(false);
-
-  const [loading, setLoading] = useState(false);
-  const [loadingStep, setLoadingStep] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<AnalyzeResponse | null>(null);
-  const [recent, setRecent] = useState<RecentEntry[]>([]);
-  const [showRecentModal, setShowRecentModal] = useState(false);
-  const [showSamplesModal, setShowSamplesModal] = useState(false);
-  const [activeSample, setActiveSample] = useState<SampleAnalysis | null>(null);
-  const [simulation, setSimulation] = useState<SimulationResult | null>(null);
-  const [simulationLoading, setSimulationLoading] = useState(false);
-  const [simulationError, setSimulationError] = useState<string | null>(null);
-
-  const stepIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => {
-    // localStorage solo existe en el cliente: se lee tras el montaje para no
-    // desincronizar el HTML del servidor con el del navegador.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setRecent(loadRecentAnalyses());
-  }, []);
-
-  useEffect(() => {
-    if (!loading) {
-      return;
-    }
-    stepIntervalRef.current = setInterval(() => {
-      setLoadingStep((step) => Math.min(step + 1, LOADING_MESSAGES.length - 1));
-    }, 1600);
-    return () => {
-      if (stepIntervalRef.current) {
-        clearInterval(stepIntervalRef.current);
-        stepIntervalRef.current = null;
-      }
-    };
-  }, [loading]);
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setLoadingStep(0);
-    setLoading(true);
-    setError(null);
-
-    const body: AnalyzeRequest = {
-      moxfield_url: moxfieldUrl.trim() || undefined,
-      description: description.trim() || undefined,
-      budget_mode: budgetMode,
-      style,
-      allow_combos: allowCombos,
-      avoid: avoid
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean),
-      ai,
-    };
-
-    try {
-      const response = await fetch(`${API_URL}/analyze`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => null);
-        throw new Error(payload?.detail ?? `Error ${response.status} al analizar el deck.`);
-      }
-
-      const data: AnalyzeResponse = await response.json();
-      setResult(data);
-      setActiveSample(null);
-      setRecent(saveRecentAnalysis(data, { moxfieldUrl: moxfieldUrl.trim() }));
-      setSimulation(null);
-      setSimulationError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido al analizar el deck.");
-      setResult(null);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleRunSimulation() {
-    if (activeSample?.simulation) {
-      // Ejemplo: la simulación viene guardada; copia nueva para que
-      // ResultsView vuelva a abrir el modal aunque ya se hubiera mostrado.
-      setSimulation({ ...activeSample.simulation });
-      return;
-    }
-
-    setSimulationLoading(true);
-    setSimulationError(null);
-
-    const body: SimulateRequest = {
-      moxfield_url: moxfieldUrl.trim() || undefined,
-      n_sims: 10000,
-    };
-
-    try {
-      const response = await fetch(`${API_URL}/simulate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => null);
-        throw new Error(payload?.detail ?? `Error ${response.status} al simular el deck.`);
-      }
-
-      const data: SimulationResult = await response.json();
-      setSimulation(data);
-    } catch (err) {
-      setSimulationError(err instanceof Error ? err.message : "Error desconocido al simular el deck.");
-    } finally {
-      setSimulationLoading(false);
-    }
-  }
-
-  async function handleSelectSample(entry: SampleIndexEntry) {
-    setError(null);
-    try {
-      const sample = await loadSample(entry);
-      setActiveSample(sample);
-      setResult(sample.result);
-      setMoxfieldUrl(sample.request.moxfieldUrl);
-      setSimulation(null);
-      setSimulationError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo cargar el ejemplo.");
-    }
-  }
-
-  function handleExportSample() {
-    if (!result) return;
-    downloadSample(buildSampleExport(result, simulation, moxfieldUrl.trim()));
-  }
-
-  function handleReset() {
-    setActiveSample(null);
-    setResult(null);
-    setError(null);
-    setSimulation(null);
-    setSimulationError(null);
-  }
-
+export default function Landing() {
   return (
-    <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-7 px-5 py-8 sm:px-10">
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b pb-5" style={{ borderColor: "var(--border)" }}>
-        {result ? (
-          <button
-            type="button"
-            onClick={handleReset}
-            aria-label="Nuevo análisis"
-            title="Nuevo análisis"
-            className="flex items-center justify-center rounded-sm border p-2"
-            style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M19 12H5M11 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-        ) : (
-          <>
-            <h1 className="font-head text-sm font-extrabold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
-              MTG Deck Analyzer
-            </h1>
+    <div data-page="landing" style={{ background: "var(--background)", color: "var(--foreground)" }}>
+      {/* ============ HERO ============ */}
+      <section className="relative overflow-hidden">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(60rem 30rem at 85% 10%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%), radial-gradient(40rem 24rem at 0% 100%, rgba(240,168,59,0.08), transparent 60%)",
+          }}
+        />
+
+        <header
+          className="relative mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 border-b px-6 py-5"
+          style={{ borderColor: "var(--border)" }}
+        >
+          <div className="flex items-center gap-3.5">
+            <span className="font-head text-sm font-extrabold uppercase tracking-[0.08em]">MTG Deck Analyzer</span>
             <span className="flex items-center gap-1.5 text-base" aria-hidden="true">
-              {/* eslint-disable-next-line @next/next/no-img-element -- icono estatico en public/, sin optimizar */}
-              <img src="/mana-colorless.svg" alt="" aria-hidden="true" className="h-5 w-5" />
               {["W", "U", "B", "R", "G"].map((color) => (
                 <ManaIcon key={color} color={color} />
               ))}
             </span>
-          </>
-        )}
-      </header>
+          </div>
+          <nav
+            aria-label="Principal"
+            className="font-head flex flex-wrap items-center gap-6 text-xs font-bold uppercase tracking-[0.06em]"
+          >
+            <a href="#como-funciona" className="hover:underline" style={{ color: "var(--ink-secondary)" }}>
+              Cómo funciona
+            </a>
+            <a href={REPO_HREF} className="hover:underline" style={{ color: "var(--ink-secondary)" }}>
+              GitHub
+            </a>
+            <Link href={ANALYZE_HREF} className="fx-btn fx-primary h-10 px-4 text-xs">
+              Analizar mi deck
+            </Link>
+          </nav>
+        </header>
 
-      {!result && !loading && (
-        <>
-        <form onSubmit={handleSubmit} aria-labelledby="analyze-form-heading" className="flex flex-wrap gap-6">
-          <h2 id="analyze-form-heading" className="sr-only">
-            Formulario de análisis de deck
-          </h2>
-
-          <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-5">
-            <div className="flex flex-col gap-1">
-              <label htmlFor={moxfieldUrlId} className="font-head text-xs font-bold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
-                URL de Moxfield
-              </label>
-              <input
-                id={moxfieldUrlId}
-                name="moxfield_url"
-                type="text"
-                required
-                placeholder="https://www.moxfield.com/decks/..."
-                value={moxfieldUrl}
-                onChange={(e) => setMoxfieldUrl(e.target.value)}
-                className="h-11 rounded-sm border px-3.5 text-[15px]"
-                style={fieldStyle()}
-              />
-              <p className="text-xs" style={{ color: "var(--ink-muted)" }}>
-                Pega la URL de un deck público de Moxfield.
-              </p>
+        <div className="relative mx-auto flex max-w-[1200px] flex-wrap items-center gap-16 px-6 pt-20 pb-24 sm:pt-[88px] sm:pb-[104px]">
+          <div className="flex min-w-0 flex-[1_1_460px] flex-col gap-7">
+            <Eyebrow>Commander · EDH · Analizado con Claude</Eyebrow>
+            <h1 className="font-head text-[clamp(2.5rem,5vw,4.25rem)] leading-[1.02] font-extrabold tracking-[-0.02em] text-white">
+              Tu deck, leído carta a carta.
+            </h1>
+            <p className="max-w-[34rem] text-[19px] leading-[1.55]" style={{ color: "var(--ink-secondary)" }}>
+              Pega una lista de Moxfield y obtén la curva, el maná, los roles y el bracket calculados al detalle.
+              Después, Claude detecta la estrategia, señala los problemas y propone cartas reales para
+              arreglarlos, todas validadas contra Scryfall.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link href={ANALYZE_HREF} className="fx-btn fx-primary h-[52px] px-[26px] text-sm">
+                Analizar mi deck
+              </Link>
+              <Link href={SAMPLE_HREF} className="fx-btn fx-secondary h-[52px] px-[26px] text-sm">
+                Ver un análisis real
+              </Link>
             </div>
-
-            <div className="flex flex-col gap-1">
-              <label htmlFor={descriptionId} className="font-head text-xs font-bold uppercase tracking-wide" style={{ color: "var(--foreground)" }}>
-                Tu idea para el deck (opcional)
-              </label>
-              <textarea
-                id={descriptionId}
-                name="description"
-                rows={3}
-                placeholder="Ej.: quiero ir a lo ancho con tokens y encantamientos, sin depender del comandante en mesa."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="resize-y rounded-sm border p-3 text-sm"
-                style={fieldStyle()}
-              />
-              <p className="text-xs" style={{ color: "var(--ink-muted)" }}>
-                Cuéntale a Claude qué querías construir, en tus palabras — le da contexto antes de analizar las cartas.
-              </p>
-            </div>
+            <p className="text-[13px]" style={{ color: "var(--ink-muted)" }}>
+              Gratis y de código abierto. Sin cuenta. Sin la API key solo te pierdes el análisis de Claude.
+            </p>
           </div>
 
-          <div className="flex h-fit min-w-[280px] max-w-[360px] flex-1 flex-col gap-3">
-          <fieldset
-            className="flex flex-col gap-4 rounded-sm border p-5"
-            style={{ borderColor: "var(--border)", background: "var(--surface)" }}
-          >
-            <legend className="font-head border-b px-1 pb-3 text-xs font-extrabold uppercase tracking-wide" style={{ borderColor: "var(--border)", color: "var(--foreground)" }}>
-              Parámetros
-            </legend>
-
-            <div className="grid grid-cols-1 gap-3">
-              <div className="flex flex-col gap-1">
-                <label htmlFor={budgetId} className="flex items-center gap-1.5 text-xs font-bold" style={{ color: "var(--foreground)" }}>
-                  Presupuesto
-                  <InfoTooltip>
-                    <p>
-                      <strong>Ajustado:</strong> entre varias cartas igual de válidas para un mismo problema,
-                      prioriza las más baratas. No es un tope fijo en €.
+          {/* Vista previa del resultado (datos del ejemplo real) */}
+          <div className="flex min-w-0 flex-[1_1_440px] justify-center">
+            <div
+              className="w-full max-w-[520px] -rotate-[1.2deg] overflow-hidden rounded"
+              style={{
+                background: "#16181b",
+                boxShadow:
+                  "0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.14), 0 0 60px color-mix(in srgb, var(--accent) 12%, transparent)",
+              }}
+            >
+              <div
+                className="flex items-center justify-between gap-3 border-b px-4 py-2.5"
+                style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+              >
+                <span className="font-head text-[10px] font-extrabold uppercase tracking-[0.1em]">Análisis de ejemplo</span>
+                <span className="text-[11px]" style={{ color: "var(--ink-muted)" }}>
+                  Bracket 3 · Casual
+                </span>
+              </div>
+              <div className="flex flex-col gap-4 p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="font-head text-[22px] font-extrabold">{SAMPLE_PREVIEW.commander}</p>
+                    <p
+                      className="font-head mt-1 text-[10px] font-bold uppercase tracking-[0.06em]"
+                      style={{ color: "var(--ink-muted)" }}
+                    >
+                      {SAMPLE_PREVIEW.archetype}
                     </p>
-                    <p className="mt-2">
-                      <strong>Libre:</strong> sin esa preferencia — recomienda la que mejor encaje, sea barata
-                      o cara.
-                    </p>
-                  </InfoTooltip>
-                </label>
-                <select
-                  id={budgetId}
-                  name="budget_mode"
-                  value={budgetMode}
-                  onChange={(e) => setBudgetMode(e.target.value as "ajustado" | "libre")}
-                  className="h-9 rounded-sm border px-2.5"
-                  style={fieldStyle()}
-                >
-                  <option value="libre">Libre</option>
-                  <option value="ajustado">Ajustado</option>
-                </select>
+                  </div>
+                  <p
+                    className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full border-[3px] font-mono text-xl font-bold"
+                    style={{ borderColor: "var(--status-warning)", color: "var(--status-warning)" }}
+                    aria-label={`Nota ${SAMPLE_PREVIEW.score} sobre 10`}
+                  >
+                    {SAMPLE_PREVIEW.score}
+                  </p>
+                </div>
+                <div className="flex items-start gap-4">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- imagen externa de Scryfall */}
+                  <img
+                    src={SAMPLE_PREVIEW.cardImage}
+                    alt={`Carta ${SAMPLE_PREVIEW.commander}`}
+                    className="mtg-card w-[38%] max-w-[150px] flex-shrink-0 object-cover"
+                    style={{ aspectRatio: "5/7", boxShadow: "0 8px 20px rgba(0,0,0,0.5)" }}
+                  />
+                  <div className="grid min-w-0 flex-1 grid-cols-2 gap-2">
+                    {SAMPLE_PREVIEW.stats.map((stat) => (
+                      <div
+                        key={stat.label}
+                        className="rounded-sm border p-2.5"
+                        style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+                      >
+                        <p
+                          className="font-head text-[9px] font-bold uppercase tracking-[0.06em]"
+                          style={{ color: "var(--ink-muted)" }}
+                        >
+                          {stat.label}
+                        </p>
+                        <p className="mt-1 font-mono text-xl font-bold">{stat.value}</p>
+                      </div>
+                    ))}
+                    <div
+                      className="col-span-2 rounded-sm border p-2.5"
+                      style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+                    >
+                      <p
+                        className="font-head text-[9px] font-bold uppercase tracking-[0.06em]"
+                        style={{ color: "var(--ink-muted)" }}
+                      >
+                        Curva de maná
+                      </p>
+                      <div className="mt-2 flex h-[52px] items-end gap-1" aria-hidden="true">
+                        {SAMPLE_PREVIEW.curve.map((height, index) => (
+                          <div key={index} className="flex-1" style={{ height: `${height}%`, background: "var(--accent)" }} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2.5 border-t pt-3.5" style={{ borderColor: "var(--border)" }}>
+                  <span
+                    className="font-head mt-0.5 flex-shrink-0 rounded-sm px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em]"
+                    style={{ background: "rgba(240,168,59,0.16)", color: "var(--status-warning)" }}
+                  >
+                    Media
+                  </span>
+                  <p className="text-[13px] leading-[1.45]" style={{ color: "var(--ink-secondary)" }}>
+                    <strong style={{ color: "var(--foreground)" }}>Sin wipes ni respuesta masiva.</strong> Si un rival
+                    crece en mesa, el deck tarda turnos en contestar. → 10 candidatas reales
+                  </p>
+                </div>
               </div>
             </div>
-
-            <div className="flex flex-col gap-1">
-              <label htmlFor={styleId} className="flex items-center gap-1.5 text-xs font-bold" style={{ color: "var(--foreground)" }}>
-                Estilo
-                <InfoTooltip>
-                  <p>
-                    <strong>Casual:</strong> prioriza la diversión de mesa, evita subir el bracket o sugerir
-                    cartas opresivas.
-                  </p>
-                  <p className="mt-2">
-                    <strong>Focused:</strong> optimiza dentro del bracket que ya tiene el deck (consistencia,
-                    curva, sinergia).
-                  </p>
-                  <p className="mt-2">
-                    <strong>cEDH:</strong> prioriza velocidad, interacción barata y el camino a la victoria
-                    por encima de todo, aunque suba el bracket.
-                  </p>
-                </InfoTooltip>
-              </label>
-              <select
-                id={styleId}
-                name="style"
-                value={style}
-                onChange={(e) => setStyle(e.target.value as AnalyzeRequest["style"])}
-                className="h-9 rounded-sm border px-2.5"
-                style={fieldStyle()}
-              >
-                <option value="casual">Casual</option>
-                <option value="focused">Focused</option>
-                <option value="cedh">cEDH</option>
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label htmlFor={avoidId} className="text-xs font-bold" style={{ color: "var(--foreground)" }}>
-                Evitar (cartas o mecánicas)
-              </label>
-              <input
-                id={avoidId}
-                name="avoid"
-                type="text"
-                value={avoid}
-                onChange={(e) => setAvoid(e.target.value)}
-                className="h-9 rounded-sm border px-2.5"
-                style={fieldStyle()}
-              />
-            </div>
-
-            <label className="flex items-start gap-2 text-sm">
-              <input
-                type="checkbox"
-                className="mt-0.5"
-                checked={allowCombos}
-                onChange={(e) => setAllowCombos(e.target.checked)}
-              />
-              <span style={{ color: "var(--foreground)" }}>
-                Permitir sugerir combos nuevos
-                <span className="mt-0.5 block text-xs font-normal" style={{ color: "var(--ink-muted)" }}>
-                  No afecta a los combos que ya tengas en la lista pegada — solo controla si Claude te propone alguno más.
-                </span>
-              </span>
-            </label>
-
-            <label className="flex items-center gap-2 text-sm font-bold">
-              <input id={aiId} name="ai" type="checkbox" checked={ai} onChange={(e) => setAi(e.target.checked)} />
-              <span style={{ color: "var(--foreground)" }}>Pedir análisis de Claude</span>
-            </label>
-
-            <button
-              type="submit"
-              className="font-head mt-auto h-11 text-sm font-extrabold uppercase tracking-wide"
-              style={{ background: "var(--accent)", color: "var(--accent-ink)" }}
-            >
-              Analizar deck
-            </button>
-          </fieldset>
-
-          <button
-            type="button"
-            onClick={() => setShowRecentModal(true)}
-            className="font-head h-11 rounded-sm border text-[10px] font-bold uppercase"
-            style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
-          >
-            Últimos decks analizados
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setShowSamplesModal(true)}
-            className="font-head h-11 rounded-sm border text-[10px] font-bold uppercase"
-            style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
-          >
-            Ver análisis de ejemplo
-          </button>
-          </div>
-        </form>
-
-        {showRecentModal && (
-          <RecentAnalysesModal
-            recent={recent}
-            onSelect={(entry) => {
-              setActiveSample(null);
-              setResult(entry.result);
-              setMoxfieldUrl(entry.request?.moxfieldUrl ?? "");
-              setSimulation(null);
-              setSimulationError(null);
-            }}
-            onRemove={(id) => setRecent(removeRecentAnalysis(id))}
-            onClose={() => setShowRecentModal(false)}
-          />
-        )}
-
-        {showSamplesModal && (
-          <SampleAnalysesModal
-            onSelect={handleSelectSample}
-            onClose={() => setShowSamplesModal(false)}
-          />
-        )}
-        </>
-      )}
-
-      <div role="status" aria-live="polite">
-        {error && (
-          <p className="rounded-sm border p-3" style={{ borderColor: "var(--status-critical)", color: "var(--foreground)" }}>
-            {error}
-          </p>
-        )}
-      </div>
-
-      {loading && (
-        <div className="mx-auto w-full max-w-xl py-16">
-          <p className="font-head mb-2 text-xs font-bold uppercase tracking-wide" style={{ color: "var(--ink-muted)" }}>
-            Paso {loadingStep + 1} de {LOADING_MESSAGES.length}
-          </p>
-          <h2 className="font-head mb-6 text-xl font-extrabold" style={{ color: "var(--foreground)" }}>
-            {LOADING_MESSAGES[loadingStep]}
-          </h2>
-          <div className="relative h-[3px] overflow-hidden" style={{ background: "var(--border)" }}>
-            <div
-              className="absolute top-0 left-0 h-full w-[30%] animate-[sweep_1.1s_ease-in-out_infinite]"
-              style={{ background: "var(--accent)" }}
-            />
           </div>
         </div>
-      )}
+      </section>
 
-      {result && (
-        <div
-          className="flex flex-wrap items-center justify-between gap-3 rounded-sm border px-4 py-2.5"
-          style={{ borderColor: "var(--border)", background: "var(--surface)" }}
-        >
-          {activeSample ? (
-            <p className="text-sm" style={{ color: "var(--foreground)" }}>
-              <span className="font-head text-xs font-extrabold uppercase tracking-wide">Análisis de ejemplo</span>
-              <span style={{ color: "var(--ink-muted)" }}>
-                {" "}
-                · resultado real guardado
-                {formatSampleDate(activeSample.savedAt) && ` el ${formatSampleDate(activeSample.savedAt)}`}
-              </span>
+      {/* ============ PRINCIPIO ============ */}
+      <section className="border-t" style={{ borderColor: "var(--border)" }}>
+        <div className="mx-auto flex max-w-[1200px] flex-col gap-12 px-6 py-24">
+          <div className="flex max-w-[44rem] flex-col gap-4">
+            <Eyebrow>El principio</Eyebrow>
+            <SectionTitle>El código calcula. Claude interpreta.</SectionTitle>
+            <p className="text-lg leading-relaxed" style={{ color: "var(--ink-secondary)" }}>
+              Nunca se le pide a una IA que cuente tierras ni que recuerde el texto de una carta. Lo objetivo se
+              calcula de forma exacta, y Claude recibe esos datos ya listos para hacer lo que mejor se le da.
             </p>
-          ) : (
-            <>
-              <p className="text-xs" style={{ color: "var(--ink-muted)" }}>
-                Guarda este resultado como JSON para publicarlo como análisis de ejemplo.
-              </p>
-              <button
-                type="button"
-                onClick={handleExportSample}
-                className="font-head h-9 rounded-sm border px-3 text-[10px] font-bold uppercase"
-                style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
-              >
-                Exportar como ejemplo
-              </button>
-            </>
-          )}
+          </div>
+          <div
+            className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-px border"
+            style={{ background: "var(--border)", borderColor: "var(--border)" }}
+          >
+            <div className="flex flex-col gap-5 p-9" style={{ background: "var(--surface)" }}>
+              <div className="flex items-center gap-3">
+                <svg {...ICON_PROPS} width={28} height={28}>
+                  <rect x="4" y="3" width="16" height="18" rx="1" />
+                  <path d="M8 7h8M8 11h2M12 11h2M8 15h2M12 15h2M8 18h2M12 18h4" />
+                </svg>
+                <h3 className="font-head text-[13px] font-extrabold uppercase tracking-[0.08em]">Python calcula</h3>
+              </div>
+              <ul className="flex list-disc flex-col gap-2.5 pl-[18px] text-base leading-normal" style={{ color: "var(--ink-secondary)" }}>
+                {PYTHON_ITEMS.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="flex flex-col gap-5 p-9" style={CLAUDE_BLOCK_STYLE}>
+              <div className="flex items-center gap-3" style={{ color: "var(--accent)" }}>
+                <svg {...ICON_PROPS} width={28} height={28}>
+                  <path d="M12 3l1.8 4.6L18.5 9l-4.7 1.4L12 15l-1.8-4.6L5.5 9l4.7-1.4z" />
+                  <path d="M18 15l.9 2.1L21 18l-2.1.9L18 21l-.9-2.1L15 18l2.1-.9z" />
+                </svg>
+                <h3
+                  className="font-head text-[13px] font-extrabold uppercase tracking-[0.08em]"
+                  style={{ color: "var(--foreground)" }}
+                >
+                  Claude interpreta
+                </h3>
+              </div>
+              <ul className="flex list-disc flex-col gap-2.5 pl-[18px] text-base leading-normal" style={{ color: "var(--ink-secondary)" }}>
+                {CLAUDE_ITEMS.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
-      )}
+      </section>
 
-      {result && (
-        <ResultsView
-          result={result}
-          simulation={simulation}
-          simulationLoading={simulationLoading}
-          simulationError={simulationError}
-          onRunSimulation={
-            activeSample && !activeSample.simulation && !moxfieldUrl.trim() ? undefined : handleRunSimulation
-          }
-        />
-      )}
-    </main>
+      {/* ============ CÓMO FUNCIONA ============ */}
+      <section id="como-funciona" className="scroll-mt-4 border-t" style={{ borderColor: "var(--border)" }}>
+        <div className="mx-auto flex max-w-[1200px] flex-col gap-12 px-6 py-24">
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <div className="flex max-w-[40rem] flex-col gap-4">
+              <Eyebrow>Cómo funciona</Eyebrow>
+              <SectionTitle>De la lista al informe en seis pasos.</SectionTitle>
+            </div>
+            <p className="max-w-[26rem] text-base leading-[1.55]" style={{ color: "var(--ink-secondary)" }}>
+              Cada sugerencia pasa un último filtro: si la carta no existe, no es legal, se sale de tu identidad de
+              color o ya está en el deck, no se muestra.
+            </p>
+          </div>
+          <ol
+            className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-px border"
+            style={{ background: "var(--border)", borderColor: "var(--border)" }}
+          >
+            {STEPS.map((step, index) => (
+              <li
+                key={step.title}
+                className="flex flex-col gap-3 p-6"
+                style={step.highlight ? CLAUDE_BLOCK_STYLE : { background: "var(--surface)" }}
+              >
+                <span className="font-mono text-[13px] font-bold" style={{ color: "var(--accent)" }}>
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className="font-head text-[15px] font-extrabold">{step.title}</span>
+                <span className="text-sm leading-normal" style={{ color: "var(--ink-secondary)" }}>
+                  {step.text}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* ============ FUNCIONALIDADES ============ */}
+      <section className="border-t" style={{ borderColor: "var(--border)", background: "var(--surface-muted)" }}>
+        <div className="mx-auto flex max-w-[1200px] flex-col gap-12 px-6 py-24">
+          <div className="flex max-w-[40rem] flex-col gap-4">
+            <Eyebrow>Qué te da</Eyebrow>
+            <SectionTitle>Todo lo que miras antes de una partida, en una pantalla.</SectionTitle>
+          </div>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(250px,100%),1fr))] gap-4">
+            {FEATURES.map((feature) => (
+              <div
+                key={feature.title}
+                className="flex flex-col gap-3 rounded-sm border p-7"
+                style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+              >
+                <span style={{ color: "var(--accent)" }}>{feature.icon}</span>
+                <h3 className="font-head text-base font-extrabold">{feature.title}</h3>
+                <p className="text-[15px] leading-[1.55]" style={{ color: "var(--ink-secondary)" }}>
+                  {feature.text}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ CTA FINAL ============ */}
+      <section className="border-t" style={{ borderColor: "var(--border)" }}>
+        <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-10 px-6 py-[104px]">
+          <div className="flex min-w-0 flex-[1_1_520px] flex-col gap-[18px]">
+            <h2 className="font-head text-[clamp(2rem,4vw,3.25rem)] leading-[1.05] font-extrabold tracking-[-0.015em] text-white">
+              ¿Qué le falta a tu deck?
+            </h2>
+            <p className="max-w-[36rem] text-lg leading-[1.55]" style={{ color: "var(--ink-secondary)" }}>
+              Pega la URL de Moxfield y en menos de dos minutos tienes las métricas, los problemas y las cartas que
+              podrían arreglarlos.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link href={ANALYZE_HREF} className="fx-btn fx-primary h-14 px-[30px] text-[15px]">
+              Analizar mi deck
+            </Link>
+            <Link href={SAMPLE_HREF} className="fx-btn fx-secondary h-14 px-[30px] text-[15px]">
+              Ver un análisis real
+            </Link>
+            <a href={REPO_HREF} className="fx-btn fx-secondary h-14 px-[30px] text-[15px]">
+              Ver en GitHub
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }

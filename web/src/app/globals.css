@@ -50,6 +50,24 @@
   }
 }
 
+/* La landing (/) es siempre oscura, sea cual sea el tema del sistema: sus
+ * fondos blancos contrastaban demasiado. Se fuerza la paleta oscura en todo
+ * el documento mientras está montada, así el Footer compartido del layout
+ * también sale en oscuro. */
+:root:has([data-page="landing"]) {
+  --background: #121316;
+  --foreground: #eceae4;
+  --surface: #1b1d21;
+  --surface-muted: #16181b;
+  --border: rgba(255, 255, 255, 0.12);
+  --ink-secondary: #c7c3b2;
+  --ink-muted: #a7acb3;
+  --accent: #26c6c9;
+  --accent-ink: #0b1314;
+  --status-warning: #f0a83b;
+  color-scheme: dark;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -90,6 +108,46 @@ button:not(:disabled) {
   outline: none;
 }
 
+/* Esquinas de carta proporcionales a su tamaño: la misma relación que una
+ * carta real (y que usa Scryfall). En % el radio horizontal se mide sobre el
+ * ancho y el vertical sobre el alto, así que con el formato 5:7 salen
+ * esquinas redondas a cualquier tamaño, sin las puntas blancas que dejaba un
+ * radio fijo en las imágenes con el borde redondeado. */
+.mtg-card {
+  border-radius: 4.75% / 3.5%;
+}
+
+/* Giro 3D de las cartas de doble cara en el zoom (CardZoomModal). */
+.card-flip {
+  perspective: 1600px;
+}
+
+.card-flip-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+.card-flip-inner[data-flipped="true"] {
+  transform: rotateY(180deg);
+}
+
+.card-flip-face {
+  backface-visibility: hidden;
+}
+
+.card-flip-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-flip-inner {
+    transition: none;
+  }
+}
+
 .underline-card {
   border-bottom: 1px dotted var(--accent);
   cursor: default;
@@ -97,6 +155,108 @@ button:not(:disabled) {
 
 .underline-card:hover {
   background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+/* Botones con efecto "Brillo de maná": halo del color de acento y un destello
+ * que cruza el botón al pasar el ratón o al recibir el foco. El destello va en
+ * z-index -1 dentro de un contexto aislado (isolation), así pasa por encima
+ * del fondo del botón pero por debajo del texto y no apaga las letras.
+ *   .fx-btn.fx-primary   → relleno de acento, texto oscuro
+ *   .fx-btn.fx-secondary → borde, el texto pasa al color de acento */
+.fx-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  font-family: var(--font-montserrat), -apple-system, "Segoe UI", system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.fx-btn::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: -60%;
+  width: 40%;
+  transform: skewX(-20deg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fx-btn:hover::after,
+.fx-btn:focus-visible::after {
+  animation: fx-shine 0.8s ease forwards;
+}
+
+.fx-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.fx-primary::after {
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+}
+
+.fx-primary:hover,
+.fx-primary:focus-visible {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 60%, transparent),
+    0 0 28px color-mix(in srgb, var(--accent) 55%, transparent),
+    0 0 64px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.fx-secondary {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: var(--foreground);
+}
+
+.fx-secondary::after {
+  background: linear-gradient(
+    100deg,
+    transparent,
+    color-mix(in srgb, var(--accent) 28%, transparent),
+    transparent
+  );
+}
+
+.fx-secondary:hover,
+.fx-secondary:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+@keyframes fx-shine {
+  0% {
+    left: -60%;
+    opacity: 1;
+  }
+  100% {
+    left: 130%;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-btn {
+    transition: none;
+  }
+  .fx-btn:hover::after,
+  .fx-btn:focus-visible::after {
+    animation: none;
+  }
 }
 
 @keyframes sweep {
